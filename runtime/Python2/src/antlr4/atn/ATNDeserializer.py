@@ -13,14 +13,19 @@ from antlr4.atn.ATNDeserializationOptions import ATNDeserializationOptions
 # This is the earliest supported serialized UUID.
 BASE_SERIALIZED_UUID = UUID("AADB8D7E-AEEF-4415-AD2B-8204D6CF042E")
 
+# This UUID indicates that IntervalSets and state transition
+# arguments are allowed to contain Unicode values larger than
+# U+FFFF.
+ADDED_UNICODE_SMP = UUID("59627784-3BE5-417A-B9EB-8131A7286089")
+
 # This list contains all of the currently supported UUIDs, ordered by when
 # the feature first appeared in this branch.
-SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID ]
+SUPPORTED_UUIDS = [ BASE_SERIALIZED_UUID, ADDED_UNICODE_SMP ]
 
 SERIALIZED_VERSION = 3
 
 # This is the current serialized UUID.
-SERIALIZED_UUID = BASE_SERIALIZED_UUID
+SERIALIZED_UUID = ADDED_UNICODE_SMP
 
 class ATNDeserializer (object):
 
@@ -59,8 +64,12 @@ class ATNDeserializer (object):
         self.readStates(atn)
         self.readRules(atn)
         self.readModes(atn)
-        sets = self.readSets(atn)
-        self.readEdges(atn, sets)
+        if self.isFeatureSupported(ADDED_UNICODE_SMP, self.uuid):
+            readUnicode = self.readInt32
+        else:
+            readUnicode = self.readInt
+        sets = self.readSets(atn, readUnicode)
+        self.readEdges(atn, sets, readUnicode)
         self.readDecisions(atn)
         self.readLexerActions(atn)
         self.markPrecedenceDecisions(atn)
@@ -170,8 +179,9 @@ class ATNDeserializer (object):
             s = self.readInt()
             atn.modeToStartState.append(atn.states[s])
 
-    def readSets(self, atn):
+    def readSets(self, atn, readUnicode):
         sets = []
+
         m = self.readInt()
         for i in range(0, m):
             iset = IntervalSet()
@@ -181,20 +191,20 @@ class ATNDeserializer (object):
             if containsEof!=0:
                 iset.addOne(-1)
             for j in range(0, n):
-                i1 = self.readInt()
-                i2 = self.readInt()
+                i1 = readUnicode()
+                i2 = readUnicode()
                 iset.addRange(Interval(i1, i2 + 1)) # range upper limit is exclusive
         return sets
 
-    def readEdges(self, atn, sets):
+    def readEdges(self, atn, sets, readUnicode):
         nedges = self.readInt()
         for i in range(0, nedges):
             src = self.readInt()
             trg = self.readInt()
             ttype = self.readInt()
-            arg1 = self.readInt()
-            arg2 = self.readInt()
-            arg3 = self.readInt()
+            arg1 = readUnicode()
+            arg2 = readUnicode()
+            arg3 = readUnicode()
             trans = self.edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets)
             srcState = atn.states[src]
             srcState.addTransition(trans)

@@ -167,7 +167,6 @@ public class ATNSerializer {
 			else {
 				data.add(set.getIntervals().size());
 			}
-
 			data.add(containsEof ? 1 : 0);
 			for (Interval I : set.getIntervals()) {
 				if (I.a == Token.EOF) {
@@ -175,14 +174,14 @@ public class ATNSerializer {
 						continue;
 					}
 					else {
-						data.add(0);
+						serializeInt(data, 0);
 					}
 				}
 				else {
-					data.add(I.a);
+					serializeInt(data, I.a);
 				}
 
-				data.add(I.b);
+				serializeInt(data, I.b);
 			}
 		}
 
@@ -267,9 +266,9 @@ public class ATNSerializer {
 				data.add(src);
 				data.add(trg);
 				data.add(edgeType);
-				data.add(arg1);
-				data.add(arg2);
-				data.add(arg3);
+				serializeInt(data, arg1);
+				serializeInt(data, arg2);
+				serializeInt(data, arg3);
 			}
 		}
 
@@ -432,6 +431,7 @@ public class ATNSerializer {
                 buf.append("rule ").append(i).append(":").append(s).append('\n');
             }
 		}
+		ATNDeserializer.ATNUnicodeDeserializer unicodeDeserializer = ATNDeserializer.getUnicodeDeserializer(uuid);
 		int nmodes = ATNDeserializer.toInt(data[p++]);
 		for (int i=0; i<nmodes; i++) {
 			int s = ATNDeserializer.toInt(data[p++]);
@@ -451,24 +451,29 @@ public class ATNSerializer {
 					buf.append(", ");
 				}
 
-				buf.append(getTokenName(ATNDeserializer.toInt(data[p]))).append("..").append(getTokenName(ATNDeserializer.toInt(data[p + 1])));
-				p += 2;
+				int a = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				int b = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				buf.append(getTokenName(a)).append("..").append(getTokenName(b));
 			}
 			buf.append("\n");
 		}
 		int nedges = ATNDeserializer.toInt(data[p++]);
 		for (int i=0; i<nedges; i++) {
-			int src = ATNDeserializer.toInt(data[p]);
-			int trg = ATNDeserializer.toInt(data[p + 1]);
-			int ttype = ATNDeserializer.toInt(data[p + 2]);
-			int arg1 = ATNDeserializer.toInt(data[p + 3]);
-			int arg2 = ATNDeserializer.toInt(data[p + 4]);
-			int arg3 = ATNDeserializer.toInt(data[p + 5]);
+			int src = ATNDeserializer.toInt(data[p++]);
+			int trg = ATNDeserializer.toInt(data[p++]);
+			int ttype = ATNDeserializer.toInt(data[p++]);
+			int arg1 = unicodeDeserializer.readUnicode(data, p);
+			p += unicodeDeserializer.size();
+			int arg2 = unicodeDeserializer.readUnicode(data, p);
+			p += unicodeDeserializer.size();
+			int arg3 = unicodeDeserializer.readUnicode(data, p);
+			p += unicodeDeserializer.size();
 			buf.append(src).append("->").append(trg)
 				.append(" ").append(Transition.serializationNames.get(ttype))
 				.append(" ").append(arg1).append(",").append(arg2).append(",").append(arg3)
 				.append("\n");
-			p += 6;
 		}
 		int ndecisions = ATNDeserializer.toInt(data[p++]);
 		for (int i=0; i<ndecisions; i++) {

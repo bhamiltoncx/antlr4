@@ -15,15 +15,16 @@ import (
 // This is the earliest supported serialized UUID.
 // stick to serialized version for now, we don't need a UUID instance
 var BaseSerializedUUID = "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E"
+var AddedUnicodeSMP = "59627784-3BE5-417A-B9EB-8131A7286089"
 
 // This list contains all of the currently supported UUIDs, ordered by when
 // the feature first appeared in this branch.
-var SupportedUUIDs = []string{BaseSerializedUUID}
+var SupportedUUIDs = []string{BaseSerializedUUID, AddedUnicodeSMP}
 
 var SerializedVersion = 3
 
 // This is the current serialized UUID.
-var SerializedUUID = BaseSerializedUUID
+var SerializedUUID = AddedUnicodeSMP
 
 type LoopEndStateIntPair struct {
 	item0 *LoopEndState
@@ -91,9 +92,16 @@ func (a *ATNDeserializer) DeserializeFromUInt16(data []uint16) *ATN {
 	a.readRules(atn)
 	a.readModes(atn)
 
-	sets := a.readSets(atn)
+	var readUnicode func() int
+	if (a.isFeatureSupported(AddedUnicodeSMP, a.uuid)) {
+		readUnicode = a.readInt32
+	} else {
+		readUnicode = a.readInt
+	}
 
-	a.readEdges(atn, sets)
+	sets := a.readSets(atn, readUnicode)
+
+	a.readEdges(atn, sets, readUnicode)
 	a.readDecisions(atn)
 	a.readLexerActions(atn)
 	a.markPrecedenceDecisions(atn)
@@ -266,7 +274,7 @@ func (a *ATNDeserializer) readModes(atn *ATN) {
 	}
 }
 
-func (a *ATNDeserializer) readSets(atn *ATN) []*IntervalSet {
+func (a *ATNDeserializer) readSets(atn *ATN, readUnicode func() int) []*IntervalSet {
 	sets := make([]*IntervalSet, 0)
 	m := a.readInt()
 
@@ -283,8 +291,8 @@ func (a *ATNDeserializer) readSets(atn *ATN) []*IntervalSet {
 		}
 
 		for j := 0; j < n; j++ {
-			i1 := a.readInt()
-			i2 := a.readInt()
+			i1 := readUnicode()
+			i2 := readUnicode()
 
 			iset.addRange(i1, i2)
 		}
@@ -293,7 +301,7 @@ func (a *ATNDeserializer) readSets(atn *ATN) []*IntervalSet {
 	return sets
 }
 
-func (a *ATNDeserializer) readEdges(atn *ATN, sets []*IntervalSet) {
+func (a *ATNDeserializer) readEdges(atn *ATN, sets []*IntervalSet, readUnicode func() int) {
 	nedges := a.readInt()
 
 	for i := 0; i < nedges; i++ {
@@ -301,9 +309,9 @@ func (a *ATNDeserializer) readEdges(atn *ATN, sets []*IntervalSet) {
 			src      = a.readInt()
 			trg      = a.readInt()
 			ttype    = a.readInt()
-			arg1     = a.readInt()
-			arg2     = a.readInt()
-			arg3     = a.readInt()
+			arg1     = readUnicode()
+			arg2     = readUnicode()
+			arg3     = readUnicode()
 			trans    = a.edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets)
 			srcState = atn.states[src]
 		)
@@ -640,6 +648,12 @@ func (a *ATNDeserializer) readInt() int {
 	a.pos++
 
 	return int(v)
+}
+
+func (a *ATNDeserializer) readInt32() int {
+	var low = a.readInt()
+	var high = a.readInt()
+	return low | (high << 16)
 }
 
 //TODO

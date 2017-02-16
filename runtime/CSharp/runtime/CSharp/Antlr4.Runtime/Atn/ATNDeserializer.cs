@@ -23,6 +23,18 @@ namespace Antlr4.Runtime.Atn
         private static readonly Guid BaseSerializedUuid;
 
         /// <summary>
+        /// This UUID indicates that IntervalSets and state transition
+        /// arguments are allowed to contain Unicode values larger than
+        /// U+FFFF.
+        /// </summary>
+        /// <remarks>
+        /// This UUID indicates that IntervalSets and state transition
+        /// arguments are allowed to contain Unicode values larger than
+        /// U+FFFF.
+        /// </remarks>
+        private static readonly Guid AddedUnicodeSmp;
+
+        /// <summary>
         /// This list contains all of the currently supported UUIDs, ordered by when
         /// the feature first appeared in this branch.
         /// </summary>
@@ -39,13 +51,17 @@ namespace Antlr4.Runtime.Atn
         static ATNDeserializer()
         {
 			BaseSerializedUuid = new Guid("AADB8D7E-AEEF-4415-AD2B-8204D6CF042E");
+			AddedUnicodeSmp = new Guid("59627784-3BE5-417A-B9EB-8131A7286089");
             SupportedUuids = new List<Guid>();
             SupportedUuids.Add(BaseSerializedUuid);
-			SerializedUuid = BaseSerializedUuid;
+            SupportedUuids.Add(AddedUnicodeSmp);
+			SerializedUuid = AddedUnicodeSmp;
         }
 
         [NotNull]
         private readonly ATNDeserializationOptions deserializationOptions;
+
+        private Guid uuid;
 
         public ATNDeserializer()
             : this(ATNDeserializationOptions.Default)
@@ -115,8 +131,11 @@ namespace Antlr4.Runtime.Atn
 			ReadStates (atn);
 			ReadRules (atn);
 			ReadModes (atn);
-			IList<IntervalSet> sets = ReadSets (atn);
-			ReadEdges (atn, sets);
+			Func<int> readUnicode = IsFeatureSupported(AddedUnicodeSmp, uuid) ?
+                            (Func<int>)this.ReadInt32 :
+                            this.ReadInt;
+			IList<IntervalSet> sets = ReadSets (atn, readUnicode);
+			ReadEdges (atn, sets, readUnicode);
 			ReadDecisions (atn);
 			ReadLexerActions (atn);
             MarkPrecedenceDecisions(atn);
@@ -294,7 +313,7 @@ namespace Antlr4.Runtime.Atn
 			}
 		}
 
-		protected internal virtual void ReadEdges(ATN atn, IList<IntervalSet> sets)
+		protected internal virtual void ReadEdges(ATN atn, IList<IntervalSet> sets, Func<int> readUnicode)
 		{
 			//
 			// EDGES
@@ -305,9 +324,9 @@ namespace Antlr4.Runtime.Atn
 				int src = ReadInt();
 				int trg = ReadInt();
 				TransitionType ttype = (TransitionType)ReadInt();
-				int arg1 = ReadInt();
-				int arg2 = ReadInt();
-				int arg3 = ReadInt();
+				int arg1 = readUnicode();
+				int arg2 = readUnicode();
+				int arg3 = readUnicode();
 				Transition trans = EdgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
 				ATNState srcState = atn.states[src];
 				srcState.AddTransition(trans);
@@ -378,7 +397,7 @@ namespace Antlr4.Runtime.Atn
 			}
 		}
 
-		protected internal virtual IList<IntervalSet> ReadSets(ATN atn)
+		protected internal virtual IList<IntervalSet> ReadSets(ATN atn, Func<int> readUnicode)
 		{
 			//
 			// SETS
@@ -397,7 +416,7 @@ namespace Antlr4.Runtime.Atn
 				}
 				for (int j = 0; j < nintervals; j++)
 				{
-					set.Add(ReadInt(), ReadInt());
+					set.Add(readUnicode(), readUnicode());
 				}
 			}
 			return sets;
@@ -530,7 +549,7 @@ namespace Antlr4.Runtime.Atn
 
 		protected internal virtual void CheckUUID()
 		{
-			Guid uuid = ReadUUID();
+			uuid = ReadUUID();
 			if (!SupportedUuids.Contains(uuid))
 			{
 				string reason = string.Format(CultureInfo.CurrentCulture, "Could not deserialize ATN with UUID {0} (expected {1} or a legacy UUID).", uuid, SerializedUuid);

@@ -56,7 +56,7 @@ public protocol TokenStream: IntStream {
      * <pre>
      * TokenStream stream = ...;
      * String text = "";
-     * for (int i = interval.a; i &lt;= interval.b; i++) {
+     * for (int i = interval.a; i &lt;= interval.b; i += 1) {
      *   text += stream.get(i).getText();
      * }
      * </pre>
@@ -121,7 +121,7 @@ public protocol TokenStream: IntStream {
      * <pre>
      * TokenStream stream = ...;
      * String text = "";
-     * for (int i = start.getTokenIndex(); i &lt;= stop.getTokenIndex(); i++) {
+     * for (int i = start.getTokenIndex(); i &lt;= stop.getTokenIndex(); i += 1) {
      *   text += stream.get(i).getText();
      * }
      * </pre>

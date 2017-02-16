@@ -26,21 +26,32 @@ public class ATNDeserializer {
     /// for the addition of lexer actions encoded as a sequence of
     /// {@link org.antlr.v4.runtime.atn.LexerAction} instances.
     private static let ADDED_LEXER_ACTIONS: UUID = UUID(uuidString: "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E")!
-    /// This list contains all of the currently supported UUIDs, ordered by when
-    /// the feature first appeared in this branch.
+
+    /**
+     * This UUID indicates that IntervalSets and state transition
+     * arguments are allowed to contain Unicode values larger than
+     * U+FFFF.
+    */
+    private static let ADDED_UNICODE_SMP: UUID = UUID(uuidString: "59627784-3BE5-417A-B9EB-8131A7286089")!
+
+    /**
+    * This list contains all of the currently supported UUIDs, ordered by when
+    * the feature first appeared in this branch.
+    */
     private static let SUPPORTED_UUIDS: Array<UUID> = {
         var suuid = Array<UUID>()
         suuid.append(ATNDeserializer.BASE_SERIALIZED_UUID)
         suuid.append(ATNDeserializer.ADDED_PRECEDENCE_TRANSITIONS)
         suuid.append(ATNDeserializer.ADDED_LEXER_ACTIONS)
+        suuid.append(ATNDeserializer.ADDED_UNICODE_SMP)
         return suuid
 
     }()
 
     /// This is the current serialized UUID.
     public static let SERIALIZED_UUID: UUID = {
-        // SERIALIZED_UUID = ADDED_LEXER_ACTIONS;
-        return UUID(uuidString: "AADB8D7E-AEEF-4415-AD2B-8204D6CF042E")!
+        // SERIALIZED_UUID = ADDED_UNICODE_SMP;
+        return UUID(uuidString: "59627784-3BE5-417A-B9EB-8131A7286089")!
     }()
 
 
@@ -244,6 +255,22 @@ public class ATNDeserializer {
         //
         // SETS
         //
+        let readUnicodeInt = {
+            () -> Int in
+            let result: Int = toInt(data[p])
+            p += 1
+            return result
+        }
+        let readUnicodeInt32 = {
+            () -> Int in
+            let result: Int = toInt32(data, p)
+            p += 2
+            return result
+        }
+        let readUnicode: () -> Int = isFeatureSupported(ATNDeserializer.ADDED_UNICODE_SMP, uuid) ?
+          readUnicodeInt32 :
+          readUnicodeInt;
+
         var sets: Array<IntervalSet> = Array<IntervalSet>()
         let nsets: Int = toInt(data[p])
         p += 1
@@ -260,8 +287,7 @@ public class ATNDeserializer {
             }
 
             for _ in 0..<nintervals {
-                try set.add(toInt(data[p]), toInt(data[p + 1]))
-                p += 2
+                try set.add(readUnicode(), readUnicode())
             }
         }
 
@@ -272,16 +298,18 @@ public class ATNDeserializer {
         p += 1
         for _ in 0..<nedges {
             let src: Int = toInt(data[p])
-            let trg: Int = toInt(data[p + 1])
-            let ttype: Int = toInt(data[p + 2])
-            let arg1: Int = toInt(data[p + 3])
-            let arg2: Int = toInt(data[p + 4])
-            let arg3: Int = toInt(data[p + 5])
+            p += 1
+            let trg: Int = toInt(data[p])
+            p += 1
+            let ttype: Int = toInt(data[p])
+            p += 1
+            let arg1: Int = readUnicode()
+            let arg2: Int = readUnicode()
+            let arg3: Int = readUnicode()
             let trans: Transition = try edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets)
 
             let srcState: ATNState = atn.states[src]!
             srcState.addTransition(trans)
-            p += 6
         }
 
         // edges for rule stop states can be derived, so they aren't serialized

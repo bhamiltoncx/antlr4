@@ -45,6 +45,12 @@ public class ATNDeserializer {
 	 */
 	private static final UUID ADDED_LEXER_ACTIONS;
 	/**
+	 * This UUID indicates that IntervalSets and state transition
+	 * arguments are allowed to contain Unicode values larger than
+	 * U+FFFF.
+	 */
+	private static final UUID ADDED_UNICODE_SMP;
+	/**
 	 * This list contains all of the currently supported UUIDs, ordered by when
 	 * the feature first appeared in this branch.
 	 */
@@ -61,15 +67,53 @@ public class ATNDeserializer {
 		BASE_SERIALIZED_UUID = UUID.fromString("33761B2D-78BB-4A43-8B0B-4F5BEE8AACF3");
 		ADDED_PRECEDENCE_TRANSITIONS = UUID.fromString("1DA0C57D-6C06-438A-9B27-10BCB3CE0F61");
 		ADDED_LEXER_ACTIONS = UUID.fromString("AADB8D7E-AEEF-4415-AD2B-8204D6CF042E");
+		ADDED_UNICODE_SMP = UUID.fromString("59627784-3BE5-417A-B9EB-8131A7286089");
 
 		SUPPORTED_UUIDS = new ArrayList<UUID>();
 		SUPPORTED_UUIDS.add(BASE_SERIALIZED_UUID);
 		SUPPORTED_UUIDS.add(ADDED_PRECEDENCE_TRANSITIONS);
 		SUPPORTED_UUIDS.add(ADDED_LEXER_ACTIONS);
+		SUPPORTED_UUIDS.add(ADDED_UNICODE_SMP);
 
-		SERIALIZED_UUID = ADDED_LEXER_ACTIONS;
+		SERIALIZED_UUID = ADDED_UNICODE_SMP;
 	}
 
+	interface ATNUnicodeDeserializer {
+		// Wrapper for readInt() or readInt32()
+		int readUnicode(char[] data, int p);
+
+		// Work around Java not allowing mutation of captured variables
+		// by returning amount by which to increment p after each read
+		int size();
+	}
+
+	static ATNUnicodeDeserializer getUnicodeDeserializer(UUID uuid) {
+		if (isFeatureSupported(ADDED_UNICODE_SMP, uuid)) {
+			return new ATNUnicodeDeserializer() {
+				@Override
+				public int readUnicode(char[] data, int p) {
+					return toInt32(data, p);
+				}
+
+				@Override
+				public int size() {
+					return 2;
+				}
+			};
+		} else {
+			return new ATNUnicodeDeserializer() {
+				@Override
+				public int readUnicode(char[] data, int p) {
+					return toInt(data[p]);
+				}
+
+				@Override
+				public int size() {
+					return 1;
+				}
+			};
+		}
+	}
 
 	private final ATNDeserializationOptions deserializationOptions;
 
@@ -98,7 +142,7 @@ public class ATNDeserializer {
 	 * serialized ATN at or after the feature identified by {@code feature} was
 	 * introduced; otherwise, {@code false}.
 	 */
-	protected boolean isFeatureSupported(UUID feature, UUID actualUuid) {
+	static protected boolean isFeatureSupported(UUID feature, UUID actualUuid) {
 		int featureIndex = SUPPORTED_UUIDS.indexOf(feature);
 		if (featureIndex < 0) {
 			return false;
@@ -108,8 +152,9 @@ public class ATNDeserializer {
 	}
 
 	@SuppressWarnings("deprecation")
-	public ATN deserialize(char[] data) {
-		data = data.clone();
+	public ATN deserialize(char[] inputData) {
+		// `final` so that anonymous inner class can access it
+		final char[] data = inputData.clone();
 
 		// Each char value in data is shifted by +2 at the entry to this method.
 		// This is an encoding optimization targeting the serialized values 0
@@ -257,6 +302,7 @@ public class ATNDeserializer {
 		//
 		// SETS
 		//
+		ATNUnicodeDeserializer unicodeDeserializer = getUnicodeDeserializer(uuid);
 		List<IntervalSet> sets = new ArrayList<IntervalSet>();
 		int nsets = toInt(data[p++]);
 		for (int i=0; i<nsets; i++) {
@@ -271,8 +317,11 @@ public class ATNDeserializer {
 			}
 
 			for (int j=0; j<nintervals; j++) {
-				set.add(toInt(data[p]), toInt(data[p + 1]));
-				p += 2;
+				int a = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				int b = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				set.add(a, b);
 			}
 		}
 
@@ -281,12 +330,15 @@ public class ATNDeserializer {
 		//
 		int nedges = toInt(data[p++]);
 		for (int i=0; i<nedges; i++) {
-			int src = toInt(data[p]);
-			int trg = toInt(data[p+1]);
-			int ttype = toInt(data[p+2]);
-			int arg1 = toInt(data[p+3]);
-			int arg2 = toInt(data[p+4]);
-			int arg3 = toInt(data[p+5]);
+			int src = toInt(data[p++]);
+			int trg = toInt(data[p++]);
+			int ttype = toInt(data[p++]);
+			int arg1 = unicodeDeserializer.readUnicode(data, p);
+			p += unicodeDeserializer.size();
+			int arg2 = unicodeDeserializer.readUnicode(data, p);
+			p += unicodeDeserializer.size();
+			int arg3 = unicodeDeserializer.readUnicode(data, p);
+			p += unicodeDeserializer.size();
 			Transition trans = edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
 //			System.out.println("EDGE "+trans.getClass().getSimpleName()+" "+
 //							   src+"->"+trg+
@@ -294,7 +346,6 @@ public class ATNDeserializer {
 //					   " "+arg1+","+arg2+","+arg3);
 			ATNState srcState = atn.states.get(src);
 			srcState.addTransition(trans);
-			p += 6;
 		}
 
 		// edges for rule stop states can be derived, so they aren't serialized

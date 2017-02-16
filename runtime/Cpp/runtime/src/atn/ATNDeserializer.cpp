@@ -3,6 +3,8 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
+#include <functional>
+
 #include "atn/ATNDeserializationOptions.h"
 
 #include "atn/ATNType.h"
@@ -57,6 +59,14 @@ using namespace antlrcpp;
 
 const size_t ATNDeserializer::SERIALIZED_VERSION = 3;
 
+namespace {
+
+uint32_t deserializeInt32(const std::vector<uint16_t>& data, size_t offset) {
+  return (uint32_t)data[offset] | ((uint32_t)data[offset + 1] << 16);
+}
+
+}
+
 ATNDeserializer::ATNDeserializer(): ATNDeserializer(ATNDeserializationOptions::getDefaultOptions()) {
 }
 
@@ -75,8 +85,12 @@ Guid ATNDeserializer::ADDED_LEXER_ACTIONS() {
   return Guid("AADB8D7E-AEEF-4415-AD2B-8204D6CF042E");
 }
 
+Guid ATNDeserializer::ADDED_UNICODE_SMP() {
+  return Guid("59627784-3BE5-417A-B9EB-8131A7286089");
+}
+
 Guid ATNDeserializer::SERIALIZED_UUID() {
-  return ADDED_LEXER_ACTIONS();
+  return ADDED_UNICODE_SMP();
 }
 
 Guid ATNDeserializer::BASE_SERIALIZED_UUID() {
@@ -84,7 +98,7 @@ Guid ATNDeserializer::BASE_SERIALIZED_UUID() {
 }
 
 std::vector<Guid>& ATNDeserializer::SUPPORTED_UUIDS() {
-  static std::vector<Guid> singleton = { BASE_SERIALIZED_UUID(), ADDED_PRECEDENCE_TRANSITIONS(), ADDED_LEXER_ACTIONS() };
+  static std::vector<Guid> singleton = { BASE_SERIALIZED_UUID(), ADDED_PRECEDENCE_TRANSITIONS(), ADDED_LEXER_ACTIONS(), ADDED_UNICODE_SMP() };
   return singleton;
 }
 
@@ -129,6 +143,7 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
 
   bool supportsPrecedencePredicates = isFeatureSupported(ADDED_PRECEDENCE_TRANSITIONS(), uuid);
   bool supportsLexerActions = isFeatureSupported(ADDED_LEXER_ACTIONS(), uuid);
+  bool supportsUnicodeSMP = isFeatureSupported(ADDED_UNICODE_SMP(), uuid);
 
   ATNType grammarType = (ATNType)data[p++];
   size_t maxTokenType = data[p++];
@@ -238,6 +253,18 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
   //
   // SETS
   //
+  std::function<uint32_t()> readUnicode;
+  if (supportsUnicodeSMP) {
+    readUnicode = [&]{
+      auto result = deserializeInt32(data, p);
+      p += 2;
+      return result;
+    };
+  } else {
+    readUnicode = [&]{
+      return (uint32_t)data[p++];
+    };
+  }
   std::vector<misc::IntervalSet> sets;
   int nsets = data[p++];
   for (int i = 0; i < nsets; i++) {
@@ -250,8 +277,9 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
     }
 
     for (int j = 0; j < nintervals; j++) {
-      set.add(data[p], data[p + 1], true);
-      p += 2;
+      auto a = readUnicode();
+      auto b = readUnicode();
+      set.add(a, b, true);
     }
     sets.push_back(set);
   }
@@ -261,16 +289,15 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
   //
   int nedges = data[p++];
   for (int i = 0; i < nedges; i++) {
-    size_t src = data[p];
-    size_t trg = data[p + 1];
-    size_t ttype = data[p + 2];
-    size_t arg1 = data[p + 3];
-    size_t arg2 = data[p + 4];
-    size_t arg3 = data[p + 5];
+    size_t src = data[p++];
+    size_t trg = data[p++];
+    size_t ttype = data[p++];
+    size_t arg1 = readUnicode();
+    size_t arg2 = readUnicode();
+    size_t arg3 = readUnicode();
     Transition *trans = edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
     ATNState *srcState = atn.states[src];
     srcState->addTransition(trans);
-    p += 6;
   }
 
   // edges for rule stop states can be derived, so they aren't serialized
