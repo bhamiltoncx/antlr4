@@ -131,11 +131,12 @@ namespace Antlr4.Runtime.Atn
 			ReadStates (atn);
 			ReadRules (atn);
 			ReadModes (atn);
-			Func<int> readUnicode = IsFeatureSupported(AddedUnicodeSmp, uuid) ?
-                            (Func<int>)this.ReadInt32 :
-                            this.ReadInt;
-			IList<IntervalSet> sets = ReadSets (atn, readUnicode);
-			ReadEdges (atn, sets, readUnicode);
+			IList<IntervalSet> sets = new List<IntervalSet>();
+			ReadSets (atn, sets, this.ReadInt);
+			if (IsFeatureSupported(AddedUnicodeSmp, uuid)) {
+				ReadSets (atn, sets, this.ReadInt32);
+			}
+			ReadEdges (atn, sets);
 			ReadDecisions (atn);
 			ReadLexerActions (atn);
             MarkPrecedenceDecisions(atn);
@@ -313,7 +314,7 @@ namespace Antlr4.Runtime.Atn
 			}
 		}
 
-		protected internal virtual void ReadEdges(ATN atn, IList<IntervalSet> sets, Func<int> readUnicode)
+		protected internal virtual void ReadEdges(ATN atn, IList<IntervalSet> sets)
 		{
 			//
 			// EDGES
@@ -324,9 +325,9 @@ namespace Antlr4.Runtime.Atn
 				int src = ReadInt();
 				int trg = ReadInt();
 				TransitionType ttype = (TransitionType)ReadInt();
-				int arg1 = readUnicode();
-				int arg2 = readUnicode();
-				int arg3 = readUnicode();
+				int arg1 = ReadInt();
+				int arg2 = ReadInt();
+				int arg3 = ReadInt();
 				Transition trans = EdgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
 				ATNState srcState = atn.states[src];
 				srcState.AddTransition(trans);
@@ -397,12 +398,11 @@ namespace Antlr4.Runtime.Atn
 			}
 		}
 
-		protected internal virtual IList<IntervalSet> ReadSets(ATN atn, Func<int> readUnicode)
+		protected internal virtual void ReadSets(ATN atn, IList<IntervalSet> sets, Func<int> readUnicode)
 		{
 			//
 			// SETS
 			//
-			IList<IntervalSet> sets = new List<IntervalSet>();
 			int nsets = ReadInt();
 			for (int i_8 = 0; i_8 < nsets; i_8++)
 			{
@@ -419,7 +419,6 @@ namespace Antlr4.Runtime.Atn
 					set.Add(readUnicode(), readUnicode());
 				}
 			}
-			return sets;
 		}
 
 		protected internal virtual void ReadModes(ATN atn)
