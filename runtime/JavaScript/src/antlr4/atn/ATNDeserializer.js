@@ -112,11 +112,12 @@ ATNDeserializer.prototype.deserialize = function(data) {
     this.readStates(atn);
     this.readRules(atn);
     this.readModes(atn);
-    var readUnicode = this.isFeatureSupported(ADDED_UNICODE_SMP, this.uuid) ?
-		this.readInt32.bind(this) :
-		this.readInt.bind(this);
-    var sets = this.readSets(atn, readUnicode);
-    this.readEdges(atn, sets, readUnicode);
+    var sets = [];
+    this.readSets(atn, sets, this.readInt.bind(this));
+    if (this.isFeatureSupported(ADDED_UNICODE_SMP, this.uuid)) {
+        this.readSets(atn, sets, this.readInt32.bind(this));
+    }
+    this.readEdges(atn, sets);
     this.readDecisions(atn);
     this.readLexerActions(atn);
     this.markPrecedenceDecisions(atn);
@@ -252,8 +253,7 @@ ATNDeserializer.prototype.readModes = function(atn) {
     }
 };
 
-ATNDeserializer.prototype.readSets = function(atn, readUnicode) {
-    var sets = [];
+ATNDeserializer.prototype.readSets = function(atn, sets, readUnicode) {
     var m = this.readInt();
     for (var i=0; i<m; i++) {
         var iset = new IntervalSet();
@@ -269,19 +269,18 @@ ATNDeserializer.prototype.readSets = function(atn, readUnicode) {
             iset.addRange(i1, i2);
         }
     }
-    return sets;
 };
 
-ATNDeserializer.prototype.readEdges = function(atn, sets, readUnicode) {
+ATNDeserializer.prototype.readEdges = function(atn, sets) {
 	var i, j, state, trans, target;
     var nedges = this.readInt();
     for (i=0; i<nedges; i++) {
         var src = this.readInt();
         var trg = this.readInt();
         var ttype = this.readInt();
-        var arg1 = readUnicode();
-        var arg2 = readUnicode();
-        var arg3 = readUnicode();
+        var arg1 = this.readInt();
+        var arg2 = this.readInt();
+        var arg3 = this.readInt();
         trans = this.edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
         var srcState = atn.states[src];
         srcState.addTransition(trans);
