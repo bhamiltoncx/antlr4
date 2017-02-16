@@ -64,12 +64,11 @@ class ATNDeserializer (object):
         self.readStates(atn)
         self.readRules(atn)
         self.readModes(atn)
+        sets = []
+        self.readSets(atn, sets, self.readInt)
         if self.isFeatureSupported(ADDED_UNICODE_SMP, self.uuid):
-            readUnicode = self.readInt32
-        else:
-            readUnicode = self.readInt
-        sets = self.readSets(atn, readUnicode)
-        self.readEdges(atn, sets, readUnicode)
+            self.readSets(atn, sets, self.readInt32)
+        self.readEdges(atn, sets)
         self.readDecisions(atn)
         self.readLexerActions(atn)
         self.markPrecedenceDecisions(atn)
@@ -179,8 +178,7 @@ class ATNDeserializer (object):
             s = self.readInt()
             atn.modeToStartState.append(atn.states[s])
 
-    def readSets(self, atn, readUnicode):
-        sets = []
+    def readSets(self, atn, sets, readUnicode):
 
         m = self.readInt()
         for i in range(0, m):
@@ -194,17 +192,16 @@ class ATNDeserializer (object):
                 i1 = readUnicode()
                 i2 = readUnicode()
                 iset.addRange(Interval(i1, i2 + 1)) # range upper limit is exclusive
-        return sets
 
-    def readEdges(self, atn, sets, readUnicode):
+    def readEdges(self, atn, sets):
         nedges = self.readInt()
         for i in range(0, nedges):
             src = self.readInt()
             trg = self.readInt()
             ttype = self.readInt()
-            arg1 = readUnicode()
-            arg2 = readUnicode()
-            arg3 = readUnicode()
+            arg1 = self.readInt()
+            arg2 = self.readInt)
+            arg3 = self.readInt()
             trans = self.edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets)
             srcState = atn.states[src]
             srcState.addTransition(trans)
