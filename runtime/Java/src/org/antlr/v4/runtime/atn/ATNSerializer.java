@@ -14,8 +14,10 @@ import org.antlr.v4.runtime.misc.Utils;
 
 import java.io.InvalidClassException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -23,6 +25,10 @@ import java.util.UUID;
 public class ATNSerializer {
 	public ATN atn;
 	private List<String> tokenNames;
+
+	private interface CodePointSerializer {
+		void serializeCodePoint(IntegerList data, int cp);
+	}
 
 	public ATNSerializer(ATN atn) {
 		assert atn.grammarType != null;
@@ -38,18 +44,20 @@ public class ATNSerializer {
 	/** Serialize state descriptors, edge descriptors, and decision&rarr;state map
 	 *  into list of ints:
 	 *
-	 * 		grammar-type, (ANTLRParser.LEXER, ...)
-	 *  	max token type,
-	 *  	num states,
-	 *  	state-0-type ruleIndex, state-1-type ruleIndex, ... state-i-type ruleIndex optional-arg ...
-	 *  	num rules,
-	 *  	rule-1-start-state rule-1-args, rule-2-start-state  rule-2-args, ...
-	 *  	(args are token type,actionIndex in lexer else 0,0)
+	 *		grammar-type, (ANTLRParser.LEXER, ...)
+	 *	max token type,
+	 *	num states,
+	 *	state-0-type ruleIndex, state-1-type ruleIndex, ... state-i-type ruleIndex optional-arg ...
+	 *	num rules,
+	 *	rule-1-start-state rule-1-args, rule-2-start-state  rule-2-args, ...
+	 *	(args are token type,actionIndex in lexer else 0,0)
 	 *      num modes,
 	 *      mode-0-start-state, mode-1-start-state, ... (parser has 0 modes)
-	 *      num sets
-	 *      set-0-interval-count intervals, set-1-interval-count intervals, ...
-	 *  	num total edges,
+	 *      num unicode-bmp-sets
+	 *      bmp-set-0-interval-count intervals, bmp-set-1-interval-count intervals, ...
+	 *      num unicode-smp-sets
+	 *      smp-set-0-interval-count intervals, smp-set-1-interval-count intervals, ...
+	 *	num total edges,
 	 *      src, trg, edge-type, edge arg1, optional edge arg2 (present always), ...
 	 *      num decisions,
 	 *      decision-0-start-state, decision-1-start-state, ...
@@ -66,8 +74,10 @@ public class ATNSerializer {
 		data.add(atn.maxTokenType);
 		int nedges = 0;
 
-		Map<IntervalSet, Integer> setIndices = new HashMap<IntervalSet, Integer>();
-		List<IntervalSet> sets = new ArrayList<IntervalSet>();
+		// Note that we use a LinkedHashMap as a set to
+		// maintain insertion order while deduplicating
+		// entries with the same key.
+		Map<IntervalSet, Boolean> sets = new LinkedHashMap<>();
 
 		// dump states, count edges and collect sets while doing so
 		IntegerList nonGreedyStates = new IntegerList();
@@ -114,10 +124,7 @@ public class ATNSerializer {
 				int edgeType = Transition.serializationTypes.get(t.getClass());
 				if ( edgeType == Transition.SET || edgeType == Transition.NOT_SET ) {
 					SetTransition st = (SetTransition)t;
-					if (!setIndices.containsKey(st.set)) {
-						sets.add(st.set);
-						setIndices.put(st.set, sets.size() - 1);
-					}
+					sets.put(st.set, true);
 				}
 			}
 		}
@@ -156,33 +163,40 @@ public class ATNSerializer {
 				data.add(modeStartState.stateNumber);
 			}
 		}
-
-		int nsets = sets.size();
-		data.add(nsets);
-		for (IntervalSet set : sets) {
-			boolean containsEof = set.contains(Token.EOF);
-			if (containsEof && set.getIntervals().get(0).b == Token.EOF) {
-				data.add(set.getIntervals().size() - 1);
+		List<IntervalSet> bmpSets = new ArrayList<>();
+		List<IntervalSet> smpSets = new ArrayList<>();
+		for (IntervalSet set : sets.keySet()) {
+			if (set.getMaxElement() <= Character.MAX_VALUE) {
+				bmpSets.add(set);
+			} else {
+				smpSets.add(set);
 			}
-			else {
-				data.add(set.getIntervals().size());
-			}
-			data.add(containsEof ? 1 : 0);
-			for (Interval I : set.getIntervals()) {
-				if (I.a == Token.EOF) {
-					if (I.b == Token.EOF) {
-						continue;
-					}
-					else {
-						serializeInt(data, 0);
-					}
+		}
+		serializeSets(
+			data,
+			bmpSets,
+			new CodePointSerializer() {
+				@Override
+				public void serializeCodePoint(IntegerList data, int cp) {
+					data.add(cp);
 				}
-				else {
-					serializeInt(data, I.a);
+			});
+		serializeSets(
+			data,
+			smpSets,
+			new CodePointSerializer() {
+				@Override
+				public void serializeCodePoint(IntegerList data, int cp) {
+					serializeInt(data, cp);
 				}
-
-				serializeInt(data, I.b);
-			}
+			});
+		Map<IntervalSet, Integer> setIndices = new HashMap<>();
+		int setIndex = 0;
+		for (IntervalSet bmpSet : bmpSets) {
+			setIndices.put(bmpSet, setIndex++);
+		}
+		for (IntervalSet smpSet : smpSets) {
+			setIndices.put(smpSet, setIndex++);
 		}
 
 		data.add(nedges);
@@ -254,8 +268,7 @@ public class ATNSerializer {
 						arg3 = at.isCtxDependent ? 1 : 0 ;
 						break;
 					case Transition.SET :
-						arg1 = setIndices.get(((SetTransition)t).set);
-						break;
+						// Fall through
 					case Transition.NOT_SET :
 						arg1 = setIndices.get(((SetTransition)t).set);
 						break;
@@ -266,9 +279,9 @@ public class ATNSerializer {
 				data.add(src);
 				data.add(trg);
 				data.add(edgeType);
-				serializeInt(data, arg1);
-				serializeInt(data, arg2);
-				serializeInt(data, arg3);
+				data.add(arg1);
+				data.add(arg2);
+				data.add(arg3);
 			}
 		}
 
@@ -344,11 +357,11 @@ public class ATNSerializer {
 		for (int i = 1; i < data.size(); i++) {
 			if (data.get(i) < Character.MIN_VALUE || data.get(i) > Character.MAX_VALUE) {
 				throw new UnsupportedOperationException("Serialized ATN data element "+
-					                                        data.get(i)+
-					                                        " element "+i+" out of range "+
-					                                        (int)Character.MIN_VALUE+
-					                                        ".."+
-					                                        (int)Character.MAX_VALUE);
+										data.get(i)+
+										" element "+i+" out of range "+
+										(int)Character.MIN_VALUE+
+										".."+
+										(int)Character.MAX_VALUE);
 			}
 
 			int value = (data.get(i) + 2) & 0xFFFF;
@@ -356,6 +369,42 @@ public class ATNSerializer {
 		}
 
 		return data;
+	}
+
+	private static void serializeSets(
+			IntegerList data,
+			Collection<IntervalSet> sets,
+			CodePointSerializer codePointSerializer)
+	{
+		int nSets = sets.size();
+		data.add(nSets);
+
+		for (IntervalSet set : sets) {
+			boolean containsEof = set.contains(Token.EOF);
+			if (containsEof && set.getIntervals().get(0).b == Token.EOF) {
+				data.add(set.getIntervals().size() - 1);
+			}
+			else {
+				data.add(set.getIntervals().size());
+			}
+
+			data.add(containsEof ? 1 : 0);
+			for (Interval I : set.getIntervals()) {
+				if (I.a == Token.EOF) {
+					if (I.b == Token.EOF) {
+						continue;
+					}
+					else {
+						codePointSerializer.serializeCodePoint(data, 0);
+					}
+				}
+				else {
+					codePointSerializer.serializeCodePoint(data, I.a);
+				}
+
+				codePointSerializer.serializeCodePoint(data, I.b);
+			}
+		}
 	}
 
 	public String decode(char[] data) {
@@ -431,45 +480,23 @@ public class ATNSerializer {
                 buf.append("rule ").append(i).append(":").append(s).append('\n');
             }
 		}
-		ATNDeserializer.ATNUnicodeDeserializer unicodeDeserializer = ATNDeserializer.getUnicodeDeserializer(uuid);
 		int nmodes = ATNDeserializer.toInt(data[p++]);
 		for (int i=0; i<nmodes; i++) {
 			int s = ATNDeserializer.toInt(data[p++]);
 			buf.append("mode ").append(i).append(":").append(s).append('\n');
 		}
-		int nsets = ATNDeserializer.toInt(data[p++]);
-		for (int i=0; i<nsets; i++) {
-			int nintervals = ATNDeserializer.toInt(data[p++]);
-			buf.append(i).append(":");
-			boolean containsEof = data[p++] != 0;
-			if (containsEof) {
-				buf.append(getTokenName(Token.EOF));
-			}
-
-			for (int j=0; j<nintervals; j++) {
-				if ( containsEof || j>0 ) {
-					buf.append(", ");
-				}
-
-				int a = unicodeDeserializer.readUnicode(data, p);
-				p += unicodeDeserializer.size();
-				int b = unicodeDeserializer.readUnicode(data, p);
-				p += unicodeDeserializer.size();
-				buf.append(getTokenName(a)).append("..").append(getTokenName(b));
-			}
-			buf.append("\n");
-		}
+		int numBMPSets = ATNDeserializer.toInt(data[p++]);
+		p = appendSets(buf, data, p, numBMPSets, 0, ATNDeserializer.getUnicodeDeserializer(ATNDeserializer.UnicodeDeserializingMode.UNICODE_BMP));
+		int numSMPSets = ATNDeserializer.toInt(data[p++]);
+		p = appendSets(buf, data, p, numSMPSets, numBMPSets, ATNDeserializer.getUnicodeDeserializer(ATNDeserializer.UnicodeDeserializingMode.UNICODE_SMP));
 		int nedges = ATNDeserializer.toInt(data[p++]);
 		for (int i=0; i<nedges; i++) {
 			int src = ATNDeserializer.toInt(data[p++]);
 			int trg = ATNDeserializer.toInt(data[p++]);
 			int ttype = ATNDeserializer.toInt(data[p++]);
-			int arg1 = unicodeDeserializer.readUnicode(data, p);
-			p += unicodeDeserializer.size();
-			int arg2 = unicodeDeserializer.readUnicode(data, p);
-			p += unicodeDeserializer.size();
-			int arg3 = unicodeDeserializer.readUnicode(data, p);
-			p += unicodeDeserializer.size();
+			int arg1 = ATNDeserializer.toInt(data[p++]);
+			int arg2 = ATNDeserializer.toInt(data[p++]);
+			int arg3 = ATNDeserializer.toInt(data[p++]);
 			buf.append(src).append("->").append(trg)
 				.append(" ").append(Transition.serializationNames.get(ttype))
 				.append(" ").append(arg1).append(",").append(arg2).append(",").append(arg3)
@@ -494,6 +521,31 @@ public class ATNSerializer {
 			}
 		}
 		return buf.toString();
+	}
+
+	private int appendSets(StringBuilder buf, char[] data, int p, int nsets, int setIndexOffset, ATNDeserializer.UnicodeDeserializer unicodeDeserializer) {
+		for (int i=0; i<nsets; i++) {
+			int nintervals = ATNDeserializer.toInt(data[p++]);
+			buf.append(i+setIndexOffset).append(":");
+			boolean containsEof = data[p++] != 0;
+			if (containsEof) {
+				buf.append(getTokenName(Token.EOF));
+			}
+
+			for (int j=0; j<nintervals; j++) {
+				if ( containsEof || j>0 ) {
+					buf.append(", ");
+				}
+
+				int a = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				int b = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				buf.append(getTokenName(a)).append("..").append(getTokenName(b));
+			}
+			buf.append("\n");
+		}
+		return p;
 	}
 
 	public String getTokenName(int t) {

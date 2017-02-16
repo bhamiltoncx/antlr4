@@ -78,7 +78,7 @@ public class ATNDeserializer {
 		SERIALIZED_UUID = ADDED_UNICODE_SMP;
 	}
 
-	interface ATNUnicodeDeserializer {
+	interface UnicodeDeserializer {
 		// Wrapper for readInt() or readInt32()
 		int readUnicode(char[] data, int p);
 
@@ -87,21 +87,14 @@ public class ATNDeserializer {
 		int size();
 	}
 
-	static ATNUnicodeDeserializer getUnicodeDeserializer(UUID uuid) {
-		if (isFeatureSupported(ADDED_UNICODE_SMP, uuid)) {
-			return new ATNUnicodeDeserializer() {
-				@Override
-				public int readUnicode(char[] data, int p) {
-					return toInt32(data, p);
-				}
+	enum UnicodeDeserializingMode {
+		UNICODE_BMP,
+		UNICODE_SMP
+	}
 
-				@Override
-				public int size() {
-					return 2;
-				}
-			};
-		} else {
-			return new ATNUnicodeDeserializer() {
+	static UnicodeDeserializer getUnicodeDeserializer(UnicodeDeserializingMode mode) {
+		if (mode == UnicodeDeserializingMode.UNICODE_BMP) {
+			return new UnicodeDeserializer() {
 				@Override
 				public int readUnicode(char[] data, int p) {
 					return toInt(data[p]);
@@ -110,6 +103,18 @@ public class ATNDeserializer {
 				@Override
 				public int size() {
 					return 1;
+				}
+			};
+		} else {
+			return new UnicodeDeserializer() {
+				@Override
+				public int readUnicode(char[] data, int p) {
+					return toInt32(data, p);
+				}
+
+				@Override
+				public int size() {
+					return 2;
 				}
 			};
 		}
@@ -302,27 +307,12 @@ public class ATNDeserializer {
 		//
 		// SETS
 		//
-		ATNUnicodeDeserializer unicodeDeserializer = getUnicodeDeserializer(uuid);
 		List<IntervalSet> sets = new ArrayList<IntervalSet>();
-		int nsets = toInt(data[p++]);
-		for (int i=0; i<nsets; i++) {
-			int nintervals = toInt(data[p]);
-			p++;
-			IntervalSet set = new IntervalSet();
-			sets.add(set);
+		p = deserializeSets(data, p, sets, getUnicodeDeserializer(UnicodeDeserializingMode.UNICODE_BMP));
 
-			boolean containsEof = toInt(data[p++]) != 0;
-			if (containsEof) {
-				set.add(-1);
-			}
-
-			for (int j=0; j<nintervals; j++) {
-				int a = unicodeDeserializer.readUnicode(data, p);
-				p += unicodeDeserializer.size();
-				int b = unicodeDeserializer.readUnicode(data, p);
-				p += unicodeDeserializer.size();
-				set.add(a, b);
-			}
+		// Sets with Unicode code points > U+FFFF
+		if (isFeatureSupported(ADDED_UNICODE_SMP, uuid)) {
+			p = deserializeSets(data, p, sets, getUnicodeDeserializer(UnicodeDeserializingMode.UNICODE_SMP));
 		}
 
 		//
@@ -333,12 +323,9 @@ public class ATNDeserializer {
 			int src = toInt(data[p++]);
 			int trg = toInt(data[p++]);
 			int ttype = toInt(data[p++]);
-			int arg1 = unicodeDeserializer.readUnicode(data, p);
-			p += unicodeDeserializer.size();
-			int arg2 = unicodeDeserializer.readUnicode(data, p);
-			p += unicodeDeserializer.size();
-			int arg3 = unicodeDeserializer.readUnicode(data, p);
-			p += unicodeDeserializer.size();
+			int arg1 = toInt(data[p++]);
+			int arg2 = toInt(data[p++]);
+			int arg3 = toInt(data[p++]);
 			Transition trans = edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
 //			System.out.println("EDGE "+trans.getClass().getSimpleName()+" "+
 //							   src+"->"+trg+
@@ -559,6 +546,30 @@ public class ATNDeserializer {
 		}
 
 		return atn;
+	}
+
+	private int deserializeSets(char[] data, int p, List<IntervalSet> sets, UnicodeDeserializer unicodeDeserializer) {
+		int nsets = toInt(data[p++]);
+		for (int i=0; i<nsets; i++) {
+			int nintervals = toInt(data[p]);
+			p++;
+			IntervalSet set = new IntervalSet();
+			sets.add(set);
+
+			boolean containsEof = toInt(data[p++]) != 0;
+			if (containsEof) {
+				set.add(-1);
+			}
+
+			for (int j=0; j<nintervals; j++) {
+				int a = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				int b = unicodeDeserializer.readUnicode(data, p);
+				p += unicodeDeserializer.size();
+				set.add(a, b);
+			}
+		}
+		return p;
 	}
 
 	/**

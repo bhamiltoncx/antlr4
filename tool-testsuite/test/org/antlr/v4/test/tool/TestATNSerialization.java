@@ -291,6 +291,89 @@ public class TestATNSerialization extends BaseJavaToolTest {
 		assertEquals(expecting, result);
 	}
 
+	@Test public void testLexerUnicodeSMPLiteralSerializedToSet() throws Exception {
+		LexerGrammar lg = new LexerGrammar(
+			"lexer grammar L;\n"+
+			"INT : '\\u{1F4A9}' ;");
+		String expecting =
+			"max type 1\n" +
+			"0:TOKEN_START -1\n" +
+			"1:RULE_START 0\n" +
+			"2:RULE_STOP 0\n" +
+			"3:BASIC 0\n" +
+			"4:BASIC 0\n" +
+			"rule 0:1 1\n" +
+			"mode 0:0\n" +
+			"0:128169..128169\n" +
+			"0->1 EPSILON 0,0,0\n" +
+			"1->3 EPSILON 0,0,0\n" +
+			"3->4 SET 0,0,0\n" +
+			"4->2 EPSILON 0,0,0\n" +
+			"0:0\n";
+		ATN atn = createATN(lg, true);
+		String result = ATNSerializer.getDecoded(atn, Arrays.asList(lg.getTokenNames()));
+		assertEquals(expecting, result);
+	}
+
+	@Test public void testLexerUnicodeSMPRangeSerializedToSet() throws Exception {
+		LexerGrammar lg = new LexerGrammar(
+			"lexer grammar L;\n"+
+			"INT : ('a'..'\\u{1F4A9}') ;");
+		String expecting =
+			"max type 1\n" +
+			"0:TOKEN_START -1\n" +
+			"1:RULE_START 0\n" +
+			"2:RULE_STOP 0\n" +
+			"3:BASIC 0\n" +
+			"4:BASIC 0\n" +
+			"rule 0:1 1\n" +
+			"mode 0:0\n" +
+			"0:'a'..128169\n" +
+			"0->1 EPSILON 0,0,0\n" +
+			"1->3 EPSILON 0,0,0\n" +
+			"3->4 SET 0,0,0\n" +
+			"4->2 EPSILON 0,0,0\n" +
+			"0:0\n";
+		ATN atn = createATN(lg, true);
+		String result = ATNSerializer.getDecoded(atn, Arrays.asList(lg.getTokenNames()));
+		assertEquals(expecting, result);
+	}
+
+	@Test public void testLexerUnicodeSMPSetSerializedAfterBMPSet() throws Exception {
+		LexerGrammar lg = new LexerGrammar(
+			"lexer grammar L;\n"+
+			"SMP : ('\\u{1F4A9}' | '\\u{1F4AF}') ;\n"+
+			"BMP : ('a' | 'x') ;");
+		String expecting =
+			"max type 2\n" +
+			"0:TOKEN_START -1\n" +
+			"1:RULE_START 0\n" +
+			"2:RULE_STOP 0\n" +
+			"3:RULE_START 1\n" +
+			"4:RULE_STOP 1\n" +
+			"5:BASIC 0\n" +
+			"6:BASIC 0\n" +
+			"7:BASIC 1\n" +
+			"8:BASIC 1\n" +
+			"rule 0:1 1\n" +
+			"rule 1:3 2\n" +
+			"mode 0:0\n" +
+			"0:'a'..'a', 'x'..'x'\n" +
+			"1:128169..128169, 128175..128175\n" +
+			"0->1 EPSILON 0,0,0\n" +
+			"0->3 EPSILON 0,0,0\n" +
+			"1->5 EPSILON 0,0,0\n" +
+			"3->7 EPSILON 0,0,0\n" +
+			"5->6 SET 1,0,0\n" +
+			"6->2 EPSILON 0,0,0\n" +
+			"7->8 SET 0,0,0\n" +
+			"8->4 EPSILON 0,0,0\n" +
+			"0:0\n";
+		ATN atn = createATN(lg, true);
+		String result = ATNSerializer.getDecoded(atn, Arrays.asList(lg.getTokenNames()));
+		assertEquals(expecting, result);
+	}
+
 	@Test public void testLexerNotLiteral() throws Exception {
 		LexerGrammar lg = new LexerGrammar(
 			"lexer grammar L;\n"+
