@@ -65,6 +65,28 @@ uint32_t deserializeInt32(const std::vector<uint16_t>& data, size_t offset) {
   return (uint32_t)data[offset] | ((uint32_t)data[offset + 1] << 16);
 }
 
+void deserializeSets(
+  const std::vector<uint16_t>& data,
+  size_t& p,
+  std::vector<misc::IntervalSet>& sets,
+  std::function<uint32_t (const std::vector<uint16_t>&, size_t&)> readUnicode) {
+  int nsets = data[p++];
+  for (int i = 0; i < nsets; i++) {
+    int nintervals = data[p++];
+    misc::IntervalSet set;
+
+    bool containsEof = data[p++] != 0;
+    if (containsEof) {
+      set.add(-1);
+    }
+
+    for (int j = 0; j < nintervals; j++) {
+      auto a = readUnicode(data, p);
+      auto b = readUnicode(data, p);
+      set.add(a, b, true);
+    }
+    sets.push_back(set);
+  }
 }
 
 ATNDeserializer::ATNDeserializer(): ATNDeserializer(ATNDeserializationOptions::getDefaultOptions()) {
@@ -143,7 +165,6 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
 
   bool supportsPrecedencePredicates = isFeatureSupported(ADDED_PRECEDENCE_TRANSITIONS(), uuid);
   bool supportsLexerActions = isFeatureSupported(ADDED_LEXER_ACTIONS(), uuid);
-  bool supportsUnicodeSMP = isFeatureSupported(ADDED_UNICODE_SMP(), uuid);
 
   ATNType grammarType = (ATNType)data[p++];
   size_t maxTokenType = data[p++];
@@ -253,35 +274,24 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
   //
   // SETS
   //
-  std::function<uint32_t()> readUnicode;
-  if (supportsUnicodeSMP) {
-    readUnicode = [&]{
-      auto result = deserializeInt32(data, p);
-      p += 2;
-      return result;
-    };
-  } else {
-    readUnicode = [&]{
-      return (uint32_t)data[p++];
-    };
-  }
   std::vector<misc::IntervalSet> sets;
-  int nsets = data[p++];
-  for (int i = 0; i < nsets; i++) {
-    int nintervals = data[p++];
-    misc::IntervalSet set;
-
-    bool containsEof = data[p++] != 0;
-    if (containsEof) {
-      set.add(-1);
-    }
-
-    for (int j = 0; j < nintervals; j++) {
-      auto a = readUnicode();
-      auto b = readUnicode();
-      set.add(a, b, true);
-    }
-    sets.push_back(set);
+  deserializeSets(
+    data,
+    p,
+    sets,
+    [](const std::vector<uint16_t>& data, size_t& p) {
+      return (uint32_t)data[p++];
+    });
+  if (isFeatureSupported(ADDED_UNICODE_SMP(), uuid)) {
+    deserializeSets(
+      data,
+      p,
+      sets,
+      [](const std::vector<uint16_t>& data, size_t& p) {
+        auto result = deserializeInt32(data, p);
+        p += 2;
+        return result;
+      });
   }
 
   //
@@ -292,9 +302,9 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
     size_t src = data[p++];
     size_t trg = data[p++];
     size_t ttype = data[p++];
-    size_t arg1 = readUnicode();
-    size_t arg2 = readUnicode();
-    size_t arg3 = readUnicode();
+    size_t arg1 = data[p++];
+    size_t arg2 = data[p++];
+    size_t arg3 = data[p++];
     Transition *trans = edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets);
     ATNState *srcState = atn.states[src];
     srcState->addTransition(trans);
