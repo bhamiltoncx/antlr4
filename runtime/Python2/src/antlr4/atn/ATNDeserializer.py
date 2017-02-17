@@ -200,7 +200,7 @@ class ATNDeserializer (object):
             trg = self.readInt()
             ttype = self.readInt()
             arg1 = self.readInt()
-            arg2 = self.readInt)
+            arg2 = self.readInt()
             arg3 = self.readInt()
             trans = self.edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets)
             srcState = atn.states[src]
