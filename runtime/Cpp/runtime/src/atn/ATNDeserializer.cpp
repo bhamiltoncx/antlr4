@@ -65,11 +65,22 @@ uint32_t deserializeInt32(const std::vector<uint16_t>& data, size_t offset) {
   return (uint32_t)data[offset] | ((uint32_t)data[offset + 1] << 16);
 }
 
+ssize_t readUnicodeInt(const std::vector<uint16_t>& data, size_t& p) {
+  return static_cast<ssize_t>(data[p++]);
+}
+
+ssize_t readUnicodeInt32(const std::vector<uint16_t>& data, size_t& p) {
+  auto result = deserializeInt32(data, p);
+  p += 2;
+  return static_cast<ssize_t>(result);
+}
+
+template <typename F>
 void deserializeSets(
   const std::vector<uint16_t>& data,
   size_t& p,
   std::vector<misc::IntervalSet>& sets,
-  std::function<ssize_t (const std::vector<uint16_t>&, size_t&)> readUnicode) {
+  F readUnicode) {
   int nsets = data[p++];
   for (int i = 0; i < nsets; i++) {
     int nintervals = data[p++];
@@ -277,15 +288,6 @@ ATN ATNDeserializer::deserialize(const std::vector<uint16_t>& input) {
   // SETS
   //
   std::vector<misc::IntervalSet> sets;
-
-  auto readUnicodeInt = [](const std::vector<uint16_t>& data, size_t& p) {
-    return static_cast<ssize_t>(data[p++]);
-  };
-  auto readUnicodeInt32 = [](const std::vector<uint16_t>& data, size_t& p) {
-    auto result = deserializeInt32(data, p);
-    p += 2;
-    return static_cast<ssize_t>(result);
-  };
 
   // First, deserialize sets with 16-bit arguments <= U+FFFF.
   deserializeSets(data, p, sets, readUnicodeInt);
