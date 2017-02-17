@@ -94,9 +94,9 @@ func (a *ATNDeserializer) DeserializeFromUInt16(data []uint16) *ATN {
 
 	sets := make([]*IntervalSet, 0)
 
-	a.readSets(atn, sets, a.readInt)
+	sets = a.readSets(atn, sets, a.readInt)
 	if (a.isFeatureSupported(AddedUnicodeSMP, a.uuid)) {
-	a.readSets(atn, sets, a.readInt32)
+		sets = a.readSets(atn, sets, a.readInt32)
 	}
 
 	a.readEdges(atn, sets)
@@ -272,7 +272,7 @@ func (a *ATNDeserializer) readModes(atn *ATN) {
 	}
 }
 
-func (a *ATNDeserializer) readSets(atn *ATN, sets []*IntervalSet, readUnicode func() int) {
+func (a *ATNDeserializer) readSets(atn *ATN, sets []*IntervalSet, readUnicode func() int) []*IntervalSet {
 	m := a.readInt()
 
 	for i := 0; i < m; i++ {
@@ -294,6 +294,8 @@ func (a *ATNDeserializer) readSets(atn *ATN, sets []*IntervalSet, readUnicode fu
 			iset.addRange(i1, i2)
 		}
 	}
+
+	return sets
 }
 
 func (a *ATNDeserializer) readEdges(atn *ATN, sets []*IntervalSet) {
