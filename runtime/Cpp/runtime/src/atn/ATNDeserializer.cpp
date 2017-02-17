@@ -65,20 +65,22 @@ uint32_t deserializeInt32(const std::vector<uint16_t>& data, size_t offset) {
   return (uint32_t)data[offset] | ((uint32_t)data[offset + 1] << 16);
 }
 
-ssize_t readUnicodeInt(const std::vector<uint16_t>& data, size_t& p) {
+ssize_t readUnicodeInt(const std::vector<uint16_t>& data, int& p) {
   return static_cast<ssize_t>(data[p++]);
 }
 
-ssize_t readUnicodeInt32(const std::vector<uint16_t>& data, size_t& p) {
+ssize_t readUnicodeInt32(const std::vector<uint16_t>& data, int& p) {
   auto result = deserializeInt32(data, p);
   p += 2;
   return static_cast<ssize_t>(result);
 }
 
+// We templatize this on the function type so the optimizer can inline
+// the 16- or 32-bit readUnicodeInt/readUnicodeInt32 as needed.
 template <typename F>
 void deserializeSets(
   const std::vector<uint16_t>& data,
-  size_t& p,
+  int& p,
   std::vector<misc::IntervalSet>& sets,
   F readUnicode) {
   int nsets = data[p++];
