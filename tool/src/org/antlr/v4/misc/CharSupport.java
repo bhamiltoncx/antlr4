@@ -104,15 +104,15 @@ public class CharSupport {
 							}
 						}
 					} else {
-					for (end = i + 2; end < i + 6; end++) {
-						if ( end>n ) return null; // invalid escape sequence.
-						char charAt = literal.charAt(end);
-						if (!Character.isDigit(charAt) && !(charAt >= 'a' && charAt <= 'f') && !(charAt >= 'A' && charAt <= 'F')) {
-							return null; // invalid escape sequence.
+						for (end = i + 2; end < i + 6; end++) {
+							if ( end>n ) return null; // invalid escape sequence.
+							char charAt = literal.charAt(end);
+							if (!Character.isDigit(charAt) && !(charAt >= 'a' && charAt <= 'f') && !(charAt >= 'A' && charAt <= 'F')) {
+								return null; // invalid escape sequence.
+							}
 						}
 					}
 				}
-			}
 			}
 			if ( end>n ) return null; // invalid escape sequence.
 			String esc = literal.substring(i, end);
