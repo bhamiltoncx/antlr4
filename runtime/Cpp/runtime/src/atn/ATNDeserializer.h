@@ -67,6 +67,13 @@ namespace atn {
      */
     static Guid ADDED_LEXER_ACTIONS();
 
+    /**
+     * This UUID indicates that IntervalSets and state transition
+     * arguments are allowed to contain Unicode values larger than
+     * U+FFFF.
+     */
+    static Guid ADDED_UNICODE_SMP();
+
     /// This list contains all of the currently supported UUIDs, ordered by when
     /// the feature first appeared in this branch.
     static std::vector<Guid>& SUPPORTED_UUIDS();
