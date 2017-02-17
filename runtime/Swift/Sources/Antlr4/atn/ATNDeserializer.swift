@@ -93,17 +93,17 @@ public class ATNDeserializer {
     }
 
 
-    public func deserialize(_ inData: [Character]) throws -> ATN {
+    public func deserialize(_ inData: [UnicodeScalar]) throws -> ATN {
         //TODO:data = data.clone();
         var data = inData
         // don't adjust the first value since that's the version number
         let length = data.count
         for i in 1..<length {
-            data[i] = Character(integerLiteral: data[i].unicodeValue - 2)
+            data[i] = UnicodeScalar(data[i].value - 2)
         }
 
         var p: Int = 0
-        let version: Int = data[p].unicodeValue    //toInt(data[p++]);
+        let version: Int = data[p].value    //toInt(data[p++]);
         p += 1
         if version != ATNDeserializer.SERIALIZED_VERSION {
 
@@ -534,7 +534,7 @@ public class ATNDeserializer {
         return atn
     }
 
-    private func readSets(_ data: [Character], _ p: inout Int, _ sets: Array<IntervalSet>, _ readUnicode: (Array<IntervalSet>, inout Int) -> Int) {
+    private func readSets(_ data: [UnicodeScalar], _ p: inout Int, _ sets: Array<IntervalSet>, _ readUnicode: (Array<IntervalSet>, inout Int) -> Int) {
         let nsets: Int = toInt(data[p])
         p += 1
         for _ in 0..<nsets {

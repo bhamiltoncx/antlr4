@@ -21,8 +21,8 @@ open class Lexer: Recognizer<LexerATNSimulator>
 
     public static let DEFAULT_TOKEN_CHANNEL: Int = CommonToken.DEFAULT_CHANNEL
     public static let HIDDEN: Int = CommonToken.HIDDEN_CHANNEL
-    public static let MIN_CHAR_VALUE: Int = Character.MIN_VALUE;
-    public static let MAX_CHAR_VALUE: Int = Character.MAX_VALUE;
+    public static let MIN_CHAR_VALUE: UnicodeScalar = "\u{0000}";
+    public static let MAX_CHAR_VALUE: UnicodeScalar = "\u{10FFFF}";
 
     public var _input: CharStream?
     internal var _tokenFactorySourcePair: (TokenSource?, CharStream?)
@@ -377,15 +377,15 @@ open class Lexer: Recognizer<LexerATNSimulator>
 
     open func getErrorDisplay(_ s: String) -> String {
         let buf: StringBuilder = StringBuilder()
-        for c: Character in s.characters {
+        for c: UnicodeScalar in s.unicodeScalars {
             buf.append(getErrorDisplay(c))
         }
         return buf.toString()
     }
 
-    open func getErrorDisplay(_ c: Character) -> String {
-        var s: String = String(c)  // String.valueOf(c as Character);
-        if c.integerValue == CommonToken.EOF {
+    open func getErrorDisplay(_ c: UnicodeScalar) -> String {
+        var s: String = String(Character(c))  // String.valueOf(c as Character);
+        if c.value == CommonToken.EOF {
             s = "<EOF>"
         }
         switch s {
@@ -404,7 +404,7 @@ open class Lexer: Recognizer<LexerATNSimulator>
         return s
     }
 
-    open func getCharErrorDisplay(_ c: Character) -> String {
+    open func getCharErrorDisplay(_ c: UnicodeScalar) -> String {
         let s: String = getErrorDisplay(c)
         return "'\(s)'"
     }

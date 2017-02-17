@@ -46,17 +46,17 @@ public class Utils {
     }
 
 
-    public static func readFile(_ path: String, _ encoding: String.Encoding = String.Encoding.utf8) -> [Character] {
+    public static func readFile(_ path: String, _ encoding: String.Encoding = String.Encoding.utf8) -> [UnicodeScalar] {
 
         var fileContents: String
 
         do {
             fileContents = try String(contentsOfFile: path, encoding: encoding)
         } catch _ as NSError {
-            return [Character]()
+            return [UnicodeScalar]()
         }
 
-        return Array(fileContents.characters)
+        return Array(fileContents.unicodeScalars)
     }
 
     public static func readFile2String(_ fileName: String, _ encoding: String.Encoding = String.Encoding.utf8) -> String {

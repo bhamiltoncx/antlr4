@@ -12,7 +12,7 @@ public class ANTLRInputStream: CharStream {
     public static let INITIAL_BUFFER_SIZE: Int = 1024
 
     /// The data being scanned
-    internal var data: [Character]
+    internal var data: [UnicodeScalar]
 
     /// How many characters are actually in the buffer
     internal var n: Int
@@ -25,17 +25,17 @@ public class ANTLRInputStream: CharStream {
 
     public init() {
         n = 0
-        data = [Character]()
+        data = [UnicodeScalar]()
     }
 
     /// Copy data in string to a local char array
     public init(_ input: String) {
-        self.data = Array(input.characters) // input.toCharArray();
+        self.data = Array(input.unicodeScalars) // input.toCharArray();
         self.n = input.length
     }
 
     /// This is the preferred constructor for strings as no data is copied
-    public init(_ data: [Character], _ numberOfActualCharsInArray: Int) {
+    public init(_ data: [UnicodeScalar], _ numberOfActualCharsInArray: Int) {
         self.data = data
         self.n = numberOfActualCharsInArray
     }
@@ -143,7 +143,7 @@ public class ANTLRInputStream: CharStream {
         }
         //print("char LA("+i+")="+(char)data[p+i-1]+"; p="+p);
         //print("LA("+i+"); p="+p+" n="+n+" data.length="+data.length);
-        return data[p + i - 1].unicodeValue
+        return data[p + i - 1]
     }
 
     public func LT(_ i: Int) -> Int {

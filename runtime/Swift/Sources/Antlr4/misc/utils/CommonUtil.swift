@@ -63,11 +63,6 @@ public func synced(_ lock: AnyObject, closure: () -> ()) {
     objc_sync_exit(lock)
 }
 
-
-public func intChar2String(_ i: Int) -> String {
-    return String(Character(integerLiteral: i))
-}
-
 public func log(_ message: String = "", file: String = #file, function: String = #function, lineNum: Int = #line) {
 
     // #if DEBUG
@@ -89,22 +84,17 @@ public func RuntimeException(_ message: String = "", file: String = #file, funct
 
 }
 
-
-public func toInt(_ c: Character) -> Int {
-    return c.unicodeValue
+public func toInt32(_ data: [UnicodeScalar], _ offset: Int) -> Int {
+    return data[offset].value | (data[offset + 1].value << 16)
 }
 
-public func toInt32(_ data: [Character], _ offset: Int) -> Int {
-    return data[offset].unicodeValue | (data[offset + 1].unicodeValue << 16)
-}
-
-public func toLong(_ data: [Character], _ offset: Int) -> Int64 {
+public func toLong(_ data: [UnicodeScalar], _ offset: Int) -> Int64 {
     let mask: Int64 = 0x00000000FFFFFFFF
     let lowOrder: Int64 = Int64(toInt32(data, offset)) & mask
     return lowOrder | Int64(toInt32(data, offset + 2) << 32)
 }
 
-public func toUUID(_ data: [Character], _ offset: Int) -> UUID {
+public func toUUID(_ data: [UnicodeScalar], _ offset: Int) -> UUID {
     let leastSigBits: Int64 = toLong(data, offset)
     let mostSigBits: Int64 = toLong(data, offset + 4)
     //TODO:NSUUID(mostSigBits, leastSigBits);
@@ -184,4 +174,3 @@ public func ArrayEquals<T:Equatable>(_ a: [T?], _ a2: [T?]) -> Bool {
 
     return true
 }
-
