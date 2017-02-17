@@ -256,39 +256,21 @@ public class ATNDeserializer {
         // SETS
         //
         let readUnicodeInt = {
-            () -> Int in
+            (_ data: Array<IntervalSet>, _ p: inout Int) -> Int in
             let result: Int = toInt(data[p])
             p += 1
             return result
         }
         let readUnicodeInt32 = {
-            () -> Int in
+            (_ data: Array<IntervalSet>, _ p: inout Int) -> Int in
             let result: Int = toInt32(data, p)
             p += 2
             return result
         }
-        let readUnicode: () -> Int = isFeatureSupported(ATNDeserializer.ADDED_UNICODE_SMP, uuid) ?
-          readUnicodeInt32 :
-          readUnicodeInt;
-
         var sets: Array<IntervalSet> = Array<IntervalSet>()
-        let nsets: Int = toInt(data[p])
-        p += 1
-        for _ in 0..<nsets {
-            let nintervals: Int = toInt(data[p])
-            p += 1
-            let set: IntervalSet = try IntervalSet()
-            sets.append(set)
-
-            let containsEof: Bool = toInt(data[p]) != 0
-            p += 1
-            if containsEof {
-                try set.add(-1)
-            }
-
-            for _ in 0..<nintervals {
-                try set.add(readUnicode(), readUnicode())
-            }
+        readSets(data, p, sets, readUnicodeInt)
+        if isFeatureSupported(ATNDeserializer.ADDED_UNICODE_SMP, uuid) {
+            readSets(data, p, sets, readUnicodeInt32)
         }
 
         //
@@ -303,9 +285,12 @@ public class ATNDeserializer {
             p += 1
             let ttype: Int = toInt(data[p])
             p += 1
-            let arg1: Int = readUnicode()
-            let arg2: Int = readUnicode()
-            let arg3: Int = readUnicode()
+            let arg1: Int = toInt(data[p])
+            p += 1
+            let arg2: Int = toInt(data[p])
+            p += 1
+            let arg3: Int = toInt(data[p])
+            p += 1
             let trans: Transition = try edgeFactory(atn, ttype, src, trg, arg1, arg2, arg3, sets)
 
             let srcState: ATNState = atn.states[src]!
@@ -547,6 +532,27 @@ public class ATNDeserializer {
         }
 
         return atn
+    }
+
+    private func readSets(_ data: [Character], _ p: inout Int, _ sets: Array<IntervalSet>, _ readUnicode: (Array<IntervalSet>, inout Int) -> Int) {
+        let nsets: Int = toInt(data[p])
+        p += 1
+        for _ in 0..<nsets {
+            let nintervals: Int = toInt(data[p])
+            p += 1
+            let set: IntervalSet = try IntervalSet()
+            sets.append(set)
+
+            let containsEof: Bool = toInt(data[p]) != 0
+            p += 1
+            if containsEof {
+                try set.add(-1)
+            }
+
+            for _ in 0..<nintervals {
+                try set.add(readUnicode(data, p), readUnicode(data, p))
+            }
+        }
     }
 
     public func deserializeFromJson(_ jsonStr: String) -> ATN {
