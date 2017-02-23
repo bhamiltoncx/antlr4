@@ -10,6 +10,7 @@ import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.Token;
 import org.antlr.v4.codegen.CodeGenerator;
 import org.antlr.v4.misc.CharSupport;
+import org.antlr.v4.misc.EscapeSequenceParsing;
 import org.antlr.v4.parse.ANTLRParser;
 import org.antlr.v4.runtime.IntStream;
 import org.antlr.v4.runtime.Lexer;
@@ -42,6 +43,7 @@ import org.antlr.v4.tool.ast.ActionAST;
 import org.antlr.v4.tool.ast.GrammarAST;
 import org.antlr.v4.tool.ast.RangeAST;
 import org.antlr.v4.tool.ast.TerminalAST;
+import org.antlr.v4.unicode.UnicodeData;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -365,7 +367,7 @@ public class LexerATNFactory extends ParserATNFactory {
 		return new Handle(left, right);
 	}
 
-	/** [Aa\t \u1234a-z\]\-] char sets */
+	/** [Aa\t \u1234a-z\]\p{Letter}\-] char sets */
 	@Override
 	public Handle charSetLiteral(GrammarAST charSetAST) {
 		ATNState left = newState(charSetAST);
@@ -379,7 +381,6 @@ public class LexerATNFactory extends ParserATNFactory {
 	public IntervalSet getSetFromCharSetLiteral(GrammarAST charSetAST) {
 		String chars = charSetAST.getText();
 		chars = chars.substring(1, chars.length() - 1);
-		String cset = '"' + chars + '"';
 		IntervalSet set = new IntervalSet();
 
 		if (chars.length() == 0) {
@@ -387,42 +388,106 @@ public class LexerATNFactory extends ParserATNFactory {
 					g.fileName, charSetAST.getToken(), "[]");
 			return set;
 		}
-		// unescape all valid escape char like \n, leaving escaped dashes as '\-'
-		// so we can avoid seeing them as '-' range ops.
-		chars = CharSupport.getStringFromGrammarStringLiteral(cset);
-		if (chars == null) {
-			g.tool.errMgr.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
-			                           g.fileName, charSetAST.getToken());
-			return set;
-		}
+
+		int prevCodePoint = -1;
+		boolean inRange = false;
 		int n = chars.length();
-		// now make x-y become set of char
 		for (int i = 0; i < n; ) {
 			int c = chars.codePointAt(i);
 			int offset = Character.charCount(c);
-			if (c == '\\' && i+offset < n && chars.codePointAt(i+offset) == '-') { // \-
-				checkSetCollision(charSetAST, set, '-');
-				set.add('-');
-				offset++;
-			}
-			else if (i+offset+1 < n && chars.codePointAt(i+offset) == '-') { // range x-y
-				int x = c;
-				int y = chars.codePointAt(i+offset+1);
-				if (x <= y) {
-					checkSetCollision(charSetAST, set, x, y);
-					set.add(x,y);
+			if (c == '\\') {
+				EscapeSequenceParsing.Result escapeParseResult =
+					EscapeSequenceParsing.parseEscape(chars, i);
+				if (escapeParseResult == null) {
+					g.tool.errMgr.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
+								   g.fileName, charSetAST.getToken());
+					return new IntervalSet();
+				} else {
+					offset = escapeParseResult.codeUnitLength;
 				}
-				else {
+				switch (escapeParseResult.type) {
+					case UNICODE_CODE_POINT:
+						if (inRange) {
+							if (prevCodePoint > escapeParseResult.codePoint) {
+								g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, g.fileName, charSetAST.getToken(),
+											   CharSupport.toRange(prevCodePoint, escapeParseResult.codePoint, CharSupport.ToRangeMode.BRACKETED));
+							}
+							checkSetCollision(charSetAST, set, prevCodePoint, escapeParseResult.codePoint);
+							set.add(prevCodePoint, escapeParseResult.codePoint);
+							inRange = false;
+							prevCodePoint = -1;
+						} else if (prevCodePoint != -1) {
+							checkSetCollision(charSetAST, set, prevCodePoint);
+							set.add(prevCodePoint);
+							prevCodePoint = escapeParseResult.codePoint;
+						} else {
+							prevCodePoint = escapeParseResult.codePoint;
+				}
+						break;
+					case UNICODE_PROPERTY_NAME:
+						// fall through
+					case UNICODE_PROPERTY_NAME_INVERTED:
+						if (prevCodePoint != -1) {
+							checkSetCollision(charSetAST, set, prevCodePoint);
+							set.add(prevCodePoint);
+							prevCodePoint = -1;
+						}
+
+						if (inRange) {
+							// XXX make a proper error
 					g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED,
-								   g.fileName, charSetAST.getToken(), CharSupport.toRange(x, y, CharSupport.ToRangeMode.BRACKETED));
+										   g.fileName, charSetAST.getToken(), "[]");
+							inRange = false;
+						} else {
+							IntervalSet propertySet = UnicodeData.getPropertyCodePoints(escapeParseResult.propertyName);
+							if (propertySet == null) {
+								// XXX make a proper error
+								g.tool.errMgr.grammarError(ErrorType.INVALID_ESCAPE_SEQUENCE,
+											   g.fileName, charSetAST.getToken());
+							} else {
+								if (escapeParseResult.type == EscapeSequenceParsing.Result.Type.UNICODE_PROPERTY_NAME_INVERTED) {
+									propertySet = propertySet.complement(IntervalSet.COMPLETE_CHAR_SET);
 				}
-				offset += Character.charCount(y) + 1;
+								// We don't check for collision, since these sets can be huge.
+								set.addAll(propertySet);
+							}
+						}
+						break;
+				}
+			} else if (inRange) {
+				if (prevCodePoint > c) {
+					g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED, g.fileName, charSetAST.getToken(),
+								   CharSupport.toRange(prevCodePoint, c, CharSupport.ToRangeMode.BRACKETED));
+				}
+				checkSetCollision(charSetAST, set, prevCodePoint, c);
+				set.add(prevCodePoint, c);
+				inRange = false;
+				prevCodePoint = -1;
+			} else if (prevCodePoint != -1) {
+				if (c == '-') {
+					inRange = true;
+				} else {
+					checkSetCollision(charSetAST, set, prevCodePoint);
+					set.add(prevCodePoint);
+					prevCodePoint = c;
+				}
+			} else {
+				if (c == '-') {
+					// XXX make a proper error
+					g.tool.errMgr.grammarError(ErrorType.EMPTY_STRINGS_AND_SETS_NOT_ALLOWED,
+								   g.fileName, charSetAST.getToken(), "[]");
+				} else {
+					prevCodePoint = c;
 			}
-			else {
-				checkSetCollision(charSetAST, set, c);
-				set.add(c);
 			}
 			i += offset;
+		}
+		// Whether or not we were in a range, we'll add the last code point found to the set.
+		// If the range wasn't terminated, we'll treat it as a standalone codepoint.
+		if (prevCodePoint != -1) {
+			checkSetCollision(charSetAST, set, prevCodePoint);
+			set.add(prevCodePoint);
+			prevCodePoint = -1;
 		}
 		return set;
 	}
