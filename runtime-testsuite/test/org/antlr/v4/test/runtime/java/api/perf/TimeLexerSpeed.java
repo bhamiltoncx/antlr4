@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.test.runtime.java.api.JavaLexer;
 import org.openjdk.jol.info.GraphLayout;
 
@@ -185,37 +186,39 @@ public class TimeLexerSpeed { // don't call it Test else it'll run during "mvn t
 		tests.compilerWarmUp(100);
 
 		int n = 3500;
-		tests.load_legacy_java_ascii_file(Parser_java_file, n);
-		tests.load_legacy_java_ascii_file(RuleContext_java_file, n);
-		tests.load_legacy_java_ascii(Parser_java_file, n);
-		tests.load_legacy_java_ascii(RuleContext_java_file, n);
-		tests.load_legacy_java_utf8(Parser_java_file, n);
-		tests.load_legacy_java_utf8(PerfDir+"/udhr_hin.txt", n);
-		tests.load_new_utf8(Parser_java_file, n);
-		tests.load_new_utf8(RuleContext_java_file, n);
-		tests.load_new_utf8(PerfDir+"/udhr_hin.txt", n);
-		System.out.println();
+		// tests.load_legacy_java_ascii_file(Parser_java_file, n);
+		// tests.load_legacy_java_ascii_file(RuleContext_java_file, n);
+		// tests.load_legacy_java_ascii(Parser_java_file, n);
+		// tests.load_legacy_java_ascii(RuleContext_java_file, n);
+		// tests.load_legacy_java_utf8(Parser_java_file, n);
+		// tests.load_legacy_java_utf8(PerfDir+"/udhr_hin.txt", n);
+		// tests.load_new_utf8(Parser_java_file, n);
+		// tests.load_new_utf8(RuleContext_java_file, n);
+		// tests.load_new_utf8(PerfDir+"/udhr_hin.txt", n);
+		// System.out.println();
 
 		n = 2000;
 		tests.lex_legacy_java_utf8(n, false);
 		tests.lex_legacy_java_utf8(n, true);
-		tests.lex_new_java_utf8(n, false);
-		tests.lex_new_java_utf8(n, true);
+		tests.lex_legacy2_java_utf8(n, false);
+		tests.lex_legacy2_java_utf8(n, true);
+		// tests.lex_new_java_utf8(n, false);
+		// tests.lex_new_java_utf8(n, true);
 		System.out.println();
 
-		n = 400;
-		tests.lex_legacy_grapheme_utf8("udhr_kor.txt", n, false);
-		tests.lex_legacy_grapheme_utf8("udhr_kor.txt", n, true);
-		tests.lex_legacy_grapheme_utf8("udhr_hin.txt", n, false);
-		tests.lex_legacy_grapheme_utf8("udhr_hin.txt", n, true);
+		// n = 400;
+		// tests.lex_legacy_grapheme_utf8("udhr_kor.txt", n, false);
+		// tests.lex_legacy_grapheme_utf8("udhr_kor.txt", n, true);
+		// tests.lex_legacy_grapheme_utf8("udhr_hin.txt", n, false);
+		// tests.lex_legacy_grapheme_utf8("udhr_hin.txt", n, true);
 		// legacy can't handle the emoji (32 bit stuff)
 
-		tests.lex_new_grapheme_utf8("udhr_kor.txt", n, false);
-		tests.lex_new_grapheme_utf8("udhr_kor.txt", n, true);
-		tests.lex_new_grapheme_utf8("udhr_hin.txt", n, false);
-		tests.lex_new_grapheme_utf8("udhr_hin.txt", n, true);
-		tests.lex_new_grapheme_utf8("emoji.txt", n, false);
-		tests.lex_new_grapheme_utf8("emoji.txt", n, true);
+		// tests.lex_new_grapheme_utf8("udhr_kor.txt", n, false);
+		// tests.lex_new_grapheme_utf8("udhr_kor.txt", n, true);
+		// tests.lex_new_grapheme_utf8("udhr_hin.txt", n, false);
+		// tests.lex_new_grapheme_utf8("udhr_hin.txt", n, true);
+		// tests.lex_new_grapheme_utf8("emoji.txt", n, false);
+		// tests.lex_new_grapheme_utf8("emoji.txt", n, true);
 
 		for (String streamFootprint : tests.streamFootprints) {
 			System.out.print(streamFootprint);
@@ -225,14 +228,15 @@ public class TimeLexerSpeed { // don't call it Test else it'll run during "mvn t
 	public void compilerWarmUp(int n) throws Exception {
 		System.out.print("Warming up Java compiler");
 		output = false;
-		lex_new_java_utf8(n, false);
-		System.out.print('.');
+		// lex_new_java_utf8(n, false);
+		// System.out.print('.');
+		lex_legacy2_java_utf8(1, false);
 		lex_legacy_java_utf8(n, false);
 		System.out.print('.');
-		System.out.print('.');
-		lex_legacy_grapheme_utf8("udhr_hin.txt", n, false);
-		System.out.print('.');
-		lex_new_grapheme_utf8("udhr_hin.txt", n, false);
+		// System.out.print('.');
+		// lex_legacy_grapheme_utf8("udhr_hin.txt", n, false);
+		// System.out.print('.');
+		// lex_new_grapheme_utf8("udhr_hin.txt", n, false);
 		System.out.println();
 		output = true;
 	}
@@ -361,6 +365,69 @@ public class TimeLexerSpeed { // don't call it Test else it'll run during "mvn t
 		     InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 		     BufferedReader br = new BufferedReader(isr)) {
 			CharStream input = new ANTLRInputStream(br);
+			JavaLexer lexer = new JavaLexer(input);
+			double avg = tokenize(lexer, n, clearLexerDFACache);
+			String currentMethodName = new Exception().getStackTrace()[0].getMethodName();
+			if ( output ) System.out.printf("%27s average time %5dus over %4d runs of %5d symbols%s\n",
+							currentMethodName,
+							(int)avg,
+							n,
+							input.size(),
+							clearLexerDFACache ? " DFA cleared" : "");
+		}
+	}
+
+	public void lex_legacy2_java_utf8(int n, boolean clearLexerDFACache) throws Exception {
+		try (InputStream is = TimeLexerSpeed.class.getClassLoader().getResourceAsStream(Parser_java_file);
+		     InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+		     BufferedReader br = new BufferedReader(isr)) {
+			final ANTLRInputStream ais = new ANTLRInputStream(br);
+			CharStream input = new CharStream() {
+					@Override
+					public void consume() {
+							ais.consume();
+					}
+
+					@Override
+					public int LA(int i) {
+							return ais.LA(i);
+					}
+
+					@Override
+					public int mark() {
+							return ais.mark();
+					}
+
+					@Override
+					public void release(int marker) {
+							ais.release(marker);
+					}
+
+					@Override
+					public int index() {
+							return ais.index();
+					}
+
+					@Override
+					public void seek(int index) {
+							ais.seek(index);
+					}
+
+					@Override
+					public int size() {
+							return ais.size();
+					}
+
+					@Override
+					public String getSourceName() {
+							return ais.getSourceName();
+					}
+
+					@Override
+					public String getText(Interval interval) {
+							return ais.getText(interval);
+					}
+			};
 			JavaLexer lexer = new JavaLexer(input);
 			double avg = tokenize(lexer, n, clearLexerDFACache);
 			String currentMethodName = new Exception().getStackTrace()[0].getMethodName();
