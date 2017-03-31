@@ -70,6 +70,7 @@ public final class HackTarget extends Target {
 			"namespace",
 			"new",
 			"newtype",
+			"noreturn",
 			"null",
 			"object",
 			"or",
