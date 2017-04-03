@@ -221,12 +221,14 @@ fileHeader(grammarFileName, ANTLRVersion) ::= <<
 use ANTLR\\ATNDeserializer;
 use ANTLR\\DFA;
 use ANTLR\\ErrorNode;
+use ANTLR\\NoViableAltException;
 use ANTLR\\Parser;
 use ANTLR\\ParserRuleContext;
 use ANTLR\\PredictionContextCache;
 use ANTLR\\RecognitionException;
 use ANTLR\\RuntimeMetaData;
 use ANTLR\\TerminalNode;
+use ANTLR\\Token;
 use ANTLR\\Vocabulary;
 
 >>
@@ -245,20 +247,20 @@ public class <parser.name> extends <superClass; null="Parser"> {
 		   return static::$decisionToDFA;
 		}
 		static::$decisionToDFAInitialized = true;
-		$length = static::$ATN->getNumberOfDecisions();
+		$length = static::$ATN-\>getNumberOfDecisions();
 		for ($i = 0; $i < $length; $i++) {
-		    static::$decisionToDFA[] = new DFA(nullthrows(static::$ATN->getDecisionState(i)), $i);
+		    static::$decisionToDFA[] = new DFA(nullthrows(static::$ATN-\>getDecisionState(i)), $i);
 		}
 		return static::$decisionToDFA;
 	}
 	private static PredictionContextCache $sharedContextCache = new PredictionContextCache();
 	<if(parser.tokens)>
 	<parser.tokens:{k | const int <k> = <parser.tokens.(k)>;
-	}; wrap, anchor>
+	}; separator="\n">
 	}
         <endif>
         <parser.rules:{r | const int RULE_<r.name> = <r.index>;
-	}; wrap, anchor>
+	}; separator="\n">
 	public static vec<string> $ruleNames = vec[
 		<parser.ruleNames:{r | '<r>'}; separator=", ", wrap, anchor>
 	];
@@ -266,13 +268,13 @@ public class <parser.name> extends <superClass; null="Parser"> {
 	<vocabulary(parser.literalNames, parser.symbolicNames)>
 
 	<<__Override>>
-	public function getGrammarFileName(): string { return '<parser.grammarFileName>'; }
+	public function getGrammarFileName(): string { return "<parser.grammarFileName>"; }
 
 	<<__Override>>
 	public function getRuleNames(): vec<string> { return static::$ruleNames; }
 
 	<<__Override>>
-	public function getSerializedATN(): string { return SERIALIZED_ATN; }
+	public function getSerializedATN(): string { return static::$SERIALIZED_ATN; }
 
 	<<__Override>>
 	public function getATN(): ATN { return static::$ATN; }
@@ -308,7 +310,7 @@ private static vec<string> $LITERAL_NAMES = vec[
 private static vec<string> $SYMBOLIC_NAMES = vec[
 	<symbolicNames:{t | <t>}; separator=", ", wrap, anchor>
 ];
-public static Vocabulary $VOCABULARY = new Vocabulary($LITERAL_NAMES, $SYMBOLIC_NAMES);
+public static Vocabulary $VOCABULARY = new Vocabulary(static::$LITERAL_NAMES, static::$SYMBOLIC_NAMES);
 >>
 
 dumpActions(recog, argFuncs, actionFuncs, sempredFuncs) ::= <<
@@ -347,7 +349,7 @@ parser_ctor(p) ::= <<
 public function __construct(TokenStream $input) {
        parent::__construct($input);
        RuntimeMetaData::checkVersion("4.7", RuntimeMetaData::VERSION)
-       $this->interp = new ParserATNSimulator($this, static::$ATN, static::$decisionToDFA, static::$sharedContextCache)
+       $this-\>interp = new ParserATNSimulator($this, static::$ATN, static::$decisionToDFA, static::$sharedContextCache)
 }
 >>
 
@@ -386,8 +388,8 @@ RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,fina
 <ruleCtx>
 <altLabelCtxs:{l | <altLabelCtxs.(l)>}; separator="\n">
 <if(currentRule.modifiers)><currentRule.modifiers:{f | <f> }><else>public final <endif> function <currentRule.name>(<args; separator=", ">): <currentRule.ctxType> {
-	<currentRule.ctxType> $localctx = new <currentRule.ctxType>($this->ctx, getState()<currentRule.args:{a | , <a.name>}>);
-	$this->enterRule($localctx, <currentRule.startState>, static::$RULE_<currentRule.name>);
+	<currentRule.ctxType> $localctx = new <currentRule.ctxType>($this-\>ctx, getState()<currentRule.args:{a | , <a.name>}>);
+	$this-\>enterRule($localctx, <currentRule.startState>, static::$RULE_<currentRule.name>);
 	<namedActions.init>
 	<locals; separator="\n">
 	try {
@@ -402,14 +404,14 @@ RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,fina
 	<exceptions; separator="\n">
 	<else>
 	catch (RecognitionException $re) {
-		$localctx->exception = $re;
-		$this->errHandler->reportError($this, $re);
-		$this->errHandler->recover($this, $re);
+		$localctx-\>exception = $re;
+		$this-\>errHandler-\>reportError($this, $re);
+		$this-\>errHandler-\>recover($this, $re);
 	}
 	<endif>
 	finally {
 		<finallyAction>
-		$this->exitRule();
+		$this-\>exitRule();
 	}
 
 	return $localctx;
@@ -424,15 +426,15 @@ LeftRecursiveRuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,
 <altLabelCtxs:{l | <altLabelCtxs.(l)>}; separator="\n">
 
 <if(currentRule.modifiers)><currentRule.modifiers:{f | <f> }><else>public final <endif> function <currentRule.name>(<args; separator=", ">): <currentRule.ctxType> {
-	return $this-><currentRule.name>(0<currentRule.args:{a | , <a.name>}>);
+	return $this-\><currentRule.name>(0<currentRule.args:{a | , <a.name>}>);
 }
 private function <currentRule.name>(int $p<args:{a | , <a>}>): <currentRule.ctxType> {
-	$parentctx = $this->ctx;
-	$parentState = $this->getState();
-	$localctx = new <currentRule.ctxType>($this->ctx, $parentState<currentRule.args:{a | , <a.name>}>);
+	$parentctx = $this-\>ctx;
+	$parentState = $this-\>getState();
+	$localctx = new <currentRule.ctxType>($this-\>ctx, $parentState<currentRule.args:{a | , <a.name>}>);
 	$prevctx = $localctx;
 	$startState = <currentRule.startState>;
-	$this->enterRecursionRule($localctx, <currentRule.startState>, static::RULE_<currentRule.name>, $p);
+	$this-\>enterRecursionRule($localctx, <currentRule.startState>, static::RULE_<currentRule.name>, $p);
 	<namedActions.init>
 	<locals; separator="\n">
 	try {
@@ -444,13 +446,13 @@ private function <currentRule.name>(int $p<args:{a | , <a>}>): <currentRule.ctxT
 		<namedActions.after>
 	}
 	catch (RecognitionException $re) {
-		$localctx->exception = $re;
-		$this->errHandler->reportError($this, $re);
-		$this->errHandler->recover($this, $re);
+		$localctx-\>exception = $re;
+		$this-\>errHandler-\>reportError($this, $re);
+		$this-\>errHandler-\>recover($this, $re);
 	}
 	finally {
 		<finallyAction>
-		$this->unrollRecursionContexts($parentctx);
+		$this-\>unrollRecursionContexts($parentctx);
 	}
 
 	return $localctx;
@@ -458,8 +460,8 @@ private function <currentRule.name>(int $p<args:{a | , <a>}>): <currentRule.ctxT
 >>
 
 CodeBlockForOuterMostAlt(currentOuterMostAltCodeBlock, locals, preamble, ops) ::= <<
-<if(currentOuterMostAltCodeBlock.altLabel)>_localctx = new <currentOuterMostAltCodeBlock.altLabel; format="cap">Context($localctx);<endif>
-$this->enterOuterAlt($localctx, <currentOuterMostAltCodeBlock.alt.altNum>);
+<if(currentOuterMostAltCodeBlock.altLabel)>$localctx = new <currentOuterMostAltCodeBlock.altLabel; format="cap">Context($localctx);<endif>
+$this-\>enterOuterAlt($localctx, <currentOuterMostAltCodeBlock.alt.altNum>);
 <CodeBlockForAlt(currentAltCodeBlock=currentOuterMostAltCodeBlock, ...)>
 >>
 
@@ -472,11 +474,11 @@ CodeBlockForAlt(currentAltCodeBlock, locals, preamble, ops) ::= <<
 >>
 
 LL1AltBlock(choice, preamble, alts, error) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
-<if(choice.label)>$<labelref(choice.label)> = $this->input->LT(1);<endif>
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
+<if(choice.label)>$<labelref(choice.label)> = $this-\>input-\>LT(1);<endif>
 <preamble; separator="\n">
-switch ($this->input->LA(1)) {
+switch ($this-\>input-\>LA(1)) {
 <choice.altLook,alts:{look,alt | <cases(ttypes=look)>
 	<alt>
 	break;}; separator="\n">
@@ -486,9 +488,9 @@ default:
 >>
 
 LL1OptionalBlock(choice, alts, error) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
-switch ($this->input->LA(1)) {
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
+switch ($this-\>input-\>LA(1)) {
 <choice.altLook,alts:{look,alt| <cases(ttypes=look)>
 	<alt>
 	break;}; separator="\n">
@@ -496,8 +498,8 @@ switch ($this->input->LA(1)) {
 >>
 
 LL1OptionalBlockSingleAlt(choice, expr, alts, preamble, error, followExpr) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
 <preamble; separator="\n">
 if (<expr>) {
 	<alts; separator="\n">
@@ -506,25 +508,25 @@ if (<expr>) {
 >>
 
 LL1StarBlockSingleAlt(choice, loopExpr, alts, preamble, iteration) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
 <preamble; separator="\n">
 while (<loopExpr>) {
 	<alts; separator="\n">
-	$this->setState(<choice.loopBackStateNumber>);
-	$this->errHandler->sync($this);
+	$this-\>setState(<choice.loopBackStateNumber>);
+	$this-\>errHandler-\>sync($this);
 	<iteration>
 }
 >>
 
 LL1PlusBlockSingleAlt(choice, loopExpr, alts, preamble, iteration) ::= <<
-$this->setState(<choice.blockStartStateNumber>); <! alt block decision !>
-$this->errHandler->sync($this);
+$this-\>setState(<choice.blockStartStateNumber>); <! alt block decision !>
+$this-\>errHandler-\>sync($this);
 <preamble; separator="\n">
 do {
 	<alts; separator="\n">
-	$this->setState(<choice.stateNumber>); <! loopback/exit decision !>
-	$this->errHandler->sync($this);
+	$this-\>setState(<choice.stateNumber>); <! loopback/exit decision !>
+	$this-\>errHandler-\>sync($this);
 	<iteration>
 } while (<loopExpr>);
 >>
@@ -532,11 +534,11 @@ do {
 // LL(*) stuff
 
 AltBlock(choice, preamble, alts, error) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
-<if(choice.label)>$<labelref(choice.label)> = $this->input->LT(1);<endif>
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
+<if(choice.label)>$<labelref(choice.label)> = $this-\>input-\>LT(1);<endif>
 <preamble; separator="\n">
-switch ($this->getInterpreter()->adaptivePredict($this->input, <choice.decision>, $this->ctx)) {
+switch ($this-\>getInterpreter()-\>adaptivePredict($this-\>input, <choice.decision>, $this-\>ctx)) {
 <alts:{alt |
 case <i>:
 	<alt>
@@ -545,9 +547,9 @@ case <i>:
 >>
 
 OptionalBlock(choice, alts, error) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
-switch ($this->getInterpreter()->adaptivePredict($this->input, <choice.decision>, $this->ctx)) {
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
+switch ($this-\>getInterpreter()-\>adaptivePredict($this-\>input, <choice.decision>, $this-\>ctx)) {
 <alts:{alt |
 case <i><if(!choice.ast.greedy)>+1<endif>:
 	<alt>
@@ -556,51 +558,46 @@ case <i><if(!choice.ast.greedy)>+1<endif>:
 >>
 
 StarBlock(choice, alts, sync, iteration) ::= <<
-$this->setState(<choice.stateNumber>);
-$this->errHandler->sync($this);
-$alt = $this->getInterpreter()->adaptivePredict($this->input, <choice.decision>, $this->ctx);
+$this-\>setState(<choice.stateNumber>);
+$this-\>errHandler-\>sync($this);
+$alt = $this-\>getInterpreter()-\>adaptivePredict($this-\>input, <choice.decision>, $this-\>ctx);
 while ($alt != <choice.exitAlt> && $alt != ATN::INVALID_ALT_NUMBER) {
 	if ( $alt==1<if(!choice.ast.greedy)>+1<endif> ) {
 		<iteration>
 		<alts> <! should only be one !>
 	}
-	$this->setState(<choice.loopBackStateNumber>);
-	$this->errHandler->sync($this);
-	$alt = $this->getInterpreter()->adaptivePredict($this->input, <choice.decision>, $this->ctx);
+	$this-\>setState(<choice.loopBackStateNumber>);
+	$this-\>errHandler-\>sync($this);
+	$alt = $this-\>getInterpreter()-\>adaptivePredict($this-\>input, <choice.decision>, $this-\>ctx);
 }
 >>
 
 PlusBlock(choice, alts, error) ::= <<
-setState(<choice.blockStartStateNumber>); <! alt block decision !>
-try _errHandler.sync($this)
-_alt = 1<if(!choice.ast.greedy)>+1<endif>;
-repeat {
-	switch (_alt) {
+$this-\>setState(<choice.blockStartStateNumber>); <! alt block decision !>
+$this-\>errHandler-\>sync($this);
+$alt = 1<if(!choice.ast.greedy)>+1<endif>;
+do {
+	switch ($alt) {
 	<alts:{alt|
-case <i><if(!choice.ast.greedy)>+1<endif>:
-	<alt>
-	break}; separator="\n">
-	default:
-		<error>
+		case <i><if(!choice.ast.greedy)>+1<endif>:
+			<alt>
+			break;
+	}; separator="\n">
+		default:
+			<error>
 	}
-	setState(<choice.loopBackStateNumber>); <! loopback/exit decision !>
-	try _errHandler.sync($this)
-	_alt = try getInterpreter().adaptivePredict(_input,<choice.decision>,$this->ctx)
-} while (_alt != <choice.exitAlt> && _alt !=  ATN.INVALID_ALT_NUMBER)
+	$this-\>setState(<choice.loopBackStateNumber>); <! loopback/exit decision !>
+	$this-\>errHandler-\>sync($this);
+	_alt = $this-\>getInterpreter()-\>adaptivePredict($this-\>input, <choice.decision>, $this-\>ctx);
+} while ($alt != <choice.exitAlt> && $alt != ATN::INVALID_ALT_NUMBER);
 >>
 
 Sync(s) ::= "sync(<s.expecting.name>);"
 
-ThrowNoViableAlt(t) ::= "throw try ANTLRException.recognition(e: NoViableAltException($this))"
+ThrowNoViableAlt(t) ::= "throw new NoViableAltException($this);"
 
 TestSetInline(s) ::= <<
-<!<s.bitsets:{bits | <if(rest(rest(bits.ttypes)))><bitsetBitfieldComparison(s, bits)><else><bitsetInlineComparison(s, bits)><endif>}; separator=" || ">!>
- //closure
- { (): bool in
-      <if(rest(s.bitsets))>var<else>let<endif> testSet: bool = <first(s.bitsets):{bits | <if(rest(rest(bits.ttypes)))><bitsetBitfieldComparison(s, bits)><else><bitsetInlineComparison(s, bits)><endif>}>
-          <rest(s.bitsets):{bits | testSet = testSet || <if(rest(rest(bits.ttypes)))><bitsetBitfieldComparison(s, bits)><else><bitsetInlineComparison(s, bits)><endif>}; separator="\n">
-      return testSet
- }()
+<s.bitsets:{bits | <if(rest(rest(bits.ttypes)))><bitsetBitfieldComparison(s, bits)><else><bitsetInlineComparison(s, bits)><endif>}; separator=" || ">
 >>
 
 // Java language spec 15.19 - shift operators mask operands rather than overflow to 0... need range test
@@ -609,60 +606,36 @@ testShiftInRange(shiftAmount) ::= <<
 >>
 
 // produces smaller bytecode only when bits.ttypes contains more than two items
-bitsetBitfieldComparison(s, bits) ::= <<
-<!(<testShiftInRange({<offsetShift(s.varName, bits.shift)>})> && ((1 \<\< <offsetShift(s.varName, bits.shift)>) & (<bits.ttypes:{ttype | (1 \<\< <offsetShift(ttype, bits.shift)>)}; separator=" | ">)) != 0)!>
-{  (): bool in
-    <! let test: bool = (<testShiftInRange({<offsetShift(s.varName, bits.shift)>})>)!>
-   <!var temp: Int64 =  Int64(<offsetShift(s.varName, bits.shift)>)!>
-   <!temp = (temp \< 0) ? (64 + (temp % 64 )) : (temp % 64)!>
-   <!let test1: Int64 = (Int64(1) \<\< temp)!>
-   <!var test2: Int64 = (<first(bits.ttypes):{ttype | Utils.bitLeftShift(<offsetShift(parserName(ttype), bits.shift)>)}>)!>
-   <!<rest(bits.ttypes):{ttype | test2 = test2 | Utils.bitLeftShift(<offsetShift(parserName(ttype), bits.shift)>)}; separator="\n">!>
-   let testArray: [Int] = [<s.varName>, <bits.ttypes:{ttype |<parserName(ttype)>}; separator=",">]
-   <!var test2: Int64 = Utils.testBitLeftShiftArray(testArray)!>
-    return  Utils.testBitLeftShiftArray(testArray, <bits.shift>)
-}()
->>
+bitsetBitfieldComparison(s, bits) ::= <%
+(<testShiftInRange({<offsetShift(s.varName, bits.shift)>})> && ((1L \<\< <offsetShift(s.varName, bits.shift)>) & (<bits.ttypes:{ttype | (1L \<\< <offsetShift(ttype, bits.shift)>)}; separator=" | ">)) != 0)
+%>
 
 isZero ::= [
-"0": true,
-default: false
+"0":true,
+default:false
 ]
-parserName(ttype) ::= <%
- <parser.name>.Tokens.<ttype>.rawValue
-%>
+
 offsetShift(shiftAmount, offset) ::= <%
 <if(!isZero.(offset))>(<shiftAmount> - <offset>)<else><shiftAmount><endif>
 %>
 
 // produces more efficient bytecode when bits.ttypes contains at most two items
 bitsetInlineComparison(s, bits) ::= <%
-<bits.ttypes:{ttype | <s.varName> == <parser.name>.Tokens.<ttype>.rawValue}; separator=" || ">
+<bits.ttypes:{ttype | <s.varName>==<ttype>}; separator=" || ">
 %>
 
 cases(ttypes) ::= <<
-<trunc(ttypes): {t | case .<t>:fallthrough}  ; separator="\n">
-<last(ttypes): {t | case .<t>:}  ; separator="\n">
+<ttypes:{t | case <t>:}; separator="\n">
 >>
 
 InvokeRule(r, argExprsChunks) ::= <<
-setState(<r.stateNumber>)
-<if(r.labels)>
-try {
-		let assignmentValue = try <r.name>(<if(r.ast.options.p)><r.ast.options.p><if(argExprsChunks)>,<endif><endif><argExprsChunks>)
-		<r.labels:{l | <labelref(l)> = assignmentValue} ; separator="\n">
-     }()
-<else>try <r.name>(<if(r.ast.options.p)><r.ast.options.p><if(argExprsChunks)>,<endif><endif><argExprsChunks>)<endif>
+$this-\>setState(<r.stateNumber>);
+<if(r.labels)><r.labels:{l | <labelref(l)> = }><endif><r.name>(<if(r.ast.options.p)><r.ast.options.p><if(argExprsChunks)>,<endif><endif><argExprsChunks>);
 >>
 
 MatchToken(m) ::= <<
-setState(<m.stateNumber>)
-<if(m.labels)>
-try {
-		let assignmentValue = try match(<parser.name>.Tokens.<m.name>.rawValue)
-		<m.labels:{l | <labelref(l)> = assignmentValue}  ; separator="\n">
-     }()
-<else>try match(<parser.name>.Tokens.<m.name>.rawValue)<endif>
+$this-\>setState(<m.stateNumber>);
+<if(m.labels)><m.labels:{l | <labelref(l)> = }><endif>match(<m.name>);
 >>
 
 MatchSet(m, expr, capture) ::= "<CommonSetStuff(m, expr, capture, false)>"
@@ -670,21 +643,22 @@ MatchSet(m, expr, capture) ::= "<CommonSetStuff(m, expr, capture, false)>"
 MatchNotSet(m, expr, capture) ::= "<CommonSetStuff(m, expr, capture, true)>"
 
 CommonSetStuff(m, expr, capture, invert) ::= <<
-setState(<m.stateNumber>)
-<if(m.labels)><m.labels:{l | <labelref(l)> = }>try _input.LT(1)<endif>
+$this-\>setState(<m.stateNumber>);
+<if(m.labels)><m.labels:{l | <labelref(l)> = }>$this-\>input-\>LT(1);<endif>
 <capture>
-if (<if(invert)><m.varName> \<= 0 || <else>!<endif>(<expr>)) {
-	<if(m.labels)><m.labels:{l | <labelref(l)> = }><endif>try _errHandler.recoverInline($this)<if(m.labels)> as Token<endif>
+if ( <if(invert)><m.varName> \<= 0 || <else>!<endif>(<expr>) ) {
+	<if(m.labels)><m.labels:{l | <labelref(l)> = (Token)}><endif>$this-\>errHandler-\>recoverInline(this);
 }
 else {
-	_errHandler.reportMatch($this)
-	try consume()
+	if ( $this-\>input-\>LA(1)==Token::EOF ) matchedEOF = true;
+	$this-\>errHandler-\>reportMatch($this);
+	$this-\>consume();
 }
 >>
 
 Wildcard(w) ::= <<
-setState(<w.stateNumber>)
-<if(w.labels)><w.labels:{l | <labelref(l)> = }><endif>try matchWildcard();
+$this-\>setState(<w.stateNumber>);
+<if(w.labels)><w.labels:{l | <labelref(l)> = }><endif>matchWildcard();
 >>
 
 // ACTION STUFF
@@ -694,9 +668,9 @@ Action(a, foo, chunks) ::= "<chunks>"
 ArgAction(a, chunks) ::= "<chunks>"
 
 SemPred(p, chunks, failChunks) ::= <<
-setState(<p.stateNumber>)
+$this-\>setState(<p.stateNumber>);
 if (!(<chunks>)) {
-    throw try ANTLRException.recognition(e:FailedPredicateException($this, <p.predicate><if(failChunks)>, <failChunks><elseif(p.msg)>, <p.msg><endif>))
+    throw new RecognitionException(e:FailedPredicateException($this, <p.predicate><if(failChunks)>, <failChunks><elseif(p.msg)>, <p.msg><endif>));
 }
 >>
 
@@ -708,84 +682,84 @@ catch (<catchArg>) {
 
 // lexer actions are not associated with model objects
 
-LexerSkipCommand()  ::= "skip()"
-LexerMoreCommand()  ::= "more()"
-LexerPopModeCommand() ::= "popMode()"
+LexerSkipCommand()  ::= "$this-\>skip();"
+LexerMoreCommand()  ::= "$this-\>more();"
+LexerPopModeCommand() ::= "$this-\>popMode();"
 
-LexerTypeCommand(arg)      ::= "_type = <arg>"
-LexerChannelCommand(arg)   ::= "_channel = <arg>"
-LexerModeCommand(arg)      ::= "_mode = <arg>"
-LexerPushModeCommand(arg)  ::= "pushMode(<arg>)"
+LexerTypeCommand(arg)      ::= "$this-\>type = <arg>;"
+LexerChannelCommand(arg)   ::= "$this-\>channel = <arg>;"
+LexerModeCommand(arg)      ::= "$this-\>mode = <arg>;"
+LexerPushModeCommand(arg)  ::= "$this-\>pushMode(<arg>);"
 
 ActionText(t) ::= "<t.text>"
 ActionTemplate(t) ::= "<t.st>"
-ArgRef(a) ::= "_localctx.<a.name>"
-LocalRef(a) ::= "_localctx.<a.name>"
-RetValueRef(a) ::= "_localctx.<a.name>"
-QRetValueRef(a) ::= "<ctx(a)>.<a.dict>.<a.name>"
+ArgRef(a) ::= "$localctx-\><a.name>"
+LocalRef(a) ::= "$localctx-\><a.name>"
+RetValueRef(a) ::= "$localctx-\><a.name>"
+QRetValueRef(a) ::= "<ctx(a)>-\><a.dict>-\><a.name>"
 /** How to translate $tokenLabel */
-TokenRef(t) ::= "<ctx(t)>.<t.name>"
-LabelRef(t) ::= "<ctx(t)>.<t.name>"
-ListLabelRef(t) ::= "<ctx(t)>.<ListLabelName(t.name)>"
-SetAttr(s,rhsChunks) ::= "<ctx(s)>.<s.name> = <rhsChunks>"
+TokenRef(t) ::= "<ctx(t)>-\><t.name>"
+LabelRef(t) ::= "<ctx(t)>-\><t.name>"
+ListLabelRef(t) ::= "<ctx(t)>-\><ListLabelName(t.name)>"
+SetAttr(s,rhsChunks) ::= "<ctx(s)>-\><s.name> = <rhsChunks>;"
 
 TokenLabelType() ::= "<file.TokenLabelType; null={Token}>"
 InputSymbolType() ::= "<file.InputSymbolType; null={Token}>"
 
-TokenPropertyRef_text(t) ::= "(<ctx(t)>.<t.label> != nil ? <ctx(t)>.<t.label>!.getText()! : \"\")"
-TokenPropertyRef_type(t) ::= "(<ctx(t)>.<t.label> != nil ? <ctx(t)>.<t.label>!.getType() : 0)"
-TokenPropertyRef_line(t) ::= "(<ctx(t)>.<t.label> != nil ? <ctx(t)>.<t.label>!.getLine() : 0)"
-TokenPropertyRef_pos(t) ::= "(<ctx(t)>.<t.label> != nil ? <ctx(t)>.<t.label>!.getCharPositionInLine() : 0)"
-TokenPropertyRef_channel(t) ::= "(<ctx(t)>.<t.label> != nil ? <ctx(t)>.<t.label>!.getChannel() : 0)"
-TokenPropertyRef_index(t) ::= "(<ctx(t)>.<t.label> != nil ? <ctx(t)>.<t.label>!.getTokenIndex() : 0)"
-TokenPropertyRef_int(t) ::= "(<ctx(t)>.<t.label> != nil ? Int(<ctx(t)>.<t.label>!.getText()!) : 0)"
+TokenPropertyRef_text(t) ::= "(<ctx(t)>-\><t.label>!==null?<ctx(t)>-\><t.label>-\>getText():null)"
+TokenPropertyRef_type(t) ::= "(<ctx(t)>-\><t.label>!==null?<ctx(t)>-\><t.label>-\>getType():0)"
+TokenPropertyRef_line(t) ::= "(<ctx(t)>-\><t.label>!==null?<ctx(t)>-\><t.label>-\>getLine():0)"
+TokenPropertyRef_pos(t) ::= "(<ctx(t)>-\><t.label>!==null?<ctx(t)>-\><t.label>-\>getCharPositionInLine():0)"
+TokenPropertyRef_channel(t) ::= "(<ctx(t)>-\><t.label>!==null?<ctx(t)>-\><t.label>-\>getChannel():0)"
+TokenPropertyRef_index(t) ::= "(<ctx(t)>-\><t.label>!==null?<ctx(t)>-\><t.label>-\>getTokenIndex():0)"
+TokenPropertyRef_int(t) ::= "(<ctx(t)>-\><t.label>!==null?Integer.valueOf(<ctx(t)>-\><t.label>-\>getText()):0)"
 
-RulePropertyRef_start(r) ::= "(<ctx(r)>.<r.label> != nil ? (<ctx(r)>.<r.label>!.start?.description ?? \"\") : \"\")"
-RulePropertyRef_stop(r)	 ::= "(<ctx(r)>.<r.label> != nil ? (<ctx(r)>.<r.label>!.stop?.description ?? \"\") : \"\")"
-RulePropertyRef_text(r)	 ::= "(<ctx(r)>.<r.label> != nil ? try _input.getText(<ctx(r)>.<r.label>!.start,<ctx(r)>.<r.label>!.stop) : \"\")"
-RulePropertyRef_ctx(r)	 ::= "<ctx(r)>.<r.label>"
-RulePropertyRef_parser(r)	 ::= "self"
+RulePropertyRef_start(r) ::= "(<ctx(r)>-\><r.label>!==null?(<ctx(r)>-\><r.label>-\>start):null)"
+RulePropertyRef_stop(r)	 ::= "(<ctx(r)>-\><r.label>!==null?(<ctx(r)>-\><r.label>-\>stop):null)"
+RulePropertyRef_text(r)	 ::= "(<ctx(r)>-\><r.label>!==null?$this-\>input-\>getText(<ctx(r)>-\><r.label>-\>start,<ctx(r)>-\><r.label>-\>stop):null)"
+RulePropertyRef_ctx(r)	 ::= "<ctx(r)>-\><r.label>"
+RulePropertyRef_parser(r)	 ::= "$this"
 
-ThisRulePropertyRef_start(r) ::= "_localctx.start"
-ThisRulePropertyRef_stop(r)	 ::= "_localctx.stop"
-ThisRulePropertyRef_text(r)	 ::= "(try _input.getText(_localctx.start, try _input.LT(-1)))"
-ThisRulePropertyRef_ctx(r)	 ::= "_localctx"
-ThisRulePropertyRef_parser(r)	 ::= "self"
+ThisRulePropertyRef_start(r) ::= "$localctx-\>$start"
+ThisRulePropertyRef_stop(r)	 ::= "$localctx-\>$stop"
+ThisRulePropertyRef_text(r)	 ::= "$input-\>getText($localctx-\>$start, $this-\>$input-\>LT(-1))"
+ThisRulePropertyRef_ctx(r)	 ::= "$localctx"
+ThisRulePropertyRef_parser(r)	 ::= "$this"
 
-NonLocalAttrRef(s)		 ::= "((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>)).<s.name>"
+NonLocalAttrRef(s)		 ::= "((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>))-\>$<s.name>"
 SetNonLocalAttr(s, rhsChunks)	  ::=
-	"((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>)).<s.name> = <rhsChunks>"
+	"((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>))-\><s.name> = <rhsChunks>;"
 
-AddToLabelList(a) ::= "<ctx(a.label)>.<a.listName>.append(<labelref(a.label)>)"
+AddToLabelList(a) ::= "<ctx(a.label)>-\><a.listName>-\>add(<labelref(a.label)>);"
 
-TokenDecl(t) ::= "<t.name>: <HackTypeMap.(TokenLabelType())>!"
-TokenTypeDecl(t) ::= "var <t.name>: Int = 0"
-TokenListDecl(t) ::= "<t.name>: Array\<Token> = Array\<Token>()"
-RuleContextDecl(r) ::= "<r.name>: <r.ctxName>!"
-RuleContextListDecl(rdecl) ::= "<rdecl.name>:Array\<<rdecl.ctxName>> = Array\<<rdecl.ctxName>>()"
+TokenDecl(t) ::= "<TokenLabelType()> <t.name>"
+TokenTypeDecl(t) ::= "int <t.name>;"
+TokenListDecl(t) ::= "vec\<Token> <t.name> = vec[]"
+RuleContextDecl(r) ::= "<r.ctxName> <r.name>"
+RuleContextListDecl(rdecl) ::= "vec\<<rdecl.ctxName>> <rdecl.name> = vec[]"
 
 ContextTokenGetterDecl(t)      ::=
-    "public function <t.name>(): TerminalNode? { return getToken(<parser.name>.Tokens.<t.name>.rawValue, 0) }"
+    "public function <t.name>(): TerminalNode { return $this-\>getToken(static::<t.name>, 0); }"
 ContextTokenListGetterDecl(t)  ::=
-    "public function <t.name>(): Array\<TerminalNode> { return getTokens(<parser.name>.Tokens.<t.name>.rawValue) }"
+    "public function <t.name>(): vec<TerminalNode> { return $this-\>getTokens(static::<t.name>); }"
 ContextTokenListIndexedGetterDecl(t)  ::= <<
-public function <t.name>(_ i:Int): TerminalNode?{
-	return getToken(<parser.name>.Tokens.<t.name>.rawValue, i)
+public function <t.name>(int $i): TerminalNode {
+	return $this-\>getToken(static::<t.name>, $i);
 }
 >>
 ContextRuleGetterDecl(r)       ::= <<
-public function <r.name>(): <r.ctxName>? {
-	return getRuleContext(<r.ctxName>.$this,0)
+public function <r.name>(): <r.ctxName> {
+	return $this-\>getRuleContext(get_class(<r.ctxName>),0);
 }
 >>
 ContextRuleListGetterDecl(r)   ::= <<
-public function <r.name>(): Array\<<r.ctxName>\> {
-	return getRuleContexts(<r.ctxName>.$this)
+public function <r.name>(): vec\<<r.ctxName>\> {
+	return $this-\>getRuleContexts(get_class(<r.ctxName>));
 }
 >>
 ContextRuleListIndexedGetterDecl(r)   ::= <<
-public function <r.name>(_ i: Int): <r.ctxName>? {
-	return getRuleContext(<r.ctxName>.$this,i)
+public function <r.name>(int $i): <r.ctxName> {
+	return $this-\>getRuleContext(get_class(<r.ctxName>,$i);
 }
 >>
 
@@ -796,32 +770,31 @@ LexerRuleContext() ::= "RuleContext"
  */
 RuleContextNameSuffix() ::= "Context"
 
-ImplicitTokenLabel(tokenName) ::= "_<tokenName>"
-ImplicitRuleLabel(ruleName)	  ::= "_<ruleName>"
-ImplicitSetLabel(id)		  ::= "_tset<id>"
-ListLabelName(label)		  ::= "<label>"
+ImplicitTokenLabel(tokenName) ::= "$this-\><tokenName>"
+ImplicitRuleLabel(ruleName)	  ::= "$this-\><ruleName>"
+ImplicitSetLabel(id)		  ::= "$this-\>tset<id>"
+ListLabelName(label)		  ::= "$this-\><label>"
 
-CaptureNextToken(d) ::= "<d.varName> = try _input.LT(1)"
-CaptureNextTokenType(d) ::= "<d.varName> = try _input.LA(1)"
+CaptureNextToken(d) ::= "$this-\><d.varName> = $this-\>input-\>LT(1);"
+CaptureNextTokenType(d) ::= "$this-\><d.varName> = $this-\>input-\>LA(1);"
 
-StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers,
-           superClass={ParserRuleContext}) ::= <<
-public class <struct.name>:<if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)>, <interfaces; separator=", "><endif> {
-	<attrs:{a | public var <a>}; separator="\n">
+StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers)
+	::= <<
+public class <struct.name> extends <if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)> implements <interfaces; separator=", "><endif> {
+	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
-	<! <if(ctorAttrs)>public init(_ parent: ParserRuleContext,_ invokingState: Int) { super.init(parent, invokingState)  }<endif> !>
-	 <if(ctorAttrs)>
-	 public convenience init(_ parent: ParserRuleContext?, _ invokingState: Int<ctorAttrs:{a | , _ <a>}>) {
-		self.init(parent, invokingState)
-		<struct.ctorAttrs:{a | self.<a.name> = <a.name>;}; separator="\n">
-	 }
-	<endif>
-	open <<__Override>> func getRuleIndex(): Int { return <parser.name>.RULE_<struct.derivedFromName> }
+	<if(ctorAttrs)>public function __construct(ParserRuleContext $parent, int $invokingState) { parent::__construct($parent, $invokingState); }<endif>
+	public function __construct (ParserRuleContext $parent, int $invokingState<ctorAttrs:{a | , <a>}>) {
+		parent::__construct($parent, $invokingState);
+		<struct.ctorAttrs:{a | $this-\><a.name> = <a.name>;}; separator="\n">
+	}
+	<<__Override>>
+	public function getRuleIndex(): int { return static::$RULE_<struct.derivedFromName>; }
 <if(struct.provideCopyFrom)> <! don't need copy unless we have subclasses !>
-	<!public init() { }!>
-	public  func copyFrom(_ ctx: <struct.name>) {
-		super.copyFrom(ctx)
-		<struct.attrs:{a | self.<a.name> = ctx.<a.name>;}; separator="\n">
+	public function __construct() { }
+	public function copyFrom(<struct.name> $ctx): void {
+		parent::copyFrom($ctx);
+		<struct.attrs:{a | $this-\><a.name> = ctx.<a.name>;}; separator="\n">
 	}
 <endif>
 	<dispatchMethods; separator="\n">
@@ -830,12 +803,11 @@ public class <struct.name>:<if(contextSuperClass)><contextSuperClass><else>Parse
 >>
 
 AltLabelStructDecl(struct,attrs,getters,dispatchMethods) ::= <<
-public  final class <struct.name>: <currentRule.name; format="cap">Context {
-	<attrs:{a | public var <a>}; separator="\n">
+public final class <struct.name> extends <currentRule.name; format="cap">Context {
+	<attrs:{a | public <a>}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
-	public init(_ ctx: <currentRule.name; format="cap">Context) {
-		super.init()
-		copyFrom(ctx)
+	public function __construct(<currentRule.name; format="cap">Context $ctx) {
+		$this-\>copyFrom($ctx);
 	}
 	<dispatchMethods; separator="\n">
 }
@@ -843,159 +815,154 @@ public  final class <struct.name>: <currentRule.name; format="cap">Context {
 
 ListenerDispatchMethod(method) ::= <<
 <<__Override>>
-public function <if(method.isEnter)>enter<else>exit<endif>Rule(_ listener: ParseTreeListener) {
-	if listener is <parser.grammarName>Listener {
-	 	(listener as! <parser.grammarName>Listener).<if(method.isEnter)>enter<else>exit<endif><struct.derivedFromName; format="cap">(self)
+public function <if(method.isEnter)>enter<else>exit<endif>Rule(ParseTreeListener $listener): void {
+	if ( $listener instanceof <parser.grammarName>Listener ) {
+		((<parser.grammarName>Listener) $listener)-\><if(method.isEnter)>enter<else>exit<endif><struct.derivedFromName; format="cap">($this);
 	}
 }
 >>
 
 VisitorDispatchMethod(method) ::= <<
 <<__Override>>
-public function accept\<T>(_ visitor: ParseTreeVisitor\<T>): T? {
-	if visitor is <parser.grammarName>Visitor {
-	     return (visitor as! <parser.grammarName>Visitor\<T>).visit<struct.derivedFromName; format="cap">($this)
-	}else if visitor is <parser.grammarName>BaseVisitor {
-    	 return (visitor as! <parser.grammarName>BaseVisitor\<T>).visit<struct.derivedFromName; format="cap">($this)
-    }
-	else {
-	     return visitor.visitChildren($this)
+public function accept\<T>(visitor: ParseTreeVisitor\<T>): ?T {
+	if ( $visitor instanceof <parser.grammarName>Visitor ) {
+	     return ((<parser.grammarName>Visitor\<T>) $visitor)-\>visit<struct.derivedFromName; format="cap">($this);
+	} elseif ( $visitor instanceof <parser.grammarName>BaseVisitor ) {
+	     return ((<parser.grammarName>BaseVisitor\<T>) $visitor)-\>visit<struct.derivedFromName; format="cap">($this);
+	} else {
+	     return $visitor-\>visitChildren($this);
 	}
 }
 >>
 
-AttributeDecl(d) ::= "<d.name>: <HackTypeMap.(d.type)><if(d.initValue)> = <d.initValue><else>!<endif>"
+AttributeDecl(d) ::= "<HackTypeMap.(d.type)> <d.name><if(d.initValue)> = <d.initValue><endif>"
 
-/** If we don't know location of label def x, use this template (_localctx as! <x.ctx.name> */
-labelref(x) ::= "<if(!x.isLocal)>_localctx.castdown(<x.ctx.name>.self).<endif><x.name>"
+/** If we don't know location of label def x, use this template */
+labelref(x) ::= "<if(!x.isLocal)>(<x.ctx.name>)$localctx-\><endif><x.name>"
 
 /** For any action chunk, what is correctly-typed context struct ptr?    */
-ctx(actionChunk) ::= "_localctx.castdown(<actionChunk.ctx.name>.self)"
+ctx(actionChunk) ::= "((<actionChunk.ctx.name>)$localctx);"
 
 // used for left-recursive rules
-recRuleAltPredicate(ruleName,opPrec)  ::= "precpred($this->ctx, <opPrec>)"
-recRuleSetReturnAction(src,name)	  ::= "$<name>=$<src>.<name>"
-recRuleSetStopToken()                 ::= "$this->ctx!.stop = try _input.LT(-1)"
+recRuleAltPredicate(ruleName,opPrec)  ::= "$this-\>precpred($this-\>ctx, <opPrec>);"
+recRuleSetReturnAction(src,name)	  ::= "$<name>=$<src>-\><name>;"
+recRuleSetStopToken()                 ::= "$this-\>ctx-\>stop = $this-\>input-\>LT(-1);"
 
 recRuleAltStartAction(ruleName, ctxName, label, isListLabel) ::= <<
-_localctx = <ctxName>Context(_parentctx, _parentState);
+$localctx = new <ctxName>Context($parentctx, $parentState);
 <if(label)>
 <if(isListLabel)>
-_localctx.<label>.append(_prevctx)
+$localctx-\><label>-\>append($prevctx);
 <else>
-_localctx.<label> = _prevctx
+$localctx-\><label> = $prevctx;
 <endif>
 <endif>
-<if(label)>_localctx.<label> = _prevctx;<endif>
-try pushNewRecursionContext(_localctx, _startState, <parser.name>.RULE_<ruleName>)
+<if(label)>$localctx-\><label> = $prevctx;<endif>
+$this-\>pushNewRecursionContext($localctx, $startState, static::RULE_<ruleName>);
 >>
 
 recRuleLabeledAltStartAction(ruleName, currentAltLabel, label, isListLabel) ::= <<
-_localctx = <currentAltLabel; format="cap">Context(  <ruleName; format="cap">Context(_parentctx, _parentState))
+$localctx = new <currentAltLabel; format="cap">Context(new <ruleName; format="cap">Context($parentctx, $parentState));
 <if(label)>
 <if(isListLabel)>
-(_localctx as! <currentAltLabel; format="cap">Context).<label>.append(_prevctx)
+((<currentAltLabel; format="cap">Context)$localctx)-\><label>-\>add($prevctx);
 <else>
-(_localctx as! <currentAltLabel; format="cap">Context).<label> = _prevctx
+((<currentAltLabel; format="cap">Context)$localctx)-\><label> = $prevctx;
 <endif>
 <endif>
-try pushNewRecursionContext(_localctx, _startState, <parser.name>.RULE_<ruleName>)
+pushNewRecursionContext($localctx, $startState, static::RULE_<ruleName>);
 >>
 
 recRuleReplaceContext(ctxName) ::= <<
-_localctx = <ctxName>Context(_localctx)
-$this->ctx = _localctx
-_prevctx = _localctx
+$localctx = new <ctxName>Context($localctx);
+$ctx = $localctx;
+$prevctx = $localctx;
 >>
 
 recRuleSetPrevCtx() ::= <<
-if _parseListeners != nil {
-   try triggerExitRuleEvent()
-}
-_prevctx = _localctx
+if ( $parseListeners!==null ) { $this-\>triggerExitRuleEvent(); }
+$prevctx = $localctx;
 >>
 
 
 LexerFile(lexerFile, lexer, namedActions) ::= <<
 <fileHeader(lexerFile.grammarFileName, lexerFile.ANTLRVersion)>
 <if(lexerFile.genPackage)>
-namespace <file.genPackage>;
+namespace <lexerFile.genPackage>;
 <endif>
 <namedActions.header>
+use ANTLR\\Lexer;
+use ANTLR\\CharStream;
+use ANTLR\\Token;
+use ANTLR\\TokenStream;
+use ANTLR\\DFA;
+use ANTLR\\ATN\\ATNDeserializer;
+use ANTLR\\ATN\\PredictionContextCache;
 
 <lexer>
 >>
-Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
-public class <lexer.name>: <superClass; null="Lexer"> {
-	internal static var _decisionToDFA: [DFA] = {
-          var decisionToDFA = [DFA]()
-          let length = <lexer.name>._ATN.getNumberOfDecisions()
-          for i in 0..\<length {
-            <! decisionToDFA[i] = DFA(<lexer.name>._ATN.getDecisionState(i)!, i);!>
-          	    decisionToDFA.append(DFA(<lexer.name>._ATN.getDecisionState(i)!, i))
-          }
-           return decisionToDFA
-     }()
 
-	internal static let _sharedContextCache:PredictionContextCache = PredictionContextCache()
-	public static let <lexer.tokens:{k | <k>=<lexer.tokens.(k)>}; separator=", ", wrap, anchor>
+Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
+public class <lexer.name> extends <superClass; null="Lexer"> {
+
+	private static final vec<DFA> $decisionToDFA;
+	private static final PredictionContextCache $sharedContextCache =
+		new PredictionContextCache();
+	<lexer.tokens:{k | public static final int $<k>=<lexer.tokens.(k)>;}; separator="\n">;
 	<if(lexer.channels)>
-	public static let <lexer.channels:{k | <k>=<lexer.channels.(k)>}; separator=", ", wrap, anchor>
+	<lexer.channels:{c | public static final int $<c>=<lexer.channels.(c)>}; separator="\n">;
 	<endif>
 	<if(rest(lexer.modes))>
-	public static let <rest(lexer.modes):{m| <m>=<i>}; separator=", ", wrap, anchor>
+	<rest(lexer.modes):{m | public static final int $<m>=<i>}; separator="\n">;
 	<endif>
-	public static let channelNames: [String] = [
+	public static final vec<string> channelNames = vec[
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"<if (lexer.channels)>, <lexer.channels:{c| "<c>"}; separator=", ", wrap, anchor><endif>
-	]
+	];
 
-	public static let modeNames: [String] = [
+	public static final vec<string> modeNames = vec[
 		<lexer.modes:{m| "<m>"}; separator=", ", wrap, anchor>
-	]
+	];
 
-	public static let ruleNames: [String] = [
+	public static final vec<string> ruleNames = vec[
 		<lexer.ruleNames:{r | "<r>"}; separator=", ", wrap, anchor>
-	]
+	];
 
 	<vocabulary(lexer.literalNames, lexer.symbolicNames)>
 
 	<namedActions.members>
-    open <<__Override>> func getVocabulary(): Vocabulary {
-        return <lexer.name>.VOCABULARY
-    }
 
-	public <<__Override>> init(_ input: CharStream) {
-	    RuntimeMetaData.checkVersion("<lexerFile.ANTLRVersion>", RuntimeMetaData.VERSION)
-		super.init(input)
-		_interp = LexerATNSimulator($this, <lexer.name>._ATN, <lexer.name>._decisionToDFA, <lexer.name>._sharedContextCache)
+	public function __construct(CharStream $input) {
+		parent::__construct($input);
+		RuntimeMetaData::checkVersion("4.7", RuntimeMetaData::VERSION)
+		$this-\>interp = new LexerATNSimulator($this,static::$ATN,static::$decisionToDFA,static::$sharedContextCache);
 	}
 
 	<<__Override>>
-	public function getGrammarFileName(): String { return "<lexer.grammarFileName>" }
-
-    <<__Override>>
-	public function getRuleNames(): [String] { return <lexer.name>.ruleNames }
+	public string getGrammarFileName() { return "<lexer.grammarFileName>"; }
 
 	<<__Override>>
-	public function getSerializedATN(): String { return <lexer.name>._serializedATN }
+	public vec<String> getRuleNames() { return static::$ruleNames; }
 
 	<<__Override>>
-	public function getChannelNames(): [String] { return <lexer.name>.channelNames }
+	public string getSerializedATN() { return static::$serializedATN; }
 
 	<<__Override>>
-	public function getModeNames(): [String] { return <lexer.name>.modeNames }
+	public vec<string> getChannelNames() { return static::$channelNames; }
 
 	<<__Override>>
-	public function getATN(): ATN { return <lexer.name>._ATN }
+	public vec<string> getModeNames() { return static::$modeNames; }
+
+	<<__Override>>
+	public ATN getATN() { return static::$ATN; }
 
 	<dumpActions(lexer, "", actionFuncs, sempredFuncs)>
 	<atn>
-	public static ATN $ATN = ATNDeserializer::deserialize(SERIALIZED_ATN);
 }
 >>
 
 SerializedATN(model) ::= <<
-private static string SERIALIZED_ATN = "<model.serialized>";
+private static final string $SERIALIZED_ATN = "<model.serialized>";
+public static final ATN $ATN = ATNDeserializer::deserialize(static::$SERIALIZED_ATN);
 >>
 
 /** Using a type to init value map, try to init a type; if not in table
