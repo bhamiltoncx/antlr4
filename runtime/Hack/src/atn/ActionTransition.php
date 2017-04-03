@@ -11,13 +11,13 @@ package org.antlr.v4.runtime.atn;
 public final class ActionTransition extends Transition {
 	public final int ruleIndex;
 	public final int actionIndex;
-	public final boolean isCtxDependent; // e.g., $i ref in action
+	public final bool isCtxDependent; // e.g., $i ref in action
 
 	public ActionTransition(ATNState target, int ruleIndex) {
 		this(target, ruleIndex, -1, false);
 	}
 
-	public ActionTransition(ATNState target, int ruleIndex, int actionIndex, boolean isCtxDependent) {
+	public ActionTransition(ATNState target, int ruleIndex, int actionIndex, bool isCtxDependent) {
 		super(target);
 		this.ruleIndex = ruleIndex;
 		this.actionIndex = actionIndex;
@@ -30,12 +30,12 @@ public final class ActionTransition extends Transition {
 	}
 
 	@Override
-	public boolean isEpsilon() {
+	public bool isEpsilon() {
 		return true; // we are to be ignored by analysis 'cept for predicates
 	}
 
 	@Override
-	public boolean matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
+	public bool matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
 		return false;
 	}
 

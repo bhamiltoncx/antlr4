@@ -121,7 +121,7 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 	}
 
 	@Override
-	protected ATNConfigSet computeReachSet(ATNConfigSet closure, int t, boolean fullCtx) {
+	protected ATNConfigSet computeReachSet(ATNConfigSet closure, int t, bool fullCtx) {
 		if (fullCtx) {
 			// this method is called after each time the input position advances
 			// during full context prediction
@@ -154,10 +154,10 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 	}
 
 	@Override
-	protected boolean evalSemanticContext(SemanticContext pred, ParserRuleContext parserCallStack, int alt, boolean fullCtx) {
-		boolean result = super.evalSemanticContext(pred, parserCallStack, alt, fullCtx);
+	protected bool evalSemanticContext(SemanticContext pred, ParserRuleContext parserCallStack, int alt, bool fullCtx) {
+		bool result = super.evalSemanticContext(pred, parserCallStack, alt, fullCtx);
 		if (!(pred instanceof SemanticContext.PrecedencePredicate)) {
-			boolean fullContext = _llStopIndex >= 0;
+			bool fullContext = _llStopIndex >= 0;
 			int stopIndex = fullContext ? _llStopIndex : _sllStopIndex;
 			decisions[currentDecision].predicateEvals.add(
 				new PredicateEvalInfo(currentDecision, _input, _startIndex, stopIndex, pred, result, alt, fullCtx)
@@ -190,7 +190,7 @@ public class ProfilingATNSimulator extends ParserATNSimulator {
 	}
 
 	@Override
-	protected void reportAmbiguity(DFA dfa, DFAState D, int startIndex, int stopIndex, boolean exact,
+	protected void reportAmbiguity(DFA dfa, DFAState D, int startIndex, int stopIndex, bool exact,
 								   BitSet ambigAlts, ATNConfigSet configs)
 	{
 		int prediction;

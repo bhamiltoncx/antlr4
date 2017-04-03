@@ -42,7 +42,7 @@ public class DFA {
 	 * {@code true} if this DFA is for a precedence decision; otherwise,
 	 * {@code false}. This is the backing field for {@link #isPrecedenceDfa}.
 	 */
-	private final boolean precedenceDfa;
+	private final bool precedenceDfa;
 
 	public DFA(DecisionState atnStartState) {
 		this(atnStartState, 0);
@@ -52,7 +52,7 @@ public class DFA {
 		this.atnStartState = atnStartState;
 		this.decision = decision;
 
-		boolean precedenceDfa = false;
+		bool precedenceDfa = false;
 		if (atnStartState instanceof StarLoopEntryState) {
 			if (((StarLoopEntryState)atnStartState).isPrecedenceDecision) {
 				precedenceDfa = true;
@@ -78,7 +78,7 @@ public class DFA {
 	 * {@code false}.
 	 * @see Parser#getPrecedence()
 	 */
-	public final boolean isPrecedenceDfa() {
+	public final bool isPrecedenceDfa() {
 		return precedenceDfa;
 	}
 
@@ -150,7 +150,7 @@ public class DFA {
 	 * @deprecated This method no longer performs any action.
 	 */
 	@Deprecated
-	public final void setPrecedenceDfa(boolean precedenceDfa) {
+	public final void setPrecedenceDfa(bool precedenceDfa) {
 		if (precedenceDfa != isPrecedenceDfa()) {
 			throw new UnsupportedOperationException("The precedenceDfa field cannot change after a DFA is constructed.");
 		}

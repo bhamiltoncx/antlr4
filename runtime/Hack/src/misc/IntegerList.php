@@ -95,7 +95,7 @@ public class IntegerList {
 		return _data[index];
 	}
 
-	public final boolean contains(int value) {
+	public final bool contains(int value) {
 		for (int i = 0; i < _size; i++) {
 			if (_data[i] == value) {
 				return true;
@@ -136,7 +136,7 @@ public class IntegerList {
 		_size -= (toIndex - fromIndex);
 	}
 
-	public final boolean isEmpty() {
+	public final bool isEmpty() {
 		return _size == 0;
 	}
 
@@ -188,7 +188,7 @@ public class IntegerList {
 	 * @return {@code true} if the specified object is equal to this list
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		if (o == this) {
 			return true;
 		}
@@ -286,7 +286,7 @@ public class IntegerList {
 		// < 0xFFFF) to avoid an extra scan
 		char[] resultArray = new char[_size];
 		int resultIdx = 0;
-		boolean calculatedPreciseResultSize = false;
+		bool calculatedPreciseResultSize = false;
 		for (int i = 0; i < _size; i++) {
 			int codePoint = _data[i];
 			// Calculate the precise result size if we encounter

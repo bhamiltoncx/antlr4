@@ -17,9 +17,9 @@ package org.antlr.v4.runtime.atn;
 public final class PredicateTransition extends AbstractPredicateTransition {
 	public final int ruleIndex;
 	public final int predIndex;
-	public final boolean isCtxDependent;  // e.g., $i ref in pred
+	public final bool isCtxDependent;  // e.g., $i ref in pred
 
-	public PredicateTransition(ATNState target, int ruleIndex, int predIndex, boolean isCtxDependent) {
+	public PredicateTransition(ATNState target, int ruleIndex, int predIndex, bool isCtxDependent) {
 		super(target);
 		this.ruleIndex = ruleIndex;
 		this.predIndex = predIndex;
@@ -32,10 +32,10 @@ public final class PredicateTransition extends AbstractPredicateTransition {
 	}
 
 	@Override
-	public boolean isEpsilon() { return true; }
+	public bool isEpsilon() { return true; }
 
 	@Override
-	public boolean matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
+	public bool matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
 		return false;
 	}
 

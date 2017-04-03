@@ -32,6 +32,6 @@ public interface EqualityComparator<T> {
 	 * @param b The second object to compare.
 	 * @return {@code true} if {@code a} equals {@code b}, otherwise {@code false}.
 	 */
-	boolean equals(T a, T b);
+	bool equals(T a, T b);
 
 }

@@ -60,7 +60,7 @@ public class Utils {
 		while ( data.contains(value) ) data.remove(value);
 	}
 
-	public static String escapeWhitespace(String s, boolean escapeSpaces) {
+	public static String escapeWhitespace(String s, bool escapeSpaces) {
 		StringBuilder buf = new StringBuilder();
 		for (char c : s.toCharArray()) {
 			if ( c==' ' && escapeSpaces ) buf.append('\u00B7');

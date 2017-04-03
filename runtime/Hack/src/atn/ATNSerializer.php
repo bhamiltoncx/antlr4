@@ -384,7 +384,7 @@ public class ATNSerializer {
 		data.add(nSets);
 
 		for (IntervalSet set : sets) {
-			boolean containsEof = set.contains(Token.EOF);
+			bool containsEof = set.contains(Token.EOF);
 			if (containsEof && set.getIntervals().get(0).b == Token.EOF) {
 				data.add(set.getIntervals().size() - 1);
 			}
@@ -532,7 +532,7 @@ public class ATNSerializer {
 		for (int i=0; i<nsets; i++) {
 			int nintervals = ATNDeserializer.toInt(data[p++]);
 			buf.append(i+setIndexOffset).append(":");
-			boolean containsEof = data[p++] != 0;
+			bool containsEof = data[p++] != 0;
 			if (containsEof) {
 				buf.append(getTokenName(Token.EOF));
 			}

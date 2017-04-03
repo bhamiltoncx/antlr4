@@ -145,8 +145,8 @@ public class RuntimeMetaData {
 	 */
 	public static void checkVersion(String generatingToolVersion, String compileTimeVersion) {
 		String runtimeVersion = VERSION;
-		boolean runtimeConflictsWithGeneratingTool = false;
-		boolean runtimeConflictsWithCompileTimeTool = false;
+		bool runtimeConflictsWithGeneratingTool = false;
+		bool runtimeConflictsWithCompileTimeTool = false;
 
 		if ( generatingToolVersion!=null ) {
 			runtimeConflictsWithGeneratingTool =

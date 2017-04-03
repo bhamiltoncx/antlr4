@@ -45,7 +45,7 @@ public class SingletonPredictionContext extends PredictionContext {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		if (this == o) {
 			return true;
 		}

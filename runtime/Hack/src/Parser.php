@@ -127,7 +127,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * @see #getBuildParseTree
 	 * @see #setBuildParseTree
 	 */
-	protected boolean _buildParseTrees = true;
+	protected bool _buildParseTrees = true;
 
 
 	/**
@@ -154,7 +154,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	protected int _syntaxErrors;
 
 	/** Indicates parser has match()ed EOF token. See {@link #exitRule()}. */
-	protected boolean matchedEOF;
+	protected bool matchedEOF;
 
 	public Parser(TokenStream input) {
 		setInputStream(input);
@@ -266,7 +266,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * {@link ParserRuleContext#children} list. Contexts are then not candidates
 	 * for garbage collection.</p>
 	 */
-	public void setBuildParseTree(boolean buildParseTrees) {
+	public void setBuildParseTree(bool buildParseTrees) {
 		this._buildParseTrees = buildParseTrees;
 	}
 
@@ -277,7 +277,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * @return {@code true} if a complete parse tree will be constructed while
 	 * parsing, otherwise {@code false}
 	 */
-	public boolean getBuildParseTree() {
+	public bool getBuildParseTree() {
 		return _buildParseTrees;
 	}
 
@@ -288,7 +288,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * @param trimParseTrees {@code true} to trim the capacity of the {@link ParserRuleContext#children}
 	 * list to its size after a rule is parsed.
 	 */
-	public void setTrimParseTree(boolean trimParseTrees) {
+	public void setTrimParseTree(bool trimParseTrees) {
 		if (trimParseTrees) {
 			if (getTrimParseTree()) return;
 			addParseListener(TrimToSizeListener.INSTANCE);
@@ -302,7 +302,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * @return {@code true} if the {@link ParserRuleContext#children} list is trimmed
 	 * using the default {@link Parser.TrimToSizeListener} during the parse process.
 	 */
-	public boolean getTrimParseTree() {
+	public bool getTrimParseTree() {
 		return getParseListeners().contains(TrimToSizeListener.INSTANCE);
 	}
 
@@ -572,7 +572,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		if (o.getType() != EOF) {
 			getInputStream().consume();
 		}
-		boolean hasListener = _parseListeners != null && !_parseListeners.isEmpty();
+		bool hasListener = _parseListeners != null && !_parseListeners.isEmpty();
 		if (_buildParseTrees || hasListener) {
 			if ( _errHandler.inErrorRecoveryMode(this) ) {
 				ErrorNode node = _ctx.addErrorNode(createErrorNode(_ctx,o));
@@ -756,11 +756,11 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	@Override
-	public boolean precpred(RuleContext localctx, int precedence) {
+	public bool precpred(RuleContext localctx, int precedence) {
 		return precedence >= _precedenceStack.peek();
 	}
 
-	public boolean inContext(String context) {
+	public bool inContext(String context) {
 		// TODO: useful in parser?
 		return false;
 	}
@@ -779,7 +779,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * @return {@code true} if {@code symbol} can follow the current state in
 	 * the ATN, otherwise {@code false}.
 	 */
-    public boolean isExpectedToken(int symbol) {
+    public bool isExpectedToken(int symbol) {
 //		return getInterpreter().atn.nextTokens(_ctx);
         ATN atn = getInterpreter().atn;
 		ParserRuleContext ctx = _ctx;
@@ -809,7 +809,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
         return false;
     }
 
-	public boolean isMatchedEOF() {
+	public bool isMatchedEOF() {
 		return matchedEOF;
 	}
 
@@ -879,7 +879,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	/** For debugging and other purposes. */
 	public void dumpDFA() {
 		synchronized (_interp.decisionToDFA) {
-			boolean seenOne = false;
+			bool seenOne = false;
 			for (int d = 0; d < _interp.decisionToDFA.length; d++) {
 				DFA dfa = _interp.decisionToDFA[d];
 				if ( !dfa.states.isEmpty() ) {
@@ -908,7 +908,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	/**
 	 * @since 4.3
 	 */
-	public void setProfile(boolean profile) {
+	public void setProfile(bool profile) {
 		ParserATNSimulator interp = getInterpreter();
 		PredictionMode saveMode = interp.getPredictionMode();
 		if ( profile ) {
@@ -927,7 +927,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	/** During a parse is sometimes useful to listen in on the rule entry and exit
 	 *  events as well as token matches. This is for quick and dirty debugging.
 	 */
-	public void setTrace(boolean trace) {
+	public void setTrace(bool trace) {
 		if ( !trace ) {
 			removeParseListener(_tracer);
 			_tracer = null;
@@ -943,9 +943,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 * Gets whether a {@link TraceListener} is registered as a parse listener
 	 * for the parser.
 	 *
-	 * @see #setTrace(boolean)
+	 * @see #setTrace(bool)
 	 */
-	public boolean isTrace() {
+	public bool isTrace() {
 		return _tracer != null;
 	}
 }

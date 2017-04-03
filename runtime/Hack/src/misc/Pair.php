@@ -20,7 +20,7 @@ public class Pair<A,B> implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public bool equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}

@@ -136,7 +136,7 @@ public abstract class AbstractParseTreeVisitor<T> implements ParseTreeVisitor<T>
 	 * {@code false} to stop visiting children and immediately return the
 	 * current aggregate result from {@link #visitChildren}.
 	 */
-	protected boolean shouldVisitNextChild(RuleNode node, T currentResult) {
+	protected bool shouldVisitNextChild(RuleNode node, T currentResult) {
 		return true;
 	}
 

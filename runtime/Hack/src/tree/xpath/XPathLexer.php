@@ -175,7 +175,7 @@ public class XPathLexer extends Lexer {
 		return _input.getText(Interval.of(start,_input.index()-1));
 	}
 
-	public boolean isNameChar(int c) { return Character.isUnicodeIdentifierPart(c); }
+	public bool isNameChar(int c) { return Character.isUnicodeIdentifierPart(c); }
 
-	public boolean isNameStartChar(int c) { return Character.isUnicodeIdentifierStart(c); }
+	public bool isNameStartChar(int c) { return Character.isUnicodeIdentifierStart(c); }
 }

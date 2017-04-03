@@ -150,12 +150,12 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 	}
 
 	@Override
-	public boolean containsKey(Object key) {
+	public bool containsKey(Object key) {
 		return get(key)!=null;
 	}
 
 	@Override
-	public boolean containsValue(Object value) {
+	public bool containsValue(Object value) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -175,7 +175,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -205,7 +205,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public bool isEmpty() {
 		return n==0;
 	}
 
@@ -221,7 +221,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 
 		StringBuilder buf = new StringBuilder();
 		buf.append('{');
-		boolean first = true;
+		bool first = true;
 		for (LinkedList<Entry<K, V>> bucket : buckets) {
 			if ( bucket==null ) continue;
 			for (Entry<K, V> e : bucket) {
@@ -243,7 +243,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 				continue;
 			}
 			buf.append('[');
-			boolean first = true;
+			bool first = true;
 			for (Entry<K, V> e : bucket) {
 				if ( first ) first=false;
 				else buf.append(" ");

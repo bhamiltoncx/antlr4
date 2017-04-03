@@ -14,7 +14,7 @@ import java.util.Collection;
 
 public abstract class XPathElement {
 	protected String nodeName;
-	protected boolean invert;
+	protected bool invert;
 
 	/** Construct element like {@code /ID} or {@code ID} or {@code /*} etc...
 	 *  op is null if just node

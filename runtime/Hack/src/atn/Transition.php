@@ -94,12 +94,12 @@ public abstract class Transition {
 	 * consume an input symbol; otherwise, {@code false} if traversing this
 	 * transition consumes (matches) an input symbol.
 	 */
-	public boolean isEpsilon() {
+	public bool isEpsilon() {
 		return false;
 	}
 
 
 	public IntervalSet label() { return null; }
 
-	public abstract boolean matches(int symbol, int minVocabSymbol, int maxVocabSymbol);
+	public abstract bool matches(int symbol, int minVocabSymbol, int maxVocabSymbol);
 }

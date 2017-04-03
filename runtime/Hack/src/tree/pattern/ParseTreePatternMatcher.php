@@ -149,7 +149,7 @@ public class ParseTreePatternMatcher {
 	}
 
 	/** Does {@code pattern} matched as rule {@code patternRuleIndex} match {@code tree}? */
-	public boolean matches(ParseTree tree, String pattern, int patternRuleIndex) {
+	public bool matches(ParseTree tree, String pattern, int patternRuleIndex) {
 		ParseTreePattern p = compile(pattern, patternRuleIndex);
 		return matches(tree, p);
 	}
@@ -157,7 +157,7 @@ public class ParseTreePatternMatcher {
 	/** Does {@code pattern} matched as rule patternRuleIndex match tree? Pass in a
 	 *  compiled pattern instead of a string representation of a tree pattern.
 	 */
-	public boolean matches(ParseTree tree, ParseTreePattern pattern) {
+	public bool matches(ParseTree tree, ParseTreePattern pattern) {
 		MultiMap<String, ParseTree> labels = new MultiMap<String, ParseTree>();
 		ParseTree mismatchedNode = matchImpl(tree, pattern.getPatternTree(), labels);
 		return mismatchedNode == null;

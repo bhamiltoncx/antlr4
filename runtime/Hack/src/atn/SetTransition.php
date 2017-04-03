@@ -32,7 +32,7 @@ public class SetTransition extends Transition {
 	public IntervalSet label() { return set; }
 
 	@Override
-	public boolean matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
+	public bool matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
 		return set.contains(symbol);
 	}
 

@@ -38,7 +38,7 @@ public class DiagnosticErrorListener extends BaseErrorListener {
 	/**
 	 * When {@code true}, only exactly known ambiguities are reported.
 	 */
-	protected final boolean exactOnly;
+	protected final bool exactOnly;
 
 	/**
 	 * Initializes a new instance of {@link DiagnosticErrorListener} which only
@@ -55,7 +55,7 @@ public class DiagnosticErrorListener extends BaseErrorListener {
 	 * @param exactOnly {@code true} to report only exact ambiguities, otherwise
 	 * {@code false} to report all ambiguities.
 	 */
-	public DiagnosticErrorListener(boolean exactOnly) {
+	public DiagnosticErrorListener(bool exactOnly) {
 		this.exactOnly = exactOnly;
 	}
 
@@ -64,7 +64,7 @@ public class DiagnosticErrorListener extends BaseErrorListener {
 								DFA dfa,
 								int startIndex,
 								int stopIndex,
-								boolean exact,
+								bool exact,
 								BitSet ambigAlts,
 								ATNConfigSet configs)
 	{

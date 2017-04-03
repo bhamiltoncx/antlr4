@@ -36,7 +36,7 @@ public class ArrayPredictionContext extends PredictionContext {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public bool isEmpty() {
 		// since EMPTY_RETURN_STATE can only appear in the last position, we
 		// don't need to verify that size==1
 		return returnStates[0]==EMPTY_RETURN_STATE;
@@ -63,7 +63,7 @@ public class ArrayPredictionContext extends PredictionContext {
 //	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		if (this == o) {
 			return true;
 		}

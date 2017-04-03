@@ -101,7 +101,7 @@ public interface ANTLRErrorStrategy {
 	 * @return {@code true} if the parser is currently recovering from a parse
 	 * error, otherwise {@code false}
 	 */
-	boolean inErrorRecoveryMode(Parser recognizer);
+	bool inErrorRecoveryMode(Parser recognizer);
 
 	/**
 	 * This method is called by when the parser successfully matches an input

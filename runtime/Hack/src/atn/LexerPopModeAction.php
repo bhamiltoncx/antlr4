@@ -46,7 +46,7 @@ public final class LexerPopModeAction implements LexerAction {
 	 * @return This method returns {@code false}.
 	 */
 	@Override
-	public boolean isPositionDependent() {
+	public bool isPositionDependent() {
 		return false;
 	}
 
@@ -69,7 +69,7 @@ public final class LexerPopModeAction implements LexerAction {
 
 	@Override
 	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
-	public boolean equals(Object obj) {
+	public bool equals(Object obj) {
 		return obj == this;
 	}
 

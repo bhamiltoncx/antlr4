@@ -66,7 +66,7 @@ public class BufferedTokenStream implements TokenStream {
 	 * {@link #tokens} is trivial with this field.</li>
 	 * <ul>
 	 */
-	protected boolean fetchedEOF;
+	protected bool fetchedEOF;
 
     public BufferedTokenStream(TokenSource tokenSource) {
 		if (tokenSource == null) {
@@ -114,7 +114,7 @@ public class BufferedTokenStream implements TokenStream {
 
     @Override
     public void consume() {
-		boolean skipEofCheck;
+		bool skipEofCheck;
 		if (p >= 0) {
 			if (fetchedEOF) {
 				// the last token in tokens is EOF. skip check if p indexes any
@@ -146,7 +146,7 @@ public class BufferedTokenStream implements TokenStream {
 	 *    {@code false}.
 	 * @see #get(int i)
 	 */
-    protected boolean sync(int i) {
+    protected bool sync(int i) {
 		assert i >= 0;
         int n = i - tokens.size() + 1; // how many more elements we need?
         //System.out.println("sync("+i+") needs "+n);

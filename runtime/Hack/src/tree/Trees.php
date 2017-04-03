@@ -129,7 +129,7 @@ public class Trees {
 	 *
 	 *  @since 4.5.1
 	 */
-	public static boolean isAncestorOf(Tree t, Tree u) {
+	public static bool isAncestorOf(Tree t, Tree u) {
 		if ( t==null || u==null || t.getParent()==null ) return false;
 		Tree p = u.getParent();
 		while ( p!=null ) {
@@ -147,13 +147,13 @@ public class Trees {
 		return findAllNodes(t, ruleIndex, false);
 	}
 
-	public static List<ParseTree> findAllNodes(ParseTree t, int index, boolean findTokens) {
+	public static List<ParseTree> findAllNodes(ParseTree t, int index, bool findTokens) {
 		List<ParseTree> nodes = new ArrayList<ParseTree>();
 		_findAllNodes(t, index, findTokens, nodes);
 		return nodes;
 	}
 
-	public static void _findAllNodes(ParseTree t, int index, boolean findTokens,
+	public static void _findAllNodes(ParseTree t, int index, bool findTokens,
 									 List<? super ParseTree> nodes)
 	{
 		// check this node (the root) first

@@ -239,11 +239,11 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 
 	// subclass needs to override these if there are sempreds or actions
 	// that the ATN interp needs to execute
-	public boolean sempred(RuleContext _localctx, int ruleIndex, int actionIndex) {
+	public bool sempred(RuleContext _localctx, int ruleIndex, int actionIndex) {
 		return true;
 	}
 
-	public boolean precpred(RuleContext localctx, int precedence) {
+	public bool precpred(RuleContext localctx, int precedence) {
 		return true;
 	}
 

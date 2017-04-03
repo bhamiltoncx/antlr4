@@ -64,7 +64,7 @@ public abstract class Lexer extends Recognizer<Integer, LexerATNSimulator>
 	/** Once we see EOF on char stream, next token will be EOF.
 	 *  If you have DONE : EOF ; then you see DONE EOF.
 	 */
-	public boolean _hitEOF;
+	public bool _hitEOF;
 
 	/** The channel number for the current token */
 	public int _channel;

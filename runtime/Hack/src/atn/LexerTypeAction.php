@@ -51,7 +51,7 @@ public class LexerTypeAction implements LexerAction {
 	 * @return This method returns {@code false}.
 	 */
 	@Override
-	public boolean isPositionDependent() {
+	public bool isPositionDependent() {
 		return false;
 	}
 
@@ -75,7 +75,7 @@ public class LexerTypeAction implements LexerAction {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public bool equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}

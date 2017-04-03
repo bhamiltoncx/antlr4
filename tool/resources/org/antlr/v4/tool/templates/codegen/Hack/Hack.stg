@@ -201,7 +201,7 @@ namespace <file.genPackage>;
  * @param \<T> The return type of the visit operation. Use {@link void} for
  * operations with no return type.
  */
-public class <file.grammarName>BaseVisitor\<T> extends AbstractParseTreeVisitor\<T> {
+class <file.grammarName>BaseVisitor\<T> extends AbstractParseTreeVisitor\<T> {
 	<file.visitorNames:{lname |
 /**
  * {@inheritDoc\}
@@ -238,7 +238,7 @@ Parser(parser, funcs, atn, sempredFuncs, superClass) ::= <<
 >>
 
 Parser_(parser, funcs, atn, sempredFuncs, ctor, superClass) ::= <<
-public class <parser.name> extends <superClass; null="Parser"> {
+class <parser.name> extends <superClass; null="Parser"> {
 
 	private static vec<DFA> $decisionToDFA = vec[];
 	private static bool $decisionToDFAInitialized = false;
@@ -780,7 +780,7 @@ CaptureNextTokenType(d) ::= "$this-\><d.varName> = $this-\>input-\>LA(1);"
 
 StructDecl(struct,ctorAttrs,attrs,getters,dispatchMethods,interfaces,extensionMembers)
 	::= <<
-public class <struct.name> extends <if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)> implements <interfaces; separator=", "><endif> {
+class <struct.name> extends <if(contextSuperClass)><contextSuperClass><else>ParserRuleContext<endif><if(interfaces)> implements <interfaces; separator=", "><endif> {
 	<attrs:{a | public <a>;}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
 	<if(ctorAttrs)>public function __construct(ParserRuleContext $parent, int $invokingState) { parent::__construct($parent, $invokingState); }<endif>
@@ -903,7 +903,7 @@ use ANTLR\\ATN\\PredictionContextCache;
 >>
 
 Lexer(lexer, atn, actionFuncs, sempredFuncs, superClass) ::= <<
-public class <lexer.name> extends <superClass; null="Lexer"> {
+class <lexer.name> extends <superClass; null="Lexer"> {
 
 	private static final vec<DFA> $decisionToDFA;
 	private static final PredictionContextCache $sharedContextCache =

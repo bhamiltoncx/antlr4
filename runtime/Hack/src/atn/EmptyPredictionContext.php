@@ -14,7 +14,7 @@ public class EmptyPredictionContext extends SingletonPredictionContext {
 	}
 
 	@Override
-	public boolean isEmpty() { return true; }
+	public bool isEmpty() { return true; }
 
 	@Override
 	public int size() {
@@ -32,7 +32,7 @@ public class EmptyPredictionContext extends SingletonPredictionContext {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		return this == o;
 	}
 

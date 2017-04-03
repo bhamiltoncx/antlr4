@@ -36,7 +36,7 @@ public class PredicateEvalInfo extends DecisionEventInfo {
 	/**
 	 * The result of evaluating the semantic context {@link #semctx}.
 	 */
-	public final boolean evalResult;
+	public final bool evalResult;
 
 	/**
 	 * Constructs a new instance of the {@link PredicateEvalInfo} class with the
@@ -57,15 +57,15 @@ public class PredicateEvalInfo extends DecisionEventInfo {
 	 * evaluated during LL prediction; otherwise, {@code false} if the semantic
 	 * context was evaluated during SLL prediction
 	 *
-	 * @see ParserATNSimulator#evalSemanticContext(SemanticContext, ParserRuleContext, int, boolean)
+	 * @see ParserATNSimulator#evalSemanticContext(SemanticContext, ParserRuleContext, int, bool)
 	 * @see SemanticContext#eval(Recognizer, RuleContext)
 	 */
 	public PredicateEvalInfo(int decision,
 							 TokenStream input, int startIndex, int stopIndex,
 							 SemanticContext semctx,
-							 boolean evalResult,
+							 bool evalResult,
 							 int predictedAlt,
-							 boolean fullCtx)
+							 bool fullCtx)
 	{
 		super(decision, new ATNConfigSet(), input, startIndex, stopIndex, fullCtx);
 		this.semctx = semctx;

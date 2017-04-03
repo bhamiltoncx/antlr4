@@ -26,12 +26,12 @@ public final class PrecedencePredicateTransition extends AbstractPredicateTransi
 	}
 
 	@Override
-	public boolean isEpsilon() {
+	public bool isEpsilon() {
 		return true;
 	}
 
 	@Override
-	public boolean matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
+	public bool matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
 		return false;
 	}
 

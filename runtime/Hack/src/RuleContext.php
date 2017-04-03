@@ -101,7 +101,7 @@ public class RuleContext implements RuleNode {
 	/** A context is empty if there is no invoking state; meaning nobody called
 	 *  current context.
 	 */
-	public boolean isEmpty() {
+	public bool isEmpty() {
 		return invokingState == -1;
 	}
 

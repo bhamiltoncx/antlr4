@@ -27,7 +27,7 @@ public abstract class ATNSimulator {
 
 	/**
 	 * This is the current serialized UUID.
-	 * @deprecated Use {@link ATNDeserializer#checkCondition(boolean)} instead.
+	 * @deprecated Use {@link ATNDeserializer#checkCondition(bool)} instead.
 	 */
 	@Deprecated
 	public static final UUID SERIALIZED_UUID;
@@ -117,18 +117,18 @@ public abstract class ATNSimulator {
 	}
 
 	/**
-	 * @deprecated Use {@link ATNDeserializer#checkCondition(boolean)} instead.
+	 * @deprecated Use {@link ATNDeserializer#checkCondition(bool)} instead.
 	 */
 	@Deprecated
-	public static void checkCondition(boolean condition) {
+	public static void checkCondition(bool condition) {
 		new ATNDeserializer().checkCondition(condition);
 	}
 
 	/**
-	 * @deprecated Use {@link ATNDeserializer#checkCondition(boolean, String)} instead.
+	 * @deprecated Use {@link ATNDeserializer#checkCondition(bool, String)} instead.
 	 */
 	@Deprecated
-	public static void checkCondition(boolean condition, String message) {
+	public static void checkCondition(bool condition, String message) {
 		new ATNDeserializer().checkCondition(condition, message);
 	}
 

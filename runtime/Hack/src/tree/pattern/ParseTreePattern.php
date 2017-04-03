@@ -82,7 +82,7 @@ public class ParseTreePattern {
 	 * @return {@code true} if {@code tree} is a match for the current tree
 	 * pattern; otherwise, {@code false}.
 	 */
-	public boolean matches(ParseTree tree) {
+	public bool matches(ParseTree tree) {
 		return matcher.match(tree, this).succeeded();
 	}
 

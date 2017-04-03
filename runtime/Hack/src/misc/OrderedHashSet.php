@@ -37,7 +37,7 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
         return oldElement;
     }
 
-	public boolean remove(int i) {
+	public bool remove(int i) {
 		T o = elements.remove(i);
         return super.remove(o);
 	}
@@ -47,8 +47,8 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
      *  a list of strings.
      */
     @Override
-    public boolean add(T value) {
-        boolean result = super.add(value);
+    public bool add(T value) {
+        bool result = super.add(value);
 		if ( result ) {  // only track if new element not in set
 			elements.add(value);
 		}
@@ -56,7 +56,7 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
     }
 
 	@Override
-	public boolean remove(Object o) {
+	public bool remove(Object o) {
 		throw new UnsupportedOperationException();
     }
 
@@ -72,13 +72,13 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		if (!(o instanceof OrderedHashSet<?>)) {
 			return false;
 		}
 
 //		System.out.print("equals " + this + ", " + o+" = ");
-		boolean same = elements!=null && elements.equals(((OrderedHashSet<?>)o).elements);
+		bool same = elements!=null && elements.equals(((OrderedHashSet<?>)o).elements);
 //		System.out.println(same);
 		return same;
 	}

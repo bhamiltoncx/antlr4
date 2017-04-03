@@ -509,7 +509,7 @@ public class TokenStreamRewriter {
 					continue;
 				}
 				// throw exception unless disjoint or identical
-				boolean disjoint =
+				bool disjoint =
 					prevRop.lastIndex<rop.index || prevRop.index > rop.lastIndex;
 				// Delete special case of replace (text==null):
 				// D.i-j.u D.x-y.v	| boundaries overlap	combine to max(min)..max(right)

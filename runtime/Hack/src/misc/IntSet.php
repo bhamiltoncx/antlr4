@@ -122,13 +122,13 @@ public interface IntSet {
 	 * @return {@code true} if the current set contains no elements; otherwise,
 	 * {@code false}.
 	 */
-	boolean isNil();
+	bool isNil();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean equals(Object obj);
+	bool equals(Object obj);
 
 	/**
 	 * Returns {@code true} if the set contains the specified element.
@@ -136,7 +136,7 @@ public interface IntSet {
 	 * @param el The element to check for.
 	 * @return {@code true} if the set contains {@code el}; otherwise {@code false}.
 	 */
-	boolean contains(int el);
+	bool contains(int el);
 
 	/**
 	 * Removes the specified value from the current set. If the current set does

@@ -49,7 +49,7 @@ public class ProxyErrorListener implements ANTLRErrorListener {
 								DFA dfa,
 								int startIndex,
 								int stopIndex,
-								boolean exact,
+								bool exact,
 								BitSet ambigAlts,
 								ATNConfigSet configs)
 	{

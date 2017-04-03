@@ -17,7 +17,7 @@ public class LexerATNConfig extends ATNConfig {
 	 */
 	private final LexerActionExecutor lexerActionExecutor;
 
-	private final boolean passedThroughNonGreedyDecision;
+	private final bool passedThroughNonGreedyDecision;
 
 	public LexerATNConfig(ATNState state,
 						  int alt,
@@ -67,7 +67,7 @@ public class LexerATNConfig extends ATNConfig {
 		return lexerActionExecutor;
 	}
 
-	public final boolean hasPassedThroughNonGreedyDecision() {
+	public final bool hasPassedThroughNonGreedyDecision() {
 		return passedThroughNonGreedyDecision;
 	}
 
@@ -85,7 +85,7 @@ public class LexerATNConfig extends ATNConfig {
 	}
 
 	@Override
-	public boolean equals(ATNConfig other) {
+	public bool equals(ATNConfig other) {
 		if (this == other) {
 			return true;
 		}
@@ -105,7 +105,7 @@ public class LexerATNConfig extends ATNConfig {
 		return super.equals(other);
 	}
 
-	private static boolean checkNonGreedyDecision(LexerATNConfig source, ATNState target) {
+	private static bool checkNonGreedyDecision(LexerATNConfig source, ATNState target) {
 		return source.passedThroughNonGreedyDecision
 			|| target instanceof DecisionState && ((DecisionState)target).nonGreedy;
 	}

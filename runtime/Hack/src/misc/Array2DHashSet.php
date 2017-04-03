@@ -128,12 +128,12 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		if (o == this) return true;
 		if ( !(o instanceof Array2DHashSet) ) return false;
 		Array2DHashSet<?> other = (Array2DHashSet<?>)o;
 		if ( other.size() != size() ) return false;
-		boolean same = this.containsAll(other);
+		bool same = this.containsAll(other);
 		return same;
 	}
 
@@ -184,7 +184,7 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public final boolean add(T t) {
+	public final bool add(T t) {
 		T existing = getOrAdd(t);
 		return existing==t;
 	}
@@ -195,16 +195,16 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public final boolean isEmpty() {
+	public final bool isEmpty() {
 		return n==0;
 	}
 
 	@Override
-	public final boolean contains(Object o) {
+	public final bool contains(Object o) {
 		return containsFast(asElementType(o));
 	}
 
-	public boolean containsFast(T obj) {
+	public bool containsFast(T obj) {
 		if (obj == null) {
 			return false;
 		}
@@ -264,11 +264,11 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public final boolean remove(Object o) {
+	public final bool remove(Object o) {
 		return removeFast(asElementType(o));
 	}
 
-	public boolean removeFast(T obj) {
+	public bool removeFast(T obj) {
 		if (obj == null) {
 			return false;
 		}
@@ -300,7 +300,7 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> collection) {
+	public bool containsAll(Collection<?> collection) {
 		if ( collection instanceof Array2DHashSet ) {
 			Array2DHashSet<?> s = (Array2DHashSet<?>)collection;
 			for (Object[] bucket : s.buckets) {
@@ -320,8 +320,8 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends T> c) {
-		boolean changed = false;
+	public bool addAll(Collection<? extends T> c) {
+		bool changed = false;
 		for (T o : c) {
 			T existing = getOrAdd(o);
 			if ( existing!=o ) changed=true;
@@ -330,7 +330,7 @@ public class Array2DHashSet<T> implements Set<T> {
 	}
 
 	@Override
-	public boolean retainAll(Collection<?> c) {
+	public bool retainAll(Collection<?> c) {
 		int newsize = 0;
 		for (T[] bucket : buckets) {
 			if (bucket == null) {
@@ -366,14 +366,14 @@ public class Array2DHashSet<T> implements Set<T> {
 			}
 		}
 
-		boolean changed = newsize != n;
+		bool changed = newsize != n;
 		n = newsize;
 		return changed;
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c) {
-		boolean changed = false;
+	public bool removeAll(Collection<?> c) {
+		bool changed = false;
 		for (Object o : c) {
 			changed |= removeFast(asElementType(o));
 		}
@@ -394,7 +394,7 @@ public class Array2DHashSet<T> implements Set<T> {
 
 		StringBuilder buf = new StringBuilder();
 		buf.append('{');
-		boolean first = true;
+		bool first = true;
 		for (T[] bucket : buckets) {
 			if ( bucket==null ) continue;
 			for (T o : bucket) {
@@ -416,7 +416,7 @@ public class Array2DHashSet<T> implements Set<T> {
 				continue;
 			}
 			buf.append('[');
-			boolean first = true;
+			bool first = true;
 			for (T o : bucket) {
 				if ( first ) first=false;
 				else buf.append(" ");
@@ -471,14 +471,14 @@ public class Array2DHashSet<T> implements Set<T> {
 	protected class SetIterator implements Iterator<T> {
 		final T[] data;
 		int nextIndex = 0;
-		boolean removed = true;
+		bool removed = true;
 
 		public SetIterator(T[] data) {
 			this.data = data;
 		}
 
 		@Override
-		public boolean hasNext() {
+		public bool hasNext() {
 			return nextIndex < data.length;
 		}
 

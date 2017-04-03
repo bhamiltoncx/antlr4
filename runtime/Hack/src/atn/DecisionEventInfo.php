@@ -60,12 +60,12 @@ public class DecisionEventInfo {
 	 * {@code true} if the current event occurred during LL prediction;
 	 * otherwise, {@code false} if the input occurred during SLL prediction.
 	 */
-	public final boolean fullCtx;
+	public final bool fullCtx;
 
 	public DecisionEventInfo(int decision,
 							 ATNConfigSet configs,
 							 TokenStream input, int startIndex, int stopIndex,
-							 boolean fullCtx)
+							 bool fullCtx)
 	{
 		this.decision = decision;
 		this.fullCtx = fullCtx;

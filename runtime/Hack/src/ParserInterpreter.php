@@ -77,7 +77,7 @@ public class ParserInterpreter extends Parser {
 	protected int overrideDecision = -1;
 	protected int overrideDecisionInputIndex = -1;
 	protected int overrideDecisionAlt = -1;
-	protected boolean overrideDecisionReached = false; // latch and only override once; error might trigger infinite loop
+	protected bool overrideDecisionReached = false; // latch and only override once; error might trigger infinite loop
 
 	/** What is the current context when we override a decisions?  This tells
 	 *  us what the root of the parse tree is when using override

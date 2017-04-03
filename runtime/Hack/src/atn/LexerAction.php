@@ -41,7 +41,7 @@ public interface LexerAction {
 	 * position of the input {@link CharStream} at the time it is executed;
 	 * otherwise, {@code false}.
 	 */
-	boolean isPositionDependent();
+	bool isPositionDependent();
 
 	/**
 	 * Execute the lexer action in the context of the specified {@link Lexer}.

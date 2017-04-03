@@ -40,7 +40,7 @@ public class CommonTokenFactory implements TokenFactory<CommonToken> {
 	 * The default value is {@code false} to avoid the performance and memory
 	 * overhead of copying text for every token unless explicitly requested.</p>
 	 */
-	protected final boolean copyText;
+	protected final bool copyText;
 
 	/**
 	 * Constructs a {@link CommonTokenFactory} with the specified value for
@@ -52,7 +52,7 @@ public class CommonTokenFactory implements TokenFactory<CommonToken> {
 	 *
 	 * @param copyText The value for {@link #copyText}.
 	 */
-	public CommonTokenFactory(boolean copyText) { this.copyText = copyText; }
+	public CommonTokenFactory(bool copyText) { this.copyText = copyText; }
 
 	/**
 	 * Constructs a {@link CommonTokenFactory} with {@link #copyText} set to

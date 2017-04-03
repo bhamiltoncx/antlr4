@@ -120,7 +120,7 @@ public abstract class ATNState {
 
 	public int ruleIndex; // at runtime, we don't have Rule objects
 
-	public boolean epsilonOnlyTransitions = false;
+	public bool epsilonOnlyTransitions = false;
 
 	/** Track the transitions emanating from this ATN state. */
 	protected final List<Transition> transitions =
@@ -133,13 +133,13 @@ public abstract class ATNState {
 	public int hashCode() { return stateNumber; }
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		// are these states same object?
 		if ( o instanceof ATNState ) return stateNumber==((ATNState)o).stateNumber;
 		return false;
 	}
 
-	public boolean isNonGreedyExitState() {
+	public bool isNonGreedyExitState() {
 		return false;
 	}
 
@@ -169,7 +169,7 @@ public abstract class ATNState {
 			epsilonOnlyTransitions = false;
 		}
 
-		boolean alreadyPresent = false;
+		bool alreadyPresent = false;
 		for (Transition t : transitions) {
 			if ( t.target.stateNumber == e.target.stateNumber ) {
 				if ( t.label()!=null && e.label()!=null && t.label().equals(e.label()) ) {
@@ -201,7 +201,7 @@ public abstract class ATNState {
 
 	public abstract int getStateType();
 
-	public final boolean onlyHasEpsilonTransitions() {
+	public final bool onlyHasEpsilonTransitions() {
 		return epsilonOnlyTransitions;
 	}
 

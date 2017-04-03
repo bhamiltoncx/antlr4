@@ -57,7 +57,7 @@ public class DFAState {
 
 	public DFAState[] edges;
 
-	public boolean isAcceptState = false;
+	public bool isAcceptState = false;
 
 	/** if accept state, what ttype do we match or alt do we predict?
 	 *  This is set to {@link ATN#INVALID_ALT_NUMBER} when {@link #predicates}{@code !=null} or
@@ -73,7 +73,7 @@ public class DFAState {
 	 * {@link ParserATNSimulator#execATN} invocations immediately jumped doing
 	 * full context prediction if this field is true.
 	 */
-	public boolean requiresFullContext;
+	public bool requiresFullContext;
 
 	/** During SLL parsing, this is a list of predicates associated with the
 	 *  ATN configurations of the DFA state. When we have predicates,
@@ -147,7 +147,7 @@ public class DFAState {
 	 * {@link #stateNumber} is irrelevant.</p>
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		// compare set of ATN configurations in this set with other
 		if ( this==o ) return true;
 
@@ -157,7 +157,7 @@ public class DFAState {
 
 		DFAState other = (DFAState)o;
 		// TODO (sam): what to do when configs==null?
-		boolean sameSet = this.configs.equals(other.configs);
+		bool sameSet = this.configs.equals(other.configs);
 //		System.out.println("DFAState.equals: "+configs+(sameSet?"==":"!=")+other.configs);
 		return sameSet;
 	}

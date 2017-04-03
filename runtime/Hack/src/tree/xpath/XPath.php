@@ -120,10 +120,10 @@ loop:
 			switch ( el.getType() ) {
 				case XPathLexer.ROOT :
 				case XPathLexer.ANYWHERE :
-					boolean anywhere = el.getType() == XPathLexer.ANYWHERE;
+					bool anywhere = el.getType() == XPathLexer.ANYWHERE;
 					i++;
 					next = tokens.get(i);
-					boolean invert = next.getType()==XPathLexer.BANG;
+					bool invert = next.getType()==XPathLexer.BANG;
 					if ( invert ) {
 						i++;
 						next = tokens.get(i);
@@ -156,7 +156,7 @@ loop:
 	 * element. {@code anywhere} is {@code true} if {@code //} precedes the
 	 * word.
 	 */
-	protected XPathElement getXPathElement(Token wordToken, boolean anywhere) {
+	protected XPathElement getXPathElement(Token wordToken, bool anywhere) {
 		if ( wordToken.getType()==Token.EOF ) {
 			throw new IllegalArgumentException("Missing path element at end of path");
 		}

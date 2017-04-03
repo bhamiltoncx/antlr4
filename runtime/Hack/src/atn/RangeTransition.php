@@ -30,7 +30,7 @@ public final class RangeTransition extends Transition {
 	public IntervalSet label() { return IntervalSet.of(from, to); }
 
 	@Override
-	public boolean matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
+	public bool matches(int symbol, int minVocabSymbol, int maxVocabSymbol) {
 		return symbol >= from && symbol <= to;
 	}
 

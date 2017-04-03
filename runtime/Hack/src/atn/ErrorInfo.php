@@ -43,7 +43,7 @@ public class ErrorInfo extends DecisionEventInfo {
 	public ErrorInfo(int decision,
 					 ATNConfigSet configs,
 					 TokenStream input, int startIndex, int stopIndex,
-					 boolean fullCtx)
+					 bool fullCtx)
 	{
 		super(decision, configs, input, startIndex, stopIndex, fullCtx);
 	}

@@ -55,7 +55,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		}
 
 		@Override
-		public boolean equals(ATNConfig a, ATNConfig b) {
+		public bool equals(ATNConfig a, ATNConfig b) {
 			if ( a==b ) return true;
 			if ( a==null || b==null ) return false;
 			return a.state.stateNumber==b.state.stateNumber
@@ -70,7 +70,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	 *  fields; in particular, conflictingAlts is set after
 	 *  we've made this readonly.
 	 */
-	protected boolean readonly = false;
+	protected bool readonly = false;
 
 	/**
 	 * All configs but hashed by (s, i, _, pi) not including context. Wiped out
@@ -93,18 +93,18 @@ public class ATNConfigSet implements Set<ATNConfig> {
 
 	// Used in parser and lexer. In lexer, it indicates we hit a pred
 	// while computing a closure operation.  Don't make a DFA state from this.
-	public boolean hasSemanticContext;
-	public boolean dipsIntoOuterContext;
+	public bool hasSemanticContext;
+	public bool dipsIntoOuterContext;
 
 	/** Indicates that this configuration set is part of a full context
 	 *  LL prediction. It will be used to determine how to merge $. With SLL
 	 *  it's a wildcard whereas it is not for LL context merge.
 	 */
-	public final boolean fullCtx;
+	public final bool fullCtx;
 
 	private int cachedHashCode = -1;
 
-	public ATNConfigSet(boolean fullCtx) {
+	public ATNConfigSet(bool fullCtx) {
 		configLookup = new ConfigHashSet();
 		this.fullCtx = fullCtx;
 	}
@@ -120,7 +120,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	}
 
 	@Override
-	public boolean add(ATNConfig config) {
+	public bool add(ATNConfig config) {
 		return add(config, null);
 	}
 
@@ -134,7 +134,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	 * <p>This method updates {@link #dipsIntoOuterContext} and
 	 * {@link #hasSemanticContext} when necessary.</p>
 	 */
-	public boolean add(
+	public bool add(
 		ATNConfig config,
 		DoubleKeyMap<PredictionContext,PredictionContext,PredictionContext> mergeCache)
 	{
@@ -152,7 +152,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 			return true;
 		}
 		// a previous (s,i,pi,_), merge with it and save result
-		boolean rootIsWildcard = !fullCtx;
+		bool rootIsWildcard = !fullCtx;
 		PredictionContext merged =
 			PredictionContext.merge(existing.context, config.context, rootIsWildcard, mergeCache);
 		// no need to check for existing.context, config.context in cache
@@ -223,13 +223,13 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends ATNConfig> coll) {
+	public bool addAll(Collection<? extends ATNConfig> coll) {
 		for (ATNConfig c : coll) add(c);
 		return false;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public bool equals(Object o) {
 		if (o == this) {
 			return true;
 		}
@@ -239,7 +239,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 
 //		System.out.print("equals " + this + ", " + o+" = ");
 		ATNConfigSet other = (ATNConfigSet)o;
-		boolean same = configs!=null &&
+		bool same = configs!=null &&
 			configs.equals(other.configs) &&  // includes stack context
 			this.fullCtx == other.fullCtx &&
 			this.uniqueAlt == other.uniqueAlt &&
@@ -270,12 +270,12 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public bool isEmpty() {
 		return configs.isEmpty();
 	}
 
 	@Override
-	public boolean contains(Object o) {
+	public bool contains(Object o) {
 		if (configLookup == null) {
 			throw new UnsupportedOperationException("This method is not implemented for readonly sets.");
 		}
@@ -283,7 +283,7 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		return configLookup.contains(o);
 	}
 
-	public boolean containsFast(ATNConfig obj) {
+	public bool containsFast(ATNConfig obj) {
 		if (configLookup == null) {
 			throw new UnsupportedOperationException("This method is not implemented for readonly sets.");
 		}
@@ -304,11 +304,11 @@ public class ATNConfigSet implements Set<ATNConfig> {
 		configLookup.clear();
 	}
 
-	public boolean isReadonly() {
+	public bool isReadonly() {
 		return readonly;
 	}
 
-	public void setReadonly(boolean readonly) {
+	public void setReadonly(bool readonly) {
 		this.readonly = readonly;
 		configLookup = null; // can't mod, no need for lookup cache
 	}
@@ -337,22 +337,22 @@ public class ATNConfigSet implements Set<ATNConfig> {
 	}
 
 	@Override
-	public boolean remove(Object o) {
+	public bool remove(Object o) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> c) {
+	public bool containsAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean retainAll(Collection<?> c) {
+	public bool retainAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c) {
+	public bool removeAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 

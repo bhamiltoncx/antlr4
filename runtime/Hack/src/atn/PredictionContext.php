@@ -96,11 +96,11 @@ public abstract class PredictionContext {
 	public abstract int getReturnState(int index);
 
 	/** This means only the {@link #EMPTY} (wildcard? not sure) context is in set. */
-	public boolean isEmpty() {
+	public bool isEmpty() {
 		return this == EMPTY;
 	}
 
-	public boolean hasEmptyPath() {
+	public bool hasEmptyPath() {
 		// since EMPTY_RETURN_STATE can only appear in the last position, we check last one
 		return getReturnState(size() - 1) == EMPTY_RETURN_STATE;
 	}
@@ -111,7 +111,7 @@ public abstract class PredictionContext {
 	}
 
 	@Override
-	public abstract boolean equals(Object obj);
+	public abstract bool equals(Object obj);
 
 	protected static int calculateEmptyHashCode() {
 		int hash = MurmurHash.initialize(INITIAL_HASH);
@@ -145,7 +145,7 @@ public abstract class PredictionContext {
 	// dispatch
 	public static PredictionContext merge(
 		PredictionContext a, PredictionContext b,
-		boolean rootIsWildcard,
+		bool rootIsWildcard,
 		DoubleKeyMap<PredictionContext,PredictionContext,PredictionContext> mergeCache)
 	{
 		assert a!=null && b!=null; // must be empty context, never null
@@ -207,7 +207,7 @@ public abstract class PredictionContext {
 	public static PredictionContext mergeSingletons(
 		SingletonPredictionContext a,
 		SingletonPredictionContext b,
-		boolean rootIsWildcard,
+		bool rootIsWildcard,
 		DoubleKeyMap<PredictionContext,PredictionContext,PredictionContext> mergeCache)
 	{
 		if ( mergeCache!=null ) {
@@ -310,7 +310,7 @@ public abstract class PredictionContext {
 	 */
 	public static PredictionContext mergeRoot(SingletonPredictionContext a,
 											  SingletonPredictionContext b,
-											  boolean rootIsWildcard)
+											  bool rootIsWildcard)
 	{
 		if ( rootIsWildcard ) {
 			if ( a == EMPTY ) return EMPTY;  // * + b = *
@@ -358,7 +358,7 @@ public abstract class PredictionContext {
 	public static PredictionContext mergeArrays(
 		ArrayPredictionContext a,
 		ArrayPredictionContext b,
-		boolean rootIsWildcard,
+		bool rootIsWildcard,
 		DoubleKeyMap<PredictionContext,PredictionContext,PredictionContext> mergeCache)
 	{
 		if ( mergeCache!=null ) {
@@ -385,9 +385,9 @@ public abstract class PredictionContext {
 				// same payload (stack tops are equal), must yield merged singleton
 				int payload = a.returnStates[i];
 				// $+$ = $
-				boolean both$ = payload == EMPTY_RETURN_STATE &&
+				bool both$ = payload == EMPTY_RETURN_STATE &&
 								a_parent == null && b_parent == null;
-				boolean ax_ax = (a_parent!=null && b_parent!=null) &&
+				bool ax_ax = (a_parent!=null && b_parent!=null) &&
 								a_parent.equals(b_parent); // ax+ax -> ax
 				if ( both$ || ax_ax ) {
 					mergedParents[k] = a_parent; // choose left
@@ -511,7 +511,7 @@ public abstract class PredictionContext {
 			buf.append("  s").append(arr.id);
 			buf.append(" [shape=box, label=\"");
 			buf.append("[");
-			boolean first = true;
+			bool first = true;
 			for (int inv : arr.returnStates) {
 				if ( !first ) buf.append(", ");
 				if ( inv == EMPTY_RETURN_STATE ) buf.append("$");
@@ -561,7 +561,7 @@ public abstract class PredictionContext {
 			return existing;
 		}
 
-		boolean changed = false;
+		bool changed = false;
 		PredictionContext[] parents = new PredictionContext[context.size()];
 		for (int i = 0; i < parents.length; i++) {
 			PredictionContext parent = getCachedContext(context.getParent(i), contextCache, visited);
@@ -663,7 +663,7 @@ public abstract class PredictionContext {
 		outer:
 		for (int perm = 0; ; perm++) {
 			int offset = 0;
-			boolean last = true;
+			bool last = true;
 			PredictionContext p = this;
 			int stateNumber = currentState;
 			StringBuilder localBuffer = new StringBuilder();

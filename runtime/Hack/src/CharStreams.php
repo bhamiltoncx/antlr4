@@ -272,7 +272,7 @@ public final class CharStreams {
 					.onMalformedInput(decodingErrorAction)
 					.onUnmappableCharacter(decodingErrorAction);
 
-			boolean endOfInput = false;
+			bool endOfInput = false;
 			while (!endOfInput) {
 				int bytesRead = channel.read(utf8BytesIn);
 				endOfInput = (bytesRead == -1);

@@ -21,8 +21,8 @@ import java.util.Locale;
 
 /** "dup" of ParserInterpreter */
 public class LexerATNSimulator extends ATNSimulator {
-	public static final boolean debug = false;
-	public static final boolean dfa_debug = false;
+	public static final bool debug = false;
+	public static final bool dfa_debug = false;
 
 	public static final int MIN_DFA_EDGE = 0;
 	public static final int MAX_DFA_EDGE = 127; // forces unicode to stay in ATN
@@ -150,7 +150,7 @@ public class LexerATNSimulator extends ATNSimulator {
 		int old_mode = mode;
 
 		ATNConfigSet s0_closure = computeStartState(input, startState);
-		boolean suppressEdge = s0_closure.hasSemanticContext;
+		bool suppressEdge = s0_closure.hasSemanticContext;
 		s0_closure.hasSemanticContext = false;
 
 		DFAState next = addDFAState(s0_closure);
@@ -324,7 +324,7 @@ public class LexerATNSimulator extends ATNSimulator {
 		// than a config that already reached an accept state for the same rule
 		int skipAlt = ATN.INVALID_ALT_NUMBER;
 		for (ATNConfig c : closure) {
-			boolean currentAltReachedAcceptState = c.alt == skipAlt;
+			bool currentAltReachedAcceptState = c.alt == skipAlt;
 			if (currentAltReachedAcceptState && ((LexerATNConfig)c).hasPassedThroughNonGreedyDecision()) {
 				continue;
 			}
@@ -343,7 +343,7 @@ public class LexerATNSimulator extends ATNSimulator {
 						lexerActionExecutor = lexerActionExecutor.fixOffsetBeforeMatch(input.index() - startIndex);
 					}
 
-					boolean treatEofAsEpsilon = t == CharStream.EOF;
+					bool treatEofAsEpsilon = t == CharStream.EOF;
 					if (closure(input, new LexerATNConfig((LexerATNConfig)c, target, lexerActionExecutor), reach, currentAltReachedAcceptState, true, treatEofAsEpsilon)) {
 						// any remaining configs for this alt have a lower priority than
 						// the one that just reached an accept state.
@@ -405,7 +405,7 @@ public class LexerATNSimulator extends ATNSimulator {
 	 * @return {@code true} if an accept state is reached, otherwise
 	 * {@code false}.
 	 */
-	protected boolean closure(CharStream input, LexerATNConfig config, ATNConfigSet configs, boolean currentAltReachedAcceptState, boolean speculative, boolean treatEofAsEpsilon) {
+	protected bool closure(CharStream input, LexerATNConfig config, ATNConfigSet configs, bool currentAltReachedAcceptState, bool speculative, bool treatEofAsEpsilon) {
 		if ( debug ) {
 			System.out.println("closure("+config.toString(recog, true)+")");
 		}
@@ -470,8 +470,8 @@ public class LexerATNSimulator extends ATNSimulator {
 										   LexerATNConfig config,
 										   Transition t,
 										   ATNConfigSet configs,
-										   boolean speculative,
-										   boolean treatEofAsEpsilon)
+										   bool speculative,
+										   bool treatEofAsEpsilon)
 	{
 		LexerATNConfig c = null;
 		switch (t.getSerializationType()) {
@@ -579,7 +579,7 @@ public class LexerATNSimulator extends ATNSimulator {
 	 * @return {@code true} if the specified predicate evaluates to
 	 * {@code true}.
 	 */
-	protected boolean evaluatePredicate(CharStream input, int ruleIndex, int predIndex, boolean speculative) {
+	protected bool evaluatePredicate(CharStream input, int ruleIndex, int predIndex, bool speculative) {
 		// assume true if no recognizer was provided
 		if (recog == null) {
 			return true;
@@ -631,7 +631,7 @@ public class LexerATNSimulator extends ATNSimulator {
 		 * If that gets us to a previously created (but dangling) DFA
 		 * state, we can continue in pure DFA mode from there.
 		 */
-		boolean suppressEdge = q.hasSemanticContext;
+		bool suppressEdge = q.hasSemanticContext;
 		q.hasSemanticContext = false;
 
 

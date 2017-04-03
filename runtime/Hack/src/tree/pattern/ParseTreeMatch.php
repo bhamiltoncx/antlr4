@@ -163,7 +163,7 @@ public class ParseTreeMatch {
 	 * @return {@code true} if the match operation succeeded; otherwise,
 	 * {@code false}.
 	 */
-	public boolean succeeded() {
+	public bool succeeded() {
 		return mismatchedNode == null;
 	}
 

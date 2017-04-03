@@ -43,7 +43,7 @@ public class LookaheadEventInfo extends DecisionEventInfo {
 							  ATNConfigSet configs,
 							  int predictedAlt,
 							  TokenStream input, int startIndex, int stopIndex,
-							  boolean fullCtx)
+							  bool fullCtx)
 	{
 		super(decision, configs, input, startIndex, stopIndex, fullCtx);
 		this.predictedAlt = predictedAlt;

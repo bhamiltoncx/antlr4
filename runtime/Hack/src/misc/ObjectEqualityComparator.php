@@ -41,7 +41,7 @@ public final class ObjectEqualityComparator extends AbstractEqualityComparator<O
 	 * {@code a.}{@link Object#equals equals}{@code (b)}.</p>
 	 */
 	@Override
-	public boolean equals(Object a, Object b) {
+	public bool equals(Object a, Object b) {
 		if (a == null) {
 			return b == null;
 		}

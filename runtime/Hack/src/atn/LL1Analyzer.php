@@ -46,7 +46,7 @@ public class LL1Analyzer {
 		for (int alt = 0; alt < s.getNumberOfTransitions(); alt++) {
 			look[alt] = new IntervalSet();
 			Set<ATNConfig> lookBusy = new HashSet<ATNConfig>();
-			boolean seeThruPreds = false; // fail to get lookahead upon pred
+			bool seeThruPreds = false; // fail to get lookahead upon pred
 			_LOOK(s.transition(alt).target, null, PredictionContext.EMPTY,
 				  look[alt], lookBusy, new BitSet(), seeThruPreds, false);
 			// Wipe out lookahead for this alternative if we found nothing
@@ -99,7 +99,7 @@ public class LL1Analyzer {
 
 	public IntervalSet LOOK(ATNState s, ATNState stopState, RuleContext ctx) {
 		IntervalSet r = new IntervalSet();
-		boolean seeThruPreds = true; // ignore preds; get all lookahead
+		bool seeThruPreds = true; // ignore preds; get all lookahead
 		PredictionContext lookContext = ctx != null ? PredictionContext.fromRuleContext(s.atn, ctx) : null;
 		_LOOK(s, stopState, lookContext,
 			  r, new HashSet<ATNConfig>(), new BitSet(), seeThruPreds, true);
@@ -142,7 +142,7 @@ public class LL1Analyzer {
 						 IntervalSet look,
                          Set<ATNConfig> lookBusy,
 						 BitSet calledRuleStack,
-						 boolean seeThruPreds, boolean addEOF)
+						 bool seeThruPreds, bool addEOF)
 	{
 //		System.out.println("_LOOK("+s.stateNumber+", ctx="+ctx);
         ATNConfig c = new ATNConfig(s, 0, ctx);
@@ -171,7 +171,7 @@ public class LL1Analyzer {
 
 			if ( ctx != PredictionContext.EMPTY ) {
 				// run thru all possible stack tops in ctx
-				boolean removed = calledRuleStack.get(s.ruleIndex);
+				bool removed = calledRuleStack.get(s.ruleIndex);
 				try {
 					calledRuleStack.clear(s.ruleIndex);
 					for (int i = 0; i < ctx.size(); i++) {

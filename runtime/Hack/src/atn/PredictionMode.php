@@ -111,7 +111,7 @@ public enum PredictionMode {
 		}
 
 		@Override
-		public boolean equals(ATNConfig a, ATNConfig b) {
+		public bool equals(ATNConfig a, ATNConfig b) {
 			if ( a==b ) return true;
 			if ( a==null || b==null ) return false;
 			return a.state.stateNumber==b.state.stateNumber
@@ -211,7 +211,7 @@ public enum PredictionMode {
 	 * the configurations to strip out all of the predicates so that a standard
 	 * {@link ATNConfigSet} will merge everything ignoring predicates.</p>
 	 */
-	public static boolean hasSLLConflictTerminatingPrediction(PredictionMode mode, ATNConfigSet configs) {
+	public static bool hasSLLConflictTerminatingPrediction(PredictionMode mode, ATNConfigSet configs) {
 		/* Configs in rule stop states indicate reaching the end of the decision
 		 * rule (local context) or end of start rule (full context). If all
 		 * configs meet this condition, then none of the configurations is able
@@ -241,7 +241,7 @@ public enum PredictionMode {
 		// pure SLL or combined SLL+LL mode parsing
 
 		Collection<BitSet> altsets = getConflictingAltSubsets(configs);
-		boolean heuristic =
+		bool heuristic =
 			hasConflictingAltSet(altsets) && !hasStateAssociatedWithOneAlt(configs);
 		return heuristic;
 	}
@@ -256,7 +256,7 @@ public enum PredictionMode {
 	 * @return {@code true} if any configuration in {@code configs} is in a
 	 * {@link RuleStopState}, otherwise {@code false}
 	 */
-	public static boolean hasConfigInRuleStopState(ATNConfigSet configs) {
+	public static bool hasConfigInRuleStopState(ATNConfigSet configs) {
 		for (ATNConfig c : configs) {
 			if (c.state instanceof RuleStopState) {
 				return true;
@@ -276,7 +276,7 @@ public enum PredictionMode {
 	 * @return {@code true} if all configurations in {@code configs} are in a
 	 * {@link RuleStopState}, otherwise {@code false}
 	 */
-	public static boolean allConfigsInRuleStopStates(ATNConfigSet configs) {
+	public static bool allConfigsInRuleStopStates(ATNConfigSet configs) {
 		for (ATNConfig config : configs) {
 			if (!(config.state instanceof RuleStopState)) {
 				return false;
@@ -439,7 +439,7 @@ public enum PredictionMode {
 	 * @return {@code true} if every {@link BitSet} in {@code altsets} has
 	 * {@link BitSet#cardinality cardinality} &gt; 1, otherwise {@code false}
 	 */
-	public static boolean allSubsetsConflict(Collection<BitSet> altsets) {
+	public static bool allSubsetsConflict(Collection<BitSet> altsets) {
 		return !hasNonConflictingAltSet(altsets);
 	}
 
@@ -451,7 +451,7 @@ public enum PredictionMode {
 	 * @return {@code true} if {@code altsets} contains a {@link BitSet} with
 	 * {@link BitSet#cardinality cardinality} 1, otherwise {@code false}
 	 */
-	public static boolean hasNonConflictingAltSet(Collection<BitSet> altsets) {
+	public static bool hasNonConflictingAltSet(Collection<BitSet> altsets) {
 		for (BitSet alts : altsets) {
 			if ( alts.cardinality()==1 ) {
 				return true;
@@ -468,7 +468,7 @@ public enum PredictionMode {
 	 * @return {@code true} if {@code altsets} contains a {@link BitSet} with
 	 * {@link BitSet#cardinality cardinality} &gt; 1, otherwise {@code false}
 	 */
-	public static boolean hasConflictingAltSet(Collection<BitSet> altsets) {
+	public static bool hasConflictingAltSet(Collection<BitSet> altsets) {
 		for (BitSet alts : altsets) {
 			if ( alts.cardinality()>1 ) {
 				return true;
@@ -484,7 +484,7 @@ public enum PredictionMode {
 	 * @return {@code true} if every member of {@code altsets} is equal to the
 	 * others, otherwise {@code false}
 	 */
-	public static boolean allSubsetsEqual(Collection<BitSet> altsets) {
+	public static bool allSubsetsEqual(Collection<BitSet> altsets) {
 		Iterator<BitSet> it = altsets.iterator();
 		BitSet first = it.next();
 		while ( it.hasNext() ) {
@@ -579,7 +579,7 @@ public enum PredictionMode {
 		return m;
 	}
 
-	public static boolean hasStateAssociatedWithOneAlt(ATNConfigSet configs) {
+	public static bool hasStateAssociatedWithOneAlt(ATNConfigSet configs) {
 		Map<ATNState, BitSet> x = getStateToAltMap(configs);
 		for (BitSet alts : x.values()) {
 			if ( alts.cardinality()==1 ) return true;

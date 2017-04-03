@@ -152,7 +152,7 @@ public class LexerActionExecutor {
 	 * of the token.
 	 */
 	public void execute(Lexer lexer, CharStream input, int startIndex) {
-		boolean requiresSeek = false;
+		bool requiresSeek = false;
 		int stopIndex = input.index();
 		try {
 			for (LexerAction lexerAction : lexerActions) {
@@ -183,7 +183,7 @@ public class LexerActionExecutor {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public bool equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}

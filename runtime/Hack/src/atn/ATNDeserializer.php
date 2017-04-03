@@ -150,7 +150,7 @@ public class ATNDeserializer {
 	 * serialized ATN at or after the feature identified by {@code feature} was
 	 * introduced; otherwise, {@code false}.
 	 */
-	static protected boolean isFeatureSupported(UUID feature, UUID actualUuid) {
+	static protected bool isFeatureSupported(UUID feature, UUID actualUuid) {
 		int featureIndex = SUPPORTED_UUIDS.indexOf(feature);
 		if (featureIndex < 0) {
 			return false;
@@ -196,8 +196,8 @@ public class ATNDeserializer {
 			throw new UnsupportedOperationException(new InvalidClassException(ATN.class.getName(), reason));
 		}
 
-		boolean supportsPrecedencePredicates = isFeatureSupported(ADDED_PRECEDENCE_TRANSITIONS, uuid);
-		boolean supportsLexerActions = isFeatureSupported(ADDED_LEXER_ACTIONS, uuid);
+		bool supportsPrecedencePredicates = isFeatureSupported(ADDED_PRECEDENCE_TRANSITIONS, uuid);
+		bool supportsLexerActions = isFeatureSupported(ADDED_LEXER_ACTIONS, uuid);
 
 		ATNType grammarType = ATNType.values()[toInt(data[p++])];
 		int maxTokenType = toInt(data[p++]);
@@ -562,7 +562,7 @@ public class ATNDeserializer {
 			IntervalSet set = new IntervalSet();
 			sets.add(set);
 
-			boolean containsEof = toInt(data[p++]) != 0;
+			bool containsEof = toInt(data[p++]) != 0;
 			if (containsEof) {
 				set.add(-1);
 			}
@@ -668,11 +668,11 @@ public class ATNDeserializer {
 		}
 	}
 
-	protected void checkCondition(boolean condition) {
+	protected void checkCondition(bool condition) {
 		checkCondition(condition, null);
 	}
 
-	protected void checkCondition(boolean condition, String message) {
+	protected void checkCondition(bool condition, String message) {
 		if (!condition) {
 			throw new IllegalStateException(message);
 		}

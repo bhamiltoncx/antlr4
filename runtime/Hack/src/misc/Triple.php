@@ -20,7 +20,7 @@ public class Triple<A,B,C> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public bool equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
