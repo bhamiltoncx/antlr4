@@ -341,8 +341,8 @@ public abstract class Lexer extends Recognizer<Integer, LexerATNSimulator>
 	/** Return a list of all Token objects in input char stream.
 	 *  Forces load of all tokens. Does not include EOF token.
 	 */
-	public List<? extends Token> getAllTokens() {
-		List<Token> tokens = new ArrayList<Token>();
+	public vec<? extends Token> getAllTokens() {
+		vec<Token> tokens = new Arrayvec<Token>();
 		Token t = nextToken();
 		while ( t.getType()!=Token.EOF ) {
 			tokens.add(t);

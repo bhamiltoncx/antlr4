@@ -23,13 +23,13 @@ public class ATN {
 	public static final int INVALID_ALT_NUMBER = 0;
 
 
-	public final List<ATNState> states = new ArrayList<ATNState>();
+	public final vec<ATNState> states = new Arrayvec<ATNState>();
 
 	/** Each subrule/rule is a decision point and we must track them so we
 	 *  can go back later and build DFA predictors for them.  This includes
 	 *  all the rules, subrules, optional blocks, ()+, ()* etc...
 	 */
-	public final List<DecisionState> decisionToState = new ArrayList<DecisionState>();
+	public final vec<DecisionState> decisionToState = new Arrayvec<DecisionState>();
 
 	/**
 	 * Maps from rule index to starting state number.
@@ -70,7 +70,7 @@ public class ATN {
 	 */
 	public LexerAction[] lexerActions;
 
-	public final List<TokensStartState> modeToStartState = new ArrayList<TokensStartState>();
+	public final vec<TokensStartState> modeToStartState = new Arrayvec<TokensStartState>();
 
 	/** Used for runtime deserialization of ATNs from strings */
 	public ATN(ATNType grammarType, int maxTokenType) {

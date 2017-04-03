@@ -157,12 +157,12 @@ public class IntegerList {
 		_size = 0;
 	}
 
-	public final int[] toArray() {
+	public function toVec(): vec<int> {
 		if (_size == 0) {
 			return EMPTY_DATA;
 		}
 
-		return Arrays.copyOf(_data, _size);
+		return vec($this->data);
 	}
 
 	public final void sort() {
@@ -170,23 +170,23 @@ public class IntegerList {
 	}
 
 	/**
-	 * Compares the specified object with this list for equality.  Returns
-	 * {@code true} if and only if the specified object is also an {@link IntegerList},
-	 * both lists have the same size, and all corresponding pairs of elements in
-	 * the two lists are equal.  In other words, two lists are defined to be
-	 * equal if they contain the same elements in the same order.
-	 * <p>
-	 * This implementation first checks if the specified object is this
-	 * list. If so, it returns {@code true}; if not, it checks if the
-	 * specified object is an {@link IntegerList}. If not, it returns {@code false};
-	 * if so, it checks the size of both lists. If the lists are not the same size,
-	 * it returns {@code false}; otherwise it iterates over both lists, comparing
-	 * corresponding pairs of elements.  If any comparison returns {@code false},
-	 * this method returns {@code false}.
-	 *
-	 * @param o the object to be compared for equality with this list
-	 * @return {@code true} if the specified object is equal to this list
-	 */
+   * Compares the specified object with this list for equality.  Returns
+   * {@code true} if and only if the specified object is also an {@link IntegerList},
+   * both lists have the same size, and all corresponding pairs of elements in
+   * the two lists are equal.  In other words, two lists are defined to be
+   * equal if they contain the same elements in the same order.
+   * <p>
+   * This implementation first checks if the specified object is this
+   * list. If so, it returns {@code true}; if not, it checks if the
+   * specified object is an {@link IntegerList}. If not, it returns {@code false};
+   * if so, it checks the size of both lists. If the lists are not the same size,
+   * it returns {@code false}; otherwise it iterates over both lists, comparing
+   * corresponding pairs of elements.  If any comparison returns {@code false},
+   * this method returns {@code false}.
+   *
+   * @param o the object to be compared for equality with this list
+   * @return {@code true} if the specified object is equal to this list
+   */
 	@Override
 	public bool equals(Object o) {
 		if (o == this) {
@@ -212,14 +212,14 @@ public class IntegerList {
 	}
 
 	/**
-	 * Returns the hash code value for this list.
-	 *
-	 * <p>This implementation uses exactly the code that is used to define the
-	 * list hash function in the documentation for the {@link List#hashCode}
-	 * method.</p>
-	 *
-	 * @return the hash code value for this list
-	 */
+   * Returns the hash code value for this list.
+   *
+   * <p>This implementation uses exactly the code that is used to define the
+   * list hash function in the documentation for the {@link List#hashCode}
+   * method.</p>
+   *
+   * @return the hash code value for this list
+   */
 	@Override
 	public int hashCode() {
 		int hashCode = 1;
@@ -231,8 +231,8 @@ public class IntegerList {
 	}
 
 	/**
-	 * Returns a string representation of this list.
-	 */
+   * Returns a string representation of this list.
+   */
 	@Override
 	public String toString() {
 		return Arrays.toString(toArray());
@@ -277,10 +277,10 @@ public class IntegerList {
 	}
 
 	/** Convert the list to a UTF-16 encoded char array. If all values are less
-	 *  than the 0xFFFF 16-bit code point limit then this is just a char array
-	 *  of 16-bit char as usual. For values in the supplementary range, encode
-	 * them as two UTF-16 code units.
-	 */
+   *  than the 0xFFFF 16-bit code point limit then this is just a char array
+   *  of 16-bit char as usual. For values in the supplementary range, encode
+   * them as two UTF-16 code units.
+   */
 	public final char[] toCharArray() {
 		// Optimize for the common case (all data values are
 		// < 0xFFFF) to avoid an extra scan
@@ -292,7 +292,7 @@ public class IntegerList {
 			// Calculate the precise result size if we encounter
 			// a code point > 0xFFFF
 			if (!calculatedPreciseResultSize &&
-			    Character.isSupplementaryCodePoint(codePoint)) {
+          Character.isSupplementaryCodePoint(codePoint)) {
 				resultArray = Arrays.copyOf(resultArray, charArraySize());
 				calculatedPreciseResultSize = true;
 			}

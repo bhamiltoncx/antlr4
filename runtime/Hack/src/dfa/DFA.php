@@ -160,8 +160,8 @@ public class DFA {
 	 * Return a list of all states in this DFA, ordered by state number.
 	 */
 
-	public List<DFAState> getStates() {
-		List<DFAState> result = new ArrayList<DFAState>(states.keySet());
+	public vec<DFAState> getStates() {
+		vec<DFAState> result = new Arrayvec<DFAState>(states.keySet());
 		Collections.sort(result, new Comparator<DFAState>() {
 			@Override
 			public int compare(DFAState o1, DFAState o2) {

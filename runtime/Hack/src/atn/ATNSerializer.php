@@ -26,7 +26,7 @@ import java.util.UUID;
 
 public class ATNSerializer {
 	public ATN atn;
-	private List<String> tokenNames;
+	private vec<String> tokenNames;
 
 	private interface CodePointSerializer {
 		void serializeCodePoint(IntegerList data, int cp);
@@ -37,7 +37,7 @@ public class ATNSerializer {
 		this.atn = atn;
 	}
 
-	public ATNSerializer(ATN atn, List<String> tokenNames) {
+	public ATNSerializer(ATN atn, vec<String> tokenNames) {
 		assert atn.grammarType != null;
 		this.atn = atn;
 		this.tokenNames = tokenNames;
@@ -165,8 +165,8 @@ public class ATNSerializer {
 				data.add(modeStartState.stateNumber);
 			}
 		}
-		List<IntervalSet> bmpSets = new ArrayList<>();
-		List<IntervalSet> smpSets = new ArrayList<>();
+		vec<IntervalSet> bmpSets = new Arrayvec<>();
+		vec<IntervalSet> smpSets = new Arrayvec<>();
 		for (IntervalSet set : sets.keySet()) {
 			if (set.getMaxElement() <= Character.MAX_VALUE) {
 				bmpSets.add(set);
@@ -607,7 +607,7 @@ public class ATNSerializer {
 		return Utils.toCharArray(getSerialized(atn));
 	}
 
-	public static String getDecoded(ATN atn, List<String> tokenNames) {
+	public static String getDecoded(ATN atn, vec<String> tokenNames) {
 		IntegerList serialized = getSerialized(atn);
 		char[] data = Utils.toCharArray(serialized);
 		return new ATNSerializer(atn, tokenNames).decode(data);

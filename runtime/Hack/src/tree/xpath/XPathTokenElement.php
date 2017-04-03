@@ -27,7 +27,7 @@ public class XPathTokenElement extends XPathElement {
 	@Override
 	public Collection<ParseTree> evaluate(ParseTree t) {
 		// return all children of t that match nodeName
-		List<ParseTree> nodes = new ArrayList<ParseTree>();
+		vec<ParseTree> nodes = new Arrayvec<ParseTree>();
 		for (Tree c : Trees.getChildren(t)) {
 			if ( c instanceof TerminalNode ) {
 				TerminalNode tnode = (TerminalNode)c;

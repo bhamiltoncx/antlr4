@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class OrderedHashSet<T> extends LinkedHashSet<T> {
     /** Track the elements as they are added to the set */
-    protected ArrayList<T> elements = new ArrayList<T>();
+    protected Arrayvec<T> elements = new Arrayvec<T>();
 
     public T get(int i) {
         return elements.get(i);
@@ -91,7 +91,7 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
 	/** Return the List holding list of table elements.  Note that you are
      *  NOT getting a copy so don't write to the list.
      */
-    public List<T> elements() {
+    public vec<T> elements() {
         return elements;
     }
 
@@ -99,7 +99,7 @@ public class OrderedHashSet<T> extends LinkedHashSet<T> {
     public Object clone() {
         @SuppressWarnings("unchecked") // safe (result of clone)
         OrderedHashSet<T> dup = (OrderedHashSet<T>)super.clone();
-        dup.elements = new ArrayList<T>(this.elements);
+        dup.elements = new Arrayvec<T>(this.elements);
         return dup;
     }
 

@@ -2,6 +2,9 @@
 
 namespace ANTLR\\Misc;
 
+use ANTLR\\Lexer;
+use ANTLR\\Token;
+
 /**
  * This class implements the {@link IntSet} backed by a sorted array of
  * non-overlapping intervals. It is particularly efficient for representing
@@ -15,7 +18,9 @@ namespace ANTLR\\Misc;
  * (inclusive).</p>
  */
 final class IntervalSet implements IntSet {
-  public static IntervalSet $COMPLETE_CHAR_SET = IntervalSet.of(Lexer.MIN_CHAR_VALUE, Lexer.MAX_CHAR_VALUE)->setReadonly(true);
+  public static IntervalSet $COMPLETE_CHAR_SET =
+    IntervalSet.of(Lexer::$MIN_CHAR_VALUE, Lexer::$MAX_CHAR_VALUE)
+      ->setReadonly(true);
 
   public static IntervalSet $EMPTY_SET = new IntervalSet()->setReadonly(true);
 
@@ -24,179 +29,185 @@ final class IntervalSet implements IntSet {
 
   protected bool readonly;
 
-  public IntervalSet(List<Interval> intervals) {
-    this.intervals = intervals;
+  public IntervalSet(vec<Interval> $intervals) {
+    $this->intervals = $intervals;
   }
 
   public IntervalSet(IntervalSet set) {
-    this();
-    addAll(set);
+    $this->intervals = vec[];
+    $this->addAll($set);
   }
 
-  public IntervalSet(int... els) {
-    if ( els==null ) {
-      intervals = new ArrayList<Interval>(2); // most sets are 1 or 2 elements
-    }
-    else {
-      intervals = new ArrayList<Interval>(els.length);
-      for (int e : els) add(e);
+  public IntervalSet(int $el, /* HH_FIXME[4033] typehint varargs */...$els) {
+    $this->intervals = vec[];
+    $this->add($el);
+    foreach (array_filter($els, $x ==> is_int($x)) as $x) {
+      $this->add($x);
     }
   }
 
   /** Create a set with a single element, el. */
 
-    public static IntervalSet of(int a) {
-    IntervalSet s = new IntervalSet();
-        s.add(a);
-        return s;
-    }
-
-    /** Create a set with all ints within range [a..b] (inclusive) */
-  public static IntervalSet of(int a, int b) {
-    IntervalSet s = new IntervalSet();
-    s.add(a,b);
-    return s;
+  public static function of(int $a): IntervalSet {
+    IntervalSet $s = new IntervalSet();
+    $s->add($a);
+    return $s;
   }
 
-  public void clear() {
-        if ( readonly ) throw new IllegalStateException("can't alter readonly IntervalSet");
-    intervals.clear();
+  /** Create a set with all ints within range [a..b] (inclusive) */
+  public static function of(int $a, int $b): IntervalSet {
+    IntervalSet $s = new IntervalSet();
+    $s->add($a,$b);
+    return $s;
   }
 
-    /** Add a single element to the set.  An isolated element is stored
-     *  as a range el..el.
-     */
-    @Override
-    public void add(int el) {
-        if ( readonly ) throw new IllegalStateException("can't alter readonly IntervalSet");
-        add(el,el);
+  public function clear(): void {
+    if ( $this->readonly ) {
+      throw new IllegalStateException("can't alter readonly IntervalSet");
     }
+    $this->intervals = vec[];
+  }
 
-    /** Add interval; i.e., add all integers from a to b to set.
-     *  If b&lt;a, do nothing.
-     *  Keep list in sorted order (by left range value).
-     *  If overlap, combine ranges.  For example,
-     *  If this is {1..5, 10..20}, adding 6..7 yields
-     *  {1..5, 6..7, 10..20}.  Adding 4..8 yields {1..8, 10..20}.
-     */
-    public void add(int a, int b) {
-        add(Interval.of(a, b));
+  /** Add a single element to the set.  An isolated element is stored
+   *  as a range el..el.
+   */
+  <<__Override>>
+  public function add(int $el): void {
+    if ( $this->readonly ) {
+      throw new IllegalStateException("can't alter readonly IntervalSet");
     }
+    $this->add($el,$el);
+  }
 
-  // copy on write so we can cache a..a intervals and sets of that
-  protected void add(Interval addition) {
-        if ( readonly ) throw new IllegalStateException("can't alter readonly IntervalSet");
+  /** Add interval; i.e., add all integers from a to b to set.
+   *  If b&lt;a, do nothing.
+   *  Keep list in sorted order (by left range value).
+   *  If overlap, combine ranges.  For example,
+   *  If this is {1..5, 10..20}, adding 6..7 yields
+   *  {1..5, 6..7, 10..20}.  Adding 4..8 yields {1..8, 10..20}.
+   */
+  public function add(int $a, int $b): void {
+    $this->add(Interval::of($a, $b));
+  }
+
+  private function add(Interval $addition): void {
+    if ( $this->readonly ) {
+      throw new IllegalStateException("can't alter readonly IntervalSet");
+    }
     //System.out.println("add "+addition+" to "+intervals.toString());
-    if ( addition.b<addition.a ) {
+    if ( $addition->b<$addition->a ) {
       return;
     }
+
     // find position in list
-    // Use iterators as we modify list in place
-    for (ListIterator<Interval> iter = intervals.listIterator(); iter.hasNext();) {
-      Interval r = iter.next();
-      if ( addition.equals(r) ) {
+    for ( $i = 0; $i < count($this->intervals); $i++ ) {
+      $r = $this->intervals[$i];
+      if ( $addition->equals($r) ) {
         return;
       }
-      if ( addition.adjacent(r) || !addition.disjoint(r) ) {
+      if ( $addition->adjacent($r) || !$addition->disjoint($r) ) {
         // next to each other, make a single larger interval
-        Interval bigger = addition.union(r);
-        iter.set(bigger);
+        $bigger = $addition->union($r);
+        $this->intervals[$i] = $bigger;
+        $i++;
         // make sure we didn't just create an interval that
         // should be merged with next interval in list
-        while ( iter.hasNext() ) {
-          Interval next = iter.next();
-          if ( !bigger.adjacent(next) && bigger.disjoint(next) ) {
+        while ( $i < count($this->intervals) ) {
+          $next = $this->intervals[$i];
+          if ( !$bigger->adjacent($next) && $bigger->disjoint($next) ) {
             break;
           }
 
           // if we bump up against or overlap next, merge
-          iter.remove();   // remove this one
-          iter.previous(); // move backwards to what we just set
-          iter.set(bigger.union(next)); // set to 3 merged ones
-          iter.next(); // first call to next after previous duplicates the result
+          $new_intervals = vec[];
+          for ( $j = 0; $j < $i-1; $j++ ) {
+            $new_intervals[] = $this->intervals[$j];
+          }
+          $new_intervals[] = $bigger->union($next);
+          for ( $j = $i+1; $j < count($this->intervals); $j++ ) {
+            $new_intervals[] = $this->intervals[$j];
+          }
+          $this->intervals = $new_intervals;
+          $i++;
         }
         return;
       }
-      if ( addition.startsBeforeDisjoint(r) ) {
-        // insert before r
-        iter.previous();
-        iter.add(addition);
+      if ( $addition->startsBeforeDisjoint($r) ) {
+        $new_intervals = vec[];
+        for ($j = 0; $j < $i-1; $j++) {
+          $new_intervals[] = $this->intervals[$j];
+        }
+        $new_intervals[$i-1] = $addition;
+        for ($j = $i; $j < count($this->intervals); $j++) {
+          $new_intervals[] = $this->intervals[$j];
+        }
+        $this->intervals = $new_intervals;
         return;
       }
       // if disjoint and after r, a future iteration will handle it
     }
     // ok, must be after last interval (and disjoint from last interval)
     // just add it
-    intervals.add(addition);
+    $this->intervals[] = $addition;
   }
 
   /** combine all sets in the array returned the or'd value */
-  public static IntervalSet or(IntervalSet[] sets) {
+  public static function or(Traversable<IntervalSet> $sets): IntervalSet {
     IntervalSet r = new IntervalSet();
-    for (IntervalSet s : sets) r.addAll(s);
+    foreach ($sets as $s) { $r->addAll($s); }
     return r;
   }
 
-  @Override
-  public IntervalSet addAll(IntSet set) {
-    if ( set==null ) {
-      return this;
-    }
-
-    if (set instanceof IntervalSet) {
-      IntervalSet other = (IntervalSet)set;
+  <<__Override>>
+  public function addAll(IntSet $set): IntervalSet {
+    if ($set instanceof IntervalSet) {
+      $other = (IntervalSet)$set;
       // walk set and add each interval
-      int n = other.intervals.size();
-      for (int i = 0; i < n; i++) {
-        Interval I = other.intervals.get(i);
-        this.add(I.a,I.b);
+      $n = count($other->intervals);
+      for ($i = 0; $i < $n; $i++) {
+        $this->add($other->intervals[$i]);
       }
     }
     else {
-      for (int value : set.toList()) {
-        add(value);
+      for ($value : $set->toList()) {
+        $this->add($value);
       }
     }
 
-    return this;
-    }
+    return $this;
+  }
 
-    public IntervalSet complement(int minElement, int maxElement) {
-        return this.complement(IntervalSet.of(minElement,maxElement));
-    }
+  public function complement(int $minElement, int $maxElement): ?IntervalSet {
+    return $this->complement(IntervalSet::of($minElement,$maxElement));
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public IntervalSet complement(IntSet vocabulary) {
-    if ( vocabulary==null || vocabulary.isNil() ) {
-      return null; // nothing in common with null set
-    }
-
-    IntervalSet vocabularyIS;
+  /** {@inheritDoc} */
+  <<__Override>>
+  public function complement(IntSet $vocabulary): IntervalSet {
     if (vocabulary instanceof IntervalSet) {
-      vocabularyIS = (IntervalSet)vocabulary;
+      $vocabularyIS = (IntervalSet)$vocabulary;
     }
     else {
-      vocabularyIS = new IntervalSet();
-      vocabularyIS.addAll(vocabulary);
+      $vocabularyIS = new IntervalSet();
+      $vocabularyIS->addAll($vocabulary);
     }
 
-    return vocabularyIS.subtract(this);
+    return $vocabularyIS->subtract($this);
+  }
+
+  <<__Override>>
+  public function subtract(IntSet a): IntervalSet {
+    if ($a->isNil()) {
+      return new IntervalSet($this);
     }
 
-  @Override
-  public IntervalSet subtract(IntSet a) {
-    if (a == null || a.isNil()) {
-      return new IntervalSet(this);
+    if ($a instanceof IntervalSet) {
+      return static::subtract($this, (IntervalSet)$a);
     }
 
-    if (a instanceof IntervalSet) {
-      return subtract(this, (IntervalSet)a);
-    }
-
-    IntervalSet other = new IntervalSet();
-    other.addAll(a);
-    return subtract(this, other);
+    IntervalSet $other = new IntervalSet();
+    other->addAll($a);
+    return static::subtract($this, $other);
   }
 
   /**
@@ -206,70 +217,86 @@ final class IntervalSet implements IntSet {
    */
 
   public static IntervalSet subtract(IntervalSet left, IntervalSet right) {
-    if (left == null || left.isNil()) {
+    if ($left->isNil()) {
       return new IntervalSet();
     }
 
-    IntervalSet result = new IntervalSet(left);
-    if (right == null || right.isNil()) {
+    $result = new IntervalSet($left);
+    if ($right->isNil()) {
       // right set has no elements; just return the copy of the current set
-      return result;
+      return $result;
     }
 
-    int resultI = 0;
-    int rightI = 0;
-    while (resultI < result.intervals.size() && rightI < right.intervals.size()) {
-      Interval resultInterval = result.intervals.get(resultI);
-      Interval rightInterval = right.intervals.get(rightI);
+    $resultI = 0;
+    $rightI = 0;
+    while ($resultI < count($result->intervals) && $rightI < count($right->intervals)) {
+      $resultInterval = $result->intervals[$resultI];
+      $rightInterval = $right->intervals[$rightI];
 
       // operation: (resultInterval - rightInterval) and update indexes
 
-      if (rightInterval.b < resultInterval.a) {
+      if ($rightInterval->b < $resultInterval->a) {
         rightI++;
         continue;
       }
 
-      if (rightInterval.a > resultInterval.b) {
+      if ($rightInterval->a > $resultInterval->b) {
         resultI++;
         continue;
       }
 
-      Interval beforeCurrent = null;
-      Interval afterCurrent = null;
-      if (rightInterval.a > resultInterval.a) {
-        beforeCurrent = new Interval(resultInterval.a, rightInterval.a - 1);
+      if ($rightInterval->a > $resultInterval->a) {
+        $beforeCurrent = new Interval($resultInterval->a, $rightInterval->a - 1);
+      } else {
+        $beforeCurrent = null;
       }
 
-      if (rightInterval.b < resultInterval.b) {
-        afterCurrent = new Interval(rightInterval.b + 1, resultInterval.b);
+      if ($rightInterval->b < $resultInterval->b) {
+        $afterCurrent = new Interval($rightInterval->b + 1, $resultInterval->b);
+      } else {
+        $afterCurrent = null;
       }
 
-      if (beforeCurrent != null) {
-        if (afterCurrent != null) {
+      if ($beforeCurrent !== null) {
+        if ($afterCurrent !== null) {
           // split the current interval into two
-          result.intervals.set(resultI, beforeCurrent);
-          result.intervals.add(resultI + 1, afterCurrent);
-          resultI++;
-          rightI++;
+          $new_intervals = vec[];
+          for ($i = 0; $i < $resultI; $i++) {
+            $new_intervals[] = $result->intervals[$i];
+          }
+          $new_intervals[] = $beforeCurrent;
+          for ($i = $resultI; $i < count($result->intervals); $i++) {
+            $new_intervals[] = $result->intervals[$i];
+          }
+          $result->intervals = $new_intervals;
+          $resultI++;
+          $rightI++;
           continue;
         }
         else {
           // replace the current interval
-          result.intervals.set(resultI, beforeCurrent);
-          resultI++;
+          $result->intervals[$resultI] = $beforeCurrent;
+          $resultI++;
           continue;
         }
       }
       else {
-        if (afterCurrent != null) {
+        if ($afterCurrent !== null) {
           // replace the current interval
-          result.intervals.set(resultI, afterCurrent);
-          rightI++;
+          $result->intervals[$resultI] = $afterCurrent;
+          $rightI++;
           continue;
         }
         else {
           // remove the current interval (thus no need to increment resultI)
-          result.intervals.remove(resultI);
+          $new_intervals = vec[];
+          for ($i = 0; $i < count($result->intervals); $i++) {
+            if ($i == $resultI) {
+              continue;
+            }
+            $new_intervals[] = $result->intervals[$i];
+          }
+          $result->intervals = $new_intervals;
           continue;
         }
       }
@@ -278,66 +305,53 @@ final class IntervalSet implements IntSet {
     // If rightI reached right.intervals.size(), no more intervals to subtract from result.
     // If resultI reached result.intervals.size(), we would be subtracting from an empty set.
     // Either way, we are done.
-    return result;
+    return $result;
   }
 
-  @Override
-  public IntervalSet or(IntSet a) {
-    IntervalSet o = new IntervalSet();
-    o.addAll(this);
-    o.addAll(a);
-    return o;
+  <<__Override>>
+  public function or(IntSet a): IntervalSet {
+    IntervalSet $o = new IntervalSet();
+    $o->addAll($this);
+    $o->addAll($a);
+    return $o;
   }
 
-    /** {@inheritDoc} */
-  @Override
-  public IntervalSet and(IntSet other) {
-    if ( other==null ) { //|| !(other instanceof IntervalSet) ) {
-      return null; // nothing in common with null set
-    }
-
-    List<Interval> myIntervals = this.intervals;
-    List<Interval> theirIntervals = ((IntervalSet)other).intervals;
-    IntervalSet intersection = null;
-    int mySize = myIntervals.size();
-    int theirSize = theirIntervals.size();
-    int i = 0;
-    int j = 0;
+  /** {@inheritDoc} */
+  <<__Override>>
+  public function and(IntSet other): InteralSet {
+    $myIntervals = this->intervals;
+    $theirIntervals = ((IntervalSet)$other)->intervals;
+    $intersection = new IntervalSet();
+    $mySize = count($myIntervals);
+    $theirSize = count($theirIntervals);
+    $i = 0;
+    $j = 0;
     // iterate down both interval lists looking for nondisjoint intervals
-    while ( i<mySize && j<theirSize ) {
-      Interval mine = myIntervals.get(i);
-      Interval theirs = theirIntervals.get(j);
+    while ( $i<$mySize && $j<$theirSize ) {
+      $mine = $myIntervals[i];
+      $theirs = $theirIntervals[j];
       //System.out.println("mine="+mine+" and theirs="+theirs);
-      if ( mine.startsBeforeDisjoint(theirs) ) {
+      if ( $mine->startsBeforeDisjoint($theirs) ) {
         // move this iterator looking for interval that might overlap
-        i++;
+        $i++;
       }
-      else if ( theirs.startsBeforeDisjoint(mine) ) {
+      elseif ( $theirs->startsBeforeDisjoint($mine) ) {
         // move other iterator looking for interval that might overlap
-        j++;
+        $j++;
       }
-      else if ( mine.properlyContains(theirs) ) {
+      elseif ( $mine->properlyContains($theirs) ) {
         // overlap, add intersection, get next theirs
-        if ( intersection==null ) {
-          intersection = new IntervalSet();
-        }
-        intersection.add(mine.intersection(theirs));
-        j++;
+        $intersection->add($mine->intersection($theirs));
+        $j++;
       }
-      else if ( theirs.properlyContains(mine) ) {
+      elseif ( $theirs->properlyContains($mine) ) {
         // overlap, add intersection, get next mine
-        if ( intersection==null ) {
-          intersection = new IntervalSet();
-        }
-        intersection.add(mine.intersection(theirs));
-        i++;
+        $intersection->add($mine->intersection($theirs));
+        $i++;
       }
-      else if ( !mine.disjoint(theirs) ) {
+      elseif ( !$mine->disjoint($theirs) ) {
         // overlap, add intersection
-        if ( intersection==null ) {
-          intersection = new IntervalSet();
-        }
-        intersection.add(mine.intersection(theirs));
+        $intersection->add($mine->intersection($theirs));
         // Move the iterator of lower range [a..b], but not
         // the upper range as it may contain elements that will collide
         // with the next iterator. So, if mine=[0..115] and
@@ -345,49 +359,29 @@ final class IntervalSet implements IntSet {
         // but not theirs as theirs may collide with the next range
         // in thisIter.
         // move both iterators to next ranges
-        if ( mine.startsAfterNonDisjoint(theirs) ) {
-          j++;
+        if ( $mine->startsAfterNonDisjoint($theirs) ) {
+          $j++;
         }
-        else if ( theirs.startsAfterNonDisjoint(mine) ) {
-          i++;
+        elseif ( $theirs->startsAfterNonDisjoint($mine) ) {
+          $i++;
         }
       }
     }
-    if ( intersection==null ) {
-      return new IntervalSet();
-    }
-    return intersection;
+    return $intersection;
   }
 
-    /** {@inheritDoc} */
-    @Override
-    public bool contains(int el) {
-    int n = intervals.size();
-    int l = 0;
-    int r = n - 1;
-    // Binary search for the element in the (sorted,
-    // disjoint) array of intervals.
-    while (l <= r) {
-      int m = (l + r) / 2;
-      Interval I = intervals.get(m);
-      int a = I.a;
-      int b = I.b;
-      if ( b<el ) {
-        l = m + 1;
-      } else if ( a>el ) {
-        r = m - 1;
-      } else { // el >= a && el <= b
-        return true;
-      }
-    }
-    return false;
-    }
 
-    /** {@inheritDoc} */
-    @Override
-    public bool isNil() {
-        return intervals==null || intervals.isEmpty();
-    }
+  /** {@inheritDoc} */
+  <<__Override>>
+  public function contains(int el): bool {
+    return false;
+  }
+
+  /** {@inheritDoc} */
+  <<__Override>>
+  public function isNil(): bool {
+    return $this->intervals===null || $this->intervals->isEmpty();
+  }
 
   /**
    * Returns the maximum value contained in the set if not isNil().
@@ -395,12 +389,12 @@ final class IntervalSet implements IntSet {
    * @return the maximum value contained in the set.
    * @throws RuntimeException if set is empty
    */
-  public int getMaxElement() {
-    if ( isNil() ) {
-      throw new RuntimeException("set is empty");
+  public function getMaxElement(): int {
+    if ( $this->isNil() ) {
+      throw new Exception("set is empty");
     }
-    Interval last = intervals.get(intervals.size()-1);
-    return last.b;
+    $last = $this->intervals[count($this->intervals)-1];
+    return $last->b;
   }
 
   /**
@@ -409,89 +403,73 @@ final class IntervalSet implements IntSet {
    * @return the minimum value contained in the set.
    * @throws RuntimeException if set is empty
    */
-  public int getMinElement() {
-    if ( isNil() ) {
-      throw new RuntimeException("set is empty");
+  public function getMinElement(): int {
+    if ( $this->isNil() ) {
+      throw new Exception("set is empty");
     }
 
-    return intervals.get(0).a;
+    return $this->intervals[0]->a;
   }
 
-    /** Return a list of Interval objects. */
-    public List<Interval> getIntervals() {
-        return intervals;
-    }
-
-  @Override
-  public int hashCode() {
-    int hash = MurmurHash.initialize();
-    for (Interval I : intervals) {
-      hash = MurmurHash.update(hash, I.a);
-      hash = MurmurHash.update(hash, I.b);
-    }
-
-    hash = MurmurHash.finish(hash, intervals.size() * 2);
-    return hash;
+  /** Return a list of Interval objects. */
+  public function getIntervals(): vec<Interval> {
+    return $this->intervals;
   }
 
   /** Are two IntervalSets equal?  Because all intervals are sorted
-     *  and disjoint, equals is a simple linear walk over both lists
-     *  to make sure they are the same.  Interval.equals() is used
-     *  by the List.equals() method to check the ranges.
-     */
-    @Override
-    public bool equals(Object obj) {
-        if ( obj==null || !(obj instanceof IntervalSet) ) {
-            return false;
-        }
-        IntervalSet other = (IntervalSet)obj;
-    return this.intervals.equals(other.intervals);
+   *  and disjoint, equals is a simple linear walk over both lists
+   *  to make sure they are the same.  Interval.equals() is used
+   *  by the List.equals() method to check the ranges.
+   */
+  public function equals(IntervalSet other): bool {
+    return this->intervals == $other->intervals;
   }
 
-  @Override
-  public String toString() { return toString(false); }
+  public function __toString(): string { return $this->toString(false); }
 
-  public String toString(bool elemAreChar) {
-    StringBuilder buf = new StringBuilder();
-    if ( this.intervals==null || this.intervals.isEmpty() ) {
-      return "{}";
+  public function toString(bool elemAreChar): string {
+    if ( $this->isNil() ) {
+      return '{}';
     }
-    if ( this.size()>1 ) {
-      buf.append("{");
+    $buf = '';
+    if ( $this->size()>1 ) {
+      $buf .= '{';
     }
-    Iterator<Interval> iter = this.intervals.iterator();
-    while (iter.hasNext()) {
-      Interval I = iter.next();
-      int a = I.a;
-      int b = I.b;
-      if ( a==b ) {
-        if ( a==Token.EOF ) buf.append("<EOF>");
-        else if ( elemAreChar ) buf.append("'").appendCodePoint(a).append("'");
-        else buf.append(a);
+    $first = true;
+    foreach ($this->intervals as $I) {
+      if ($first) {
+        $first = false;
+      } else {
+        $buf .= ', ';
+      }
+      $a = $I->a;
+      $b = $I->b;
+      if ( $a==$b ) {
+        if ( $a==Token::EOF ) {
+          $buf .= '<EOF>';
+        }
+        elseif ( $elemAreChar ) {
+          $buf .= "'" . IntlChar::chr($a) . "'";
+        }
+        else {
+          $buf .= (string)$a;
+        }
       }
       else {
-        if ( elemAreChar ) buf.append("'").appendCodePoint(a).append("'..'").appendCodePoint(b).append("'");
-        else buf.append(a).append("..").append(b);
-      }
-      if ( iter.hasNext() ) {
-        buf.append(", ");
+        if ( $elemAreChar ) {
+          $buf .= "'" . IntlChar::chr($a) . "'..'" . IntlChar::chr($b) . "'";
+        }
+        else {
+          $buf .= (string)$a . '..' . (string)$b;
+        }
       }
     }
-    if ( this.size()>1 ) {
-      buf.append("}");
+    if ( $this->size()>1 ) {
+      $buf .= '}';
     }
-    return buf.toString();
-  }
-
-  /**
-   * @deprecated Use {@link #toString(Vocabulary)} instead.
-   */
-  @Deprecated
-  public String toString(String[] tokenNames) {
-    return toString(VocabularyImpl.fromTokenNames(tokenNames));
-  }
-
-  public String toString(Vocabulary vocabulary) {
+    return $buf;
+    }
+    public function toString(Vocabulary vocabulary): string {
     StringBuilder buf = new StringBuilder();
     if ( this.intervals==null || this.intervals.isEmpty() ) {
       return "{}";
@@ -510,7 +488,7 @@ final class IntervalSet implements IntSet {
       else {
         for (int i=a; i<=b; i++) {
           if ( i>a ) buf.append(", ");
-                    buf.append(elementName(vocabulary, i));
+          buf.append(elementName(vocabulary, i));
         }
       }
       if ( iter.hasNext() ) {
@@ -520,153 +498,113 @@ final class IntervalSet implements IntSet {
     if ( this.size()>1 ) {
       buf.append("}");
     }
-        return buf.toString();
-    }
-
-  /**
-   * @deprecated Use {@link #elementName(Vocabulary, int)} instead.
-   */
-  @Deprecated
-  protected String elementName(String[] tokenNames, int a) {
-    return elementName(VocabularyImpl.fromTokenNames(tokenNames), a);
+    return buf.toString();
   }
 
-
-  protected String elementName(Vocabulary vocabulary, int a) {
-    if (a == Token.EOF) {
-      return "<EOF>";
+  private function elementName(Vocabulary $vocabulary, int $a): string {
+    if ($a == Token::EOF) {
+      return '<EOF>';
     }
-    else if (a == Token.EPSILON) {
-      return "<EPSILON>";
+    elseif (a == Token::EPSILON) {
+      return '<EPSILON>';
     }
     else {
-      return vocabulary.getDisplayName(a);
+      return $vocabulary->getDisplayName($a);
     }
   }
 
-    @Override
-    public int size() {
-    int n = 0;
-    int numIntervals = intervals.size();
-    if ( numIntervals==1 ) {
-      Interval firstInterval = this.intervals.get(0);
-      return firstInterval.b-firstInterval.a+1;
+  <<__Override>>
+  public function size(): int {
+    $numIntervals = count($this->intervals);
+    if ( $numIntervals==1 ) {
+      $firstInterval = $this->intervals[0];
+      return $firstInterval->b-$firstInterval->a+1;
     }
-    for (int i = 0; i < numIntervals; i++) {
-      Interval I = intervals.get(i);
-      n += (I.b-I.a+1);
+    for ( $i = 0; $i < numIntervals; $i++ ) {
+      $I = $intervals[$i];
+      $n += ($I->b-$I->a+1);
     }
-    return n;
-    }
+    return $n;
+  }
 
-  public IntegerList toIntegerList() {
-    IntegerList values = new IntegerList(size());
-    int n = intervals.size();
-    for (int i = 0; i < n; i++) {
-      Interval I = intervals.get(i);
-      int a = I.a;
-      int b = I.b;
-      for (int v=a; v<=b; v++) {
-        values.add(v);
+  public function toIntegerList(): IntegerList {
+    $values = new IntegerList($this->size());
+    foreach ($this->intervals as $I) {
+      $a = $I->a;
+      $b = $I->b;
+      for ($v=$a; $v<=$b; $v++) {
+        $values->add($v);
       }
     }
-    return values;
+    return $values;
   }
 
-    @Override
-    public List<Integer> toList() {
-    List<Integer> values = new ArrayList<Integer>();
-    int n = intervals.size();
-    for (int i = 0; i < n; i++) {
-      Interval I = intervals.get(i);
-      int a = I.a;
-      int b = I.b;
-      for (int v=a; v<=b; v++) {
-        values.add(v);
+  <<__Override>>
+  public function toList(): vec<int> {
+    $values = vec[];
+    foreach ($this->intervals as $I) {
+      $a = $I->a;
+      $b = $I->b;
+      for ($v=$a; $v<=$b; $v++) {
+        $values[] = $v;
       }
     }
-    return values;
+    return $values;
   }
 
-  public Set<Integer> toSet() {
-    Set<Integer> s = new HashSet<Integer>();
-    for (Interval I : intervals) {
-      int a = I.a;
-      int b = I.b;
-      for (int v=a; v<=b; v++) {
-        s.add(v);
+  public function toSet(): keyset<int> {
+    $s = keyset[];
+    foreach ($this->intervals as $I) {
+      $a = $I->a;
+      $b = $I->b;
+      for ($v=$a; $v<=$b; $v++) {
+        $s[] = $v;
       }
     }
-    return s;
+    return $s;
   }
 
-  /** Get the ith element of ordered set.  Used only by RandomPhrase so
-   *  don't bother to implement if you're not doing that for a new
-   *  ANTLR code gen target.
-   */
-  public int get(int i) {
-    int n = intervals.size();
-    int index = 0;
-    for (int j = 0; j < n; j++) {
-      Interval I = intervals.get(j);
-      int a = I.a;
-      int b = I.b;
-      for (int v=a; v<=b; v++) {
-        if ( index==i ) {
-          return v;
-        }
-        index++;
+  public function toArray(): vec<int> {
+    return $this->toIntegerList()->toVec();
+  }
+
+  <<__Override>>
+  public function remove(int $el): void {
+    if ( $this->readonly ) { throw new Exception("can't alter readonly IntervalSet"); }
+    $new_intervals = vec[];
+    foreach ($this->intervals as $I) {
+      $a = $I->a;
+      $b = $I->b;
+      if ( $el<$a ) {
+        // list is sorted and el is before this interval; not here
+        return;
+      }
+      if ( $el==$a && $el==$b ) {
+        // if whole interval x..x, rm
+      }
+      elseif ( $el==$a ) {
+        // if on left edge x..b, adjust left
+        $new_intervals[] = new Interval($a+1, $b);
+      }
+      elseif ( $el==$b ) {
+        // if on right edge a..x, adjust right
+        $new_intervals[] = new Interval($a, $b-1);
+      }
+      elseif ( el>a && el<b ) { // found in this interval
+        $new_intervals[] = new Interval($a, $el-1);
+        $new_intervals[] = new Interval($el+1, $b);
       }
     }
-    return -1;
+    $this->intervals = $new_intervals;
   }
 
-  public int[] toArray() {
-    return toIntegerList().toArray();
+  public function isReadonly(): bool {
+    return $this->readonly;
   }
 
-  @Override
-  public void remove(int el) {
-        if ( readonly ) throw new IllegalStateException("can't alter readonly IntervalSet");
-        int n = intervals.size();
-        for (int i = 0; i < n; i++) {
-            Interval I = intervals.get(i);
-            int a = I.a;
-            int b = I.b;
-            if ( el<a ) {
-                break; // list is sorted and el is before this interval; not here
-            }
-            // if whole interval x..x, rm
-            if ( el==a && el==b ) {
-                intervals.remove(i);
-                break;
-            }
-            // if on left edge x..b, adjust left
-            if ( el==a ) {
-                I.a++;
-                break;
-            }
-            // if on right edge a..x, adjust right
-            if ( el==b ) {
-                I.b--;
-                break;
-            }
-            // if in middle a..x..b, split interval
-            if ( el>a && el<b ) { // found in this interval
-                int oldb = I.b;
-                I.b = el-1;      // [a..x-1]
-                add(el+1, oldb); // add [x+1..b]
-            }
-        }
-    }
-
-    public bool isReadonly() {
-        return readonly;
-    }
-
-  public setReadonly(bool readonly): IntervalSet {
+  public function setReadonly(bool readonly): IntervalSet {
     if ( $this->readonly && !$readonly ) {
-      throw new IllegalStateException("can't alter readonly IntervalSet");
+      throw new Exception("can't alter readonly IntervalSet");
     }
     $this->readonly = $readonly;
     return $this;

@@ -188,16 +188,16 @@ public class TokenStreamRewriter {
 	 *  I'm calling these things "programs."
 	 *  Maps String (name) &rarr; rewrite (List)
 	 */
-	protected final Map<String, List<RewriteOperation>> programs;
+	protected final Map<String, vec<RewriteOperation>> programs;
 
 	/** Map String (program name) &rarr; Integer index */
 	protected final Map<String, Integer> lastRewriteTokenIndexes;
 
 	public TokenStreamRewriter(TokenStream tokens) {
 		this.tokens = tokens;
-		programs = new HashMap<String, List<RewriteOperation>>();
+		programs = new HashMap<String, vec<RewriteOperation>>();
 		programs.put(DEFAULT_PROGRAM_NAME,
-					 new ArrayList<RewriteOperation>(PROGRAM_INIT_SIZE));
+					 new Arrayvec<RewriteOperation>(PROGRAM_INIT_SIZE));
 		lastRewriteTokenIndexes = new HashMap<String, Integer>();
 	}
 
@@ -214,7 +214,7 @@ public class TokenStreamRewriter {
 	 *  longer in the stream. UNTESTED!
 	 */
 	public void rollback(String programName, int instructionIndex) {
-		List<RewriteOperation> is = programs.get(programName);
+		vec<RewriteOperation> is = programs.get(programName);
 		if ( is!=null ) {
 			programs.put(programName, is.subList(MIN_TOKEN_INDEX,instructionIndex));
 		}
@@ -244,7 +244,7 @@ public class TokenStreamRewriter {
 	public void insertAfter(String programName, int index, Object text) {
 		// to insert after, just insert before next index (even if past end)
         RewriteOperation op = new InsertAfterOp(index, text);
-        List<RewriteOperation> rewrites = getProgram(programName);
+        vec<RewriteOperation> rewrites = getProgram(programName);
         op.instructionIndex = rewrites.size();
         rewrites.add(op);
 	}
@@ -263,7 +263,7 @@ public class TokenStreamRewriter {
 
 	public void insertBefore(String programName, int index, Object text) {
 		RewriteOperation op = new InsertBeforeOp(index,text);
-		List<RewriteOperation> rewrites = getProgram(programName);
+		vec<RewriteOperation> rewrites = getProgram(programName);
 		op.instructionIndex = rewrites.size();
 		rewrites.add(op);
 	}
@@ -289,7 +289,7 @@ public class TokenStreamRewriter {
 			throw new IllegalArgumentException("replace: range invalid: "+from+".."+to+"(size="+tokens.size()+")");
 		}
 		RewriteOperation op = new ReplaceOp(from, to, text);
-		List<RewriteOperation> rewrites = getProgram(programName);
+		vec<RewriteOperation> rewrites = getProgram(programName);
 		op.instructionIndex = rewrites.size();
 		rewrites.add(op);
 	}
@@ -341,16 +341,16 @@ public class TokenStreamRewriter {
 		lastRewriteTokenIndexes.put(programName, i);
 	}
 
-	protected List<RewriteOperation> getProgram(String name) {
-		List<RewriteOperation> is = programs.get(name);
+	protected vec<RewriteOperation> getProgram(String name) {
+		vec<RewriteOperation> is = programs.get(name);
 		if ( is==null ) {
 			is = initializeProgram(name);
 		}
 		return is;
 	}
 
-	private List<RewriteOperation> initializeProgram(String name) {
-		List<RewriteOperation> is = new ArrayList<RewriteOperation>(PROGRAM_INIT_SIZE);
+	private vec<RewriteOperation> initializeProgram(String name) {
+		vec<RewriteOperation> is = new Arrayvec<RewriteOperation>(PROGRAM_INIT_SIZE);
 		programs.put(name, is);
 		return is;
 	}
@@ -383,7 +383,7 @@ public class TokenStreamRewriter {
 	}
 
 	public String getText(String programName, Interval interval) {
-		List<RewriteOperation> rewrites = programs.get(programName);
+		vec<RewriteOperation> rewrites = programs.get(programName);
 		int start = interval.a;
 		int stop = interval.b;
 
@@ -477,7 +477,7 @@ public class TokenStreamRewriter {
 	 *
 	 *  Return a map from token index to operation.
 	 */
-	protected Map<Integer, RewriteOperation> reduceToSingleOperationPerIndex(List<RewriteOperation> rewrites) {
+	protected Map<Integer, RewriteOperation> reduceToSingleOperationPerIndex(vec<RewriteOperation> rewrites) {
 //		System.out.println("rewrites="+rewrites);
 
 		// WALK REPLACES
@@ -487,7 +487,7 @@ public class TokenStreamRewriter {
 			if ( !(op instanceof ReplaceOp) ) continue;
 			ReplaceOp rop = (ReplaceOp)rewrites.get(i);
 			// Wipe prior inserts within range
-			List<? extends InsertBeforeOp> inserts = getKindOfOps(rewrites, InsertBeforeOp.class, i);
+			vec<? extends InsertBeforeOp> inserts = getKindOfOps(rewrites, InsertBeforeOp.class, i);
 			for (InsertBeforeOp iop : inserts) {
 				if ( iop.index == rop.index ) {
 					// E.g., insert before 2, delete 2..2; update replace
@@ -501,7 +501,7 @@ public class TokenStreamRewriter {
 				}
 			}
 			// Drop any prior replaces contained within
-			List<? extends ReplaceOp> prevReplaces = getKindOfOps(rewrites, ReplaceOp.class, i);
+			vec<? extends ReplaceOp> prevReplaces = getKindOfOps(rewrites, ReplaceOp.class, i);
 			for (ReplaceOp prevRop : prevReplaces) {
 				if ( prevRop.index>=rop.index && prevRop.lastIndex <= rop.lastIndex ) {
 					// delete replace as it's a no-op.
@@ -533,7 +533,7 @@ public class TokenStreamRewriter {
 			if ( !(op instanceof InsertBeforeOp) ) continue;
 			InsertBeforeOp iop = (InsertBeforeOp)rewrites.get(i);
 			// combine current insert with prior if any at same index
-			List<? extends InsertBeforeOp> prevInserts = getKindOfOps(rewrites, InsertBeforeOp.class, i);
+			vec<? extends InsertBeforeOp> prevInserts = getKindOfOps(rewrites, InsertBeforeOp.class, i);
 			for (InsertBeforeOp prevIop : prevInserts) {
 				if ( prevIop.index==iop.index ) {
 					if ( InsertAfterOp.class.isInstance(prevIop) ) {
@@ -550,7 +550,7 @@ public class TokenStreamRewriter {
 				}
 			}
 			// look for replaces where iop.index is in range; error
-			List<? extends ReplaceOp> prevReplaces = getKindOfOps(rewrites, ReplaceOp.class, i);
+			vec<? extends ReplaceOp> prevReplaces = getKindOfOps(rewrites, ReplaceOp.class, i);
 			for (ReplaceOp rop : prevReplaces) {
 				if ( iop.index == rop.index ) {
 					rop.text = catOpText(iop.text,rop.text);
@@ -585,8 +585,8 @@ public class TokenStreamRewriter {
 	}
 
 	/** Get all operations before an index of a particular kind */
-	protected <T extends RewriteOperation> List<? extends T> getKindOfOps(List<? extends RewriteOperation> rewrites, Class<T> kind, int before) {
-		List<T> ops = new ArrayList<T>();
+	protected <T extends RewriteOperation> vec<? extends T> getKindOfOps(vec<? extends RewriteOperation> rewrites, Class<T> kind, int before) {
+		vec<T> ops = new Arrayvec<T>();
 		for (int i=0; i<before && i<rewrites.size(); i++) {
 			RewriteOperation op = rewrites.get(i);
 			if ( op==null ) continue; // ignore deleted

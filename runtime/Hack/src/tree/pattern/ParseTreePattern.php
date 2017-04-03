@@ -98,9 +98,9 @@ public class ParseTreePattern {
 	 * regardless of the reason for the failure.
 	 */
 
-	public List<ParseTreeMatch> findAll(ParseTree tree, String xpath) {
+	public vec<ParseTreeMatch> findAll(ParseTree tree, String xpath) {
 		Collection<ParseTree> subtrees = XPath.findAll(tree, xpath, matcher.getParser());
-		List<ParseTreeMatch> matches = new ArrayList<ParseTreeMatch>();
+		vec<ParseTreeMatch> matches = new Arrayvec<ParseTreeMatch>();
 		for (ParseTree t : subtrees) {
 			ParseTreeMatch match = match(t);
 			if ( match.succeeded() ) {

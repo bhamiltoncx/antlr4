@@ -76,7 +76,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		@Override
 		public void exitEveryRule(ParserRuleContext ctx) {
 			if (ctx.children instanceof ArrayList) {
-				((ArrayList<?>)ctx.children).trimToSize();
+				((Arrayvec<?>)ctx.children).trimToSize();
 			}
 		}
 	}
@@ -145,7 +145,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 *
 	 * @see #addParseListener
 	 */
-	protected List<ParseTreeListener> _parseListeners;
+	protected vec<ParseTreeListener> _parseListeners;
 
 	/**
 	 * The number of syntax errors reported during parsing. This value is
@@ -307,8 +307,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 
-	public List<ParseTreeListener> getParseListeners() {
-		List<ParseTreeListener> listeners = _parseListeners;
+	public vec<ParseTreeListener> getParseListeners() {
+		vec<ParseTreeListener> listeners = _parseListeners;
 		if (listeners == null) {
 			return Collections.emptyList();
 		}
@@ -351,7 +351,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		}
 
 		if (_parseListeners == null) {
-			_parseListeners = new ArrayList<ParseTreeListener>();
+			_parseListeners = new Arrayvec<ParseTreeListener>();
 		}
 
 		this._parseListeners.add(listener);
@@ -847,13 +847,13 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	 *
 	 *  This is very useful for error messages.
 	 */
-	public List<String> getRuleInvocationStack() {
+	public vec<String> getRuleInvocationStack() {
 		return getRuleInvocationStack(_ctx);
 	}
 
-	public List<String> getRuleInvocationStack(RuleContext p) {
+	public vec<String> getRuleInvocationStack(RuleContext p) {
 		String[] ruleNames = getRuleNames();
-		List<String> stack = new ArrayList<String>();
+		vec<String> stack = new Arrayvec<String>();
 		while ( p!=null ) {
 			// compute what follows who invoked us
 			int ruleIndex = p.getRuleIndex();
@@ -865,9 +865,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/** For debugging and other purposes. */
-	public List<String> getDFAStrings() {
+	public vec<String> getDFAStrings() {
 		synchronized (_interp.decisionToDFA) {
-			List<String> s = new ArrayList<String>();
+			vec<String> s = new Arrayvec<String>();
 			for (int d = 0; d < _interp.decisionToDFA.length; d++) {
 				DFA dfa = _interp.decisionToDFA[d];
 				s.add( dfa.toString(getVocabulary()) );

@@ -29,8 +29,8 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 		new WeakHashMap<String[], Map<String, Integer>>();
 
 
-	private List<ANTLRErrorListener> _listeners =
-		new CopyOnWriteArrayList<ANTLRErrorListener>() {{
+	private vec<ANTLRErrorListener> _listeners =
+		new CopyOnWriteArrayvec<ANTLRErrorListener>() {{
 			add(ConsoleErrorListener.INSTANCE);
 		}};
 
@@ -229,7 +229,7 @@ public abstract class Recognizer<Symbol, ATNInterpreter extends ATNSimulator> {
 	}
 
 
-	public List<? extends ANTLRErrorListener> getErrorListeners() {
+	public vec<? extends ANTLRErrorListener> getErrorListeners() {
 		return _listeners;
 	}
 

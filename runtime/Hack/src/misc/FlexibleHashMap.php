@@ -38,7 +38,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 
 	protected final AbstractEqualityComparator<? super K> comparator;
 
-	protected LinkedList<Entry<K, V>>[] buckets;
+	protected Linkedvec<Entry<K, V>>[] buckets;
 
 	/** How many elements in set */
 	protected int n = 0;
@@ -66,9 +66,9 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 		this.initialBucketCapacity = initialBucketCapacity;
 	}
 
-	private static <K, V> LinkedList<Entry<K, V>>[] createEntryListArray(int length) {
+	private static <K, V> Linkedvec<Entry<K, V>>[] createEntryListArray(int length) {
 		@SuppressWarnings("unchecked")
-		LinkedList<Entry<K, V>>[] result = (LinkedList<Entry<K, V>>[])new LinkedList<?>[length];
+		Linkedvec<Entry<K, V>>[] result = (Linkedvec<Entry<K, V>>[])new Linkedvec<?>[length];
 		return result;
 	}
 
@@ -84,7 +84,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 		K typedKey = (K)key;
 		if ( key==null ) return null;
 		int b = getBucket(typedKey);
-		LinkedList<Entry<K, V>> bucket = buckets[b];
+		Linkedvec<Entry<K, V>> bucket = buckets[b];
 		if ( bucket==null ) return null; // no bucket
 		for (Entry<K, V> e : bucket) {
 			if ( comparator.equals(e.key, typedKey) ) {
@@ -99,9 +99,9 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 		if ( key==null ) return null;
 		if ( n > threshold ) expand();
 		int b = getBucket(key);
-		LinkedList<Entry<K, V>> bucket = buckets[b];
+		Linkedvec<Entry<K, V>> bucket = buckets[b];
 		if ( bucket==null ) {
-			bucket = buckets[b] = new LinkedList<Entry<K, V>>();
+			bucket = buckets[b] = new Linkedvec<Entry<K, V>>();
 		}
 		for (Entry<K, V> e : bucket) {
 			if ( comparator.equals(e.key, key) ) {
@@ -134,8 +134,8 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 
 	@Override
 	public Collection<V> values() {
-		List<V> a = new ArrayList<V>(size());
-		for (LinkedList<Entry<K, V>> bucket : buckets) {
+		vec<V> a = new Arrayvec<V>(size());
+		for (Linkedvec<Entry<K, V>> bucket : buckets) {
 			if ( bucket==null ) continue;
 			for (Entry<K, V> e : bucket) {
 				a.add(e.value);
@@ -162,7 +162,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 	@Override
 	public int hashCode() {
 		int hash = MurmurHash.initialize();
-		for (LinkedList<Entry<K, V>> bucket : buckets) {
+		for (Linkedvec<Entry<K, V>> bucket : buckets) {
 			if ( bucket==null ) continue;
 			for (Entry<K, V> e : bucket) {
 				if ( e==null ) break;
@@ -180,16 +180,16 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 	}
 
 	protected void expand() {
-		LinkedList<Entry<K, V>>[] old = buckets;
+		Linkedvec<Entry<K, V>>[] old = buckets;
 		currentPrime += 4;
 		int newCapacity = buckets.length * 2;
-		LinkedList<Entry<K, V>>[] newTable = createEntryListArray(newCapacity);
+		Linkedvec<Entry<K, V>>[] newTable = createEntryListArray(newCapacity);
 		buckets = newTable;
 		threshold = (int)(newCapacity * LOAD_FACTOR);
 //		System.out.println("new size="+newCapacity+", thres="+threshold);
 		// rehash all existing entries
 		int oldSize = size();
-		for (LinkedList<Entry<K, V>> bucket : old) {
+		for (Linkedvec<Entry<K, V>> bucket : old) {
 			if ( bucket==null ) continue;
 			for (Entry<K, V> e : bucket) {
 				if ( e==null ) break;
@@ -222,7 +222,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 		StringBuilder buf = new StringBuilder();
 		buf.append('{');
 		bool first = true;
-		for (LinkedList<Entry<K, V>> bucket : buckets) {
+		for (Linkedvec<Entry<K, V>> bucket : buckets) {
 			if ( bucket==null ) continue;
 			for (Entry<K, V> e : bucket) {
 				if ( e==null ) break;
@@ -237,7 +237,7 @@ public class FlexibleHashMap<K,V> implements Map<K, V> {
 
 	public String toTableString() {
 		StringBuilder buf = new StringBuilder();
-		for (LinkedList<Entry<K, V>> bucket : buckets) {
+		for (Linkedvec<Entry<K, V>> bucket : buckets) {
 			if ( bucket==null ) {
 				buf.append("null\n");
 				continue;

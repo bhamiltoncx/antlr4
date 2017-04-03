@@ -108,9 +108,9 @@ public class XPath {
 			throw new IllegalArgumentException(msg, e);
 		}
 
-		List<Token> tokens = tokenStream.getTokens();
+		vec<Token> tokens = tokenStream.getTokens();
 //		System.out.println("path="+path+"=>"+tokens);
-		List<XPathElement> elements = new ArrayList<XPathElement>();
+		vec<XPathElement> elements = new Arrayvec<XPathElement>();
 		int n = tokens.size();
 		int i=0;
 loop:

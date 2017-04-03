@@ -45,9 +45,9 @@ public class ParseInfo {
 	 * @return A list of decision numbers which required one or more
 	 * full-context predictions during parsing.
 	 */
-	public List<Integer> getLLDecisions() {
+	public vec<Integer> getLLDecisions() {
 		DecisionInfo[] decisions = atnSimulator.getDecisionInfo();
-		List<Integer> LL = new ArrayList<Integer>();
+		vec<Integer> LL = new Arrayvec<Integer>();
 		for (int i=0; i<decisions.length; i++) {
 			long fallBack = decisions[i].LL_Fallback;
 			if ( fallBack>0 ) LL.add(i);

@@ -38,7 +38,7 @@ public class DFASerializer {
 	public String toString() {
 		if ( dfa.s0==null ) return null;
 		StringBuilder buf = new StringBuilder();
-		List<DFAState> states = dfa.getStates();
+		vec<DFAState> states = dfa.getStates();
 		for (DFAState s : states) {
 			int n = 0;
 			if ( s.edges!=null ) n = s.edges.length;

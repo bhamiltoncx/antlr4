@@ -90,7 +90,7 @@ public class ParseTreeMatch {
 	 */
 
 	public ParseTree get(String label) {
-		List<ParseTree> parseTrees = labels.get(label);
+		vec<ParseTree> parseTrees = labels.get(label);
 		if ( parseTrees==null || parseTrees.size()==0 ) {
 			return null;
 		}
@@ -122,8 +122,8 @@ public class ParseTreeMatch {
 	 * is returned.
 	 */
 
-	public List<ParseTree> getAll(String label) {
-		List<ParseTree> nodes = labels.get(label);
+	public vec<ParseTree> getAll(String label) {
+		vec<ParseTree> nodes = labels.get(label);
 		if ( nodes==null ) {
 			return Collections.emptyList();
 		}

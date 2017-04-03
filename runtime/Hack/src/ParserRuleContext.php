@@ -48,7 +48,7 @@ public class ParserRuleContext extends RuleContext {
 	 *  operation because we don't the need to track the details about
 	 *  how we parse this rule.
 	 */
-	public List<ParseTree> children;
+	public vec<ParseTree> children;
 
 	/** For debugging/tracing purposes, we want to track all of the nodes in
 	 *  the ATN traversed by the parser for a particular rule.
@@ -68,7 +68,7 @@ public class ParserRuleContext extends RuleContext {
 	 *
 	 *  This does not trace states visited during prediction.
 	 */
-//	public List<Integer> states;
+//	public vec<Integer> states;
 
 	public Token start, stop;
 
@@ -101,7 +101,7 @@ public class ParserRuleContext extends RuleContext {
 
 		// copy any error nodes to alt label node
 		if ( ctx.children!=null ) {
-			this.children = new ArrayList<>();
+			this.children = new Arrayvec<>();
 			// reset parent pointer for any error nodes
 			for (ParseTree child : ctx.children) {
 				if ( child instanceof ErrorNode ) {
@@ -132,7 +132,7 @@ public class ParserRuleContext extends RuleContext {
 	 *  @since 4.7
 	 */
 	public <T extends ParseTree> T addAnyChild(T t) {
-		if ( children==null ) children = new ArrayList<>();
+		if ( children==null ) children = new Arrayvec<>();
 		children.add(t);
 		return t;
 	}
@@ -183,7 +183,7 @@ public class ParserRuleContext extends RuleContext {
 	}
 
 //	public void trace(int s) {
-//		if ( states==null ) states = new ArrayList<Integer>();
+//		if ( states==null ) states = new Arrayvec<Integer>();
 //		states.add(s);
 //	}
 
@@ -247,19 +247,19 @@ public class ParserRuleContext extends RuleContext {
 		return null;
 	}
 
-	public List<TerminalNode> getTokens(int ttype) {
+	public vec<TerminalNode> getTokens(int ttype) {
 		if ( children==null ) {
 			return Collections.emptyList();
 		}
 
-		List<TerminalNode> tokens = null;
+		vec<TerminalNode> tokens = null;
 		for (ParseTree o : children) {
 			if ( o instanceof TerminalNode ) {
 				TerminalNode tnode = (TerminalNode)o;
 				Token symbol = tnode.getSymbol();
 				if ( symbol.getType()==ttype ) {
 					if ( tokens==null ) {
-						tokens = new ArrayList<TerminalNode>();
+						tokens = new Arrayvec<TerminalNode>();
 					}
 					tokens.add(tnode);
 				}
@@ -277,16 +277,16 @@ public class ParserRuleContext extends RuleContext {
 		return getChild(ctxType, i);
 	}
 
-	public <T extends ParserRuleContext> List<T> getRuleContexts(Class<? extends T> ctxType) {
+	public <T extends ParserRuleContext> vec<T> getRuleContexts(Class<? extends T> ctxType) {
 		if ( children==null ) {
 			return Collections.emptyList();
 		}
 
-		List<T> contexts = null;
+		vec<T> contexts = null;
 		for (ParseTree o : children) {
 			if ( ctxType.isInstance(o) ) {
 				if ( contexts==null ) {
-					contexts = new ArrayList<T>();
+					contexts = new Arrayvec<T>();
 				}
 
 				contexts.add(ctxType.cast(o));
@@ -329,7 +329,7 @@ public class ParserRuleContext extends RuleContext {
 
 	/** Used for rule context info debugging during parse-time, not so much for ATN debugging */
 	public String toInfoString(Parser recognizer) {
-		List<String> rules = recognizer.getRuleInvocationStack(this);
+		vec<String> rules = recognizer.getRuleInvocationStack(this);
 		Collections.reverse(rules);
 		return "ParserRuleContext"+rules+"{" +
 			"start=" + start +

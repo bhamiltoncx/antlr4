@@ -117,7 +117,7 @@ public class DecisionInfo {
 	 *
 	 * @see ContextSensitivityInfo
 	 */
-	public final List<ContextSensitivityInfo> contextSensitivities = new ArrayList<ContextSensitivityInfo>();
+	public final vec<ContextSensitivityInfo> contextSensitivities = new Arrayvec<ContextSensitivityInfo>();
 
 	/**
 	 * A collection of {@link ErrorInfo} instances describing the parse errors
@@ -126,7 +126,7 @@ public class DecisionInfo {
 	 *
 	 * @see ErrorInfo
 	 */
-	public final List<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+	public final vec<ErrorInfo> errors = new Arrayvec<ErrorInfo>();
 
 	/**
 	 * A collection of {@link AmbiguityInfo} instances describing the
@@ -134,7 +134,7 @@ public class DecisionInfo {
 	 *
 	 * @see AmbiguityInfo
 	 */
-	public final List<AmbiguityInfo> ambiguities = new ArrayList<AmbiguityInfo>();
+	public final vec<AmbiguityInfo> ambiguities = new Arrayvec<AmbiguityInfo>();
 
 	/**
 	 * A collection of {@link PredicateEvalInfo} instances describing the
@@ -143,7 +143,7 @@ public class DecisionInfo {
 	 *
 	 * @see PredicateEvalInfo
 	 */
-	public final List<PredicateEvalInfo> predicateEvals = new ArrayList<PredicateEvalInfo>();
+	public final vec<PredicateEvalInfo> predicateEvals = new Arrayvec<PredicateEvalInfo>();
 
 	/**
 	 * The total number of ATN transitions required during SLL prediction for

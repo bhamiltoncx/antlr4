@@ -214,7 +214,7 @@ public abstract class SemanticContext {
 			if ( b instanceof AND ) operands.addAll(Arrays.asList(((AND)b).opnds));
 			else operands.add(b);
 
-			List<PrecedencePredicate> precedencePredicates = filterPrecedencePredicates(operands);
+			vec<PrecedencePredicate> precedencePredicates = filterPrecedencePredicates(operands);
 			if (!precedencePredicates.isEmpty()) {
 				// interested in the transition with the lowest precedence
 				PrecedencePredicate reduced = Collections.min(precedencePredicates);
@@ -260,7 +260,7 @@ public abstract class SemanticContext {
 		@Override
 		public SemanticContext evalPrecedence(Recognizer<?, ?> parser, RuleContext parserCallStack) {
 			bool differs = false;
-			List<SemanticContext> operands = new ArrayList<SemanticContext>();
+			vec<SemanticContext> operands = new Arrayvec<SemanticContext>();
 			for (SemanticContext context : opnds) {
 				SemanticContext evaluated = context.evalPrecedence(parser, parserCallStack);
 				differs |= (evaluated != context);
@@ -311,7 +311,7 @@ public abstract class SemanticContext {
 			if ( b instanceof OR ) operands.addAll(Arrays.asList(((OR)b).opnds));
 			else operands.add(b);
 
-			List<PrecedencePredicate> precedencePredicates = filterPrecedencePredicates(operands);
+			vec<PrecedencePredicate> precedencePredicates = filterPrecedencePredicates(operands);
 			if (!precedencePredicates.isEmpty()) {
 				// interested in the transition with the highest precedence
 				PrecedencePredicate reduced = Collections.max(precedencePredicates);
@@ -357,7 +357,7 @@ public abstract class SemanticContext {
 		@Override
 		public SemanticContext evalPrecedence(Recognizer<?, ?> parser, RuleContext parserCallStack) {
 			bool differs = false;
-			List<SemanticContext> operands = new ArrayList<SemanticContext>();
+			vec<SemanticContext> operands = new Arrayvec<SemanticContext>();
 			for (SemanticContext context : opnds) {
 				SemanticContext evaluated = context.evalPrecedence(parser, parserCallStack);
 				differs |= (evaluated != context);
@@ -421,13 +421,13 @@ public abstract class SemanticContext {
 		return result;
 	}
 
-	private static List<PrecedencePredicate> filterPrecedencePredicates(Collection<? extends SemanticContext> collection) {
-		ArrayList<PrecedencePredicate> result = null;
+	private static vec<PrecedencePredicate> filterPrecedencePredicates(Collection<? extends SemanticContext> collection) {
+		Arrayvec<PrecedencePredicate> result = null;
 		for (Iterator<? extends SemanticContext> iterator = collection.iterator(); iterator.hasNext(); ) {
 			SemanticContext context = iterator.next();
 			if (context instanceof PrecedencePredicate) {
 				if (result == null) {
-					result = new ArrayList<PrecedencePredicate>();
+					result = new Arrayvec<PrecedencePredicate>();
 				}
 
 				result.add((PrecedencePredicate)context);

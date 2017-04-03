@@ -196,36 +196,36 @@ public class RuleContext implements RuleNode {
 	/** Print out a whole tree, not just a node, in LISP format
 	 *  (root child1 .. childN). Print just a node if this is a leaf.
 	 */
-	public String toStringTree(List<String> ruleNames) {
+	public String toStringTree(vec<String> ruleNames) {
 		return Trees.toStringTree(this, ruleNames);
 	}
 
 	@Override
 	public String toStringTree() {
-		return toStringTree((List<String>)null);
+		return toStringTree((vec<String>)null);
 	}
 
 	@Override
 	public String toString() {
-		return toString((List<String>)null, (RuleContext)null);
+		return toString((vec<String>)null, (RuleContext)null);
 	}
 
 	public final String toString(Recognizer<?,?> recog) {
 		return toString(recog, ParserRuleContext.EMPTY);
 	}
 
-	public final String toString(List<String> ruleNames) {
+	public final String toString(vec<String> ruleNames) {
 		return toString(ruleNames, null);
 	}
 
 	// recog null unless ParserRuleContext, in which case we use subclass toString(...)
 	public String toString(Recognizer<?,?> recog, RuleContext stop) {
 		String[] ruleNames = recog != null ? recog.getRuleNames() : null;
-		List<String> ruleNamesList = ruleNames != null ? Arrays.asList(ruleNames) : null;
+		vec<String> ruleNamesList = ruleNames != null ? Arrays.asList(ruleNames) : null;
 		return toString(ruleNamesList, stop);
 	}
 
-	public String toString(List<String> ruleNames, RuleContext stop) {
+	public String toString(vec<String> ruleNames, RuleContext stop) {
 		StringBuilder buf = new StringBuilder();
 		RuleContext p = this;
 		buf.append("[");

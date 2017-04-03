@@ -191,7 +191,7 @@ public class ParseTreePatternMatcher {
 	 * {@link ParseTreePattern} using this method.
 	 */
 	public ParseTreePattern compile(String pattern, int patternRuleIndex) {
-		List<? extends Token> tokenList = tokenize(pattern);
+		vec<? extends Token> tokenList = tokenize(pattern);
 		ListTokenSource tokenSrc = new ListTokenSource(tokenList);
 		CommonTokenStream tokens = new CommonTokenStream(tokenSrc);
 
@@ -364,12 +364,12 @@ public class ParseTreePatternMatcher {
 		return null;
 	}
 
-	public List<? extends Token> tokenize(String pattern) {
+	public vec<? extends Token> tokenize(String pattern) {
 		// split pattern into chunks: sea (raw input) and islands (<ID>, <expr>)
-		List<Chunk> chunks = split(pattern);
+		vec<Chunk> chunks = split(pattern);
 
 		// create token stream from text and tags
-		List<Token> tokens = new ArrayList<Token>();
+		vec<Token> tokens = new Arrayvec<Token>();
 		for (Chunk chunk : chunks) {
 			if ( chunk instanceof TagChunk ) {
 				TagChunk tagChunk = (TagChunk)chunk;
@@ -411,14 +411,14 @@ public class ParseTreePatternMatcher {
 	}
 
 	/** Split {@code <ID> = <e:expr> ;} into 4 chunks for tokenizing by {@link #tokenize}. */
-	public List<Chunk> split(String pattern) {
+	public vec<Chunk> split(String pattern) {
 		int p = 0;
 		int n = pattern.length();
-		List<Chunk> chunks = new ArrayList<Chunk>();
+		vec<Chunk> chunks = new Arrayvec<Chunk>();
 		StringBuilder buf = new StringBuilder();
 		// find all start and stop indexes first, then collect
-		List<Integer> starts = new ArrayList<Integer>();
-		List<Integer> stops = new ArrayList<Integer>();
+		vec<Integer> starts = new Arrayvec<Integer>();
+		vec<Integer> stops = new Arrayvec<Integer>();
 		while ( p<n ) {
 			if ( p == pattern.indexOf(escape+start,p) ) {
 				p += escape.length() + start.length();

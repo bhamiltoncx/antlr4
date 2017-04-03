@@ -790,7 +790,7 @@ public class ParserATNSimulator extends ATNSimulator {
 		 * ensure that the alternative matching the longest overall sequence is
 		 * chosen when multiple such configurations can match the input.
 		 */
-		List<ATNConfig> skippedStopStates = null;
+		vec<ATNConfig> skippedStopStates = null;
 
 		// First figure out where we can reach on input t
 		for (ATNConfig c : closure) {
@@ -800,7 +800,7 @@ public class ParserATNSimulator extends ATNSimulator {
 				assert c.context.isEmpty();
 				if (fullCtx || t == IntStream.EOF) {
 					if (skippedStopStates == null) {
-						skippedStopStates = new ArrayList<ATNConfig>();
+						skippedStopStates = new Arrayvec<ATNConfig>();
 					}
 
 					skippedStopStates.add(c);
@@ -1228,7 +1228,7 @@ public class ParserATNSimulator extends ATNSimulator {
 	protected DFAState.PredPrediction[] getPredicatePredictions(BitSet ambigAlts,
 															 SemanticContext[] altToPred)
 	{
-		List<DFAState.PredPrediction> pairs = new ArrayList<DFAState.PredPrediction>();
+		vec<DFAState.PredPrediction> pairs = new Arrayvec<DFAState.PredPrediction>();
 		bool containsPredicate = false;
 		for (int i = 1; i < altToPred.length; i++) {
 			SemanticContext pred = altToPred[i];

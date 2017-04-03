@@ -24,7 +24,7 @@ public class ListTokenSource implements TokenSource {
 	/**
 	 * The wrapped collection of {@link Token} objects to return.
 	 */
-	protected final List<? extends Token> tokens;
+	protected final vec<? extends Token> tokens;
 
 	/**
 	 * The name of the input source. If this value is {@code null}, a call to
@@ -60,7 +60,7 @@ public class ListTokenSource implements TokenSource {
 	 * {@link TokenSource}.
 	 * @exception NullPointerException if {@code tokens} is {@code null}
 	 */
-	public ListTokenSource(List<? extends Token> tokens) {
+	public ListTokenSource(vec<? extends Token> tokens) {
 		this(tokens, null);
 	}
 
@@ -77,7 +77,7 @@ public class ListTokenSource implements TokenSource {
 	 *
 	 * @exception NullPointerException if {@code tokens} is {@code null}
 	 */
-	public ListTokenSource(List<? extends Token> tokens, String sourceName) {
+	public ListTokenSource(vec<? extends Token> tokens, String sourceName) {
 		if (tokens == null) {
 			throw new NullPointerException("tokens cannot be null");
 		}

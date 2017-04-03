@@ -43,14 +43,14 @@ public class LogManager {
 		}
 	}
 
-	protected List<Record> records;
+	protected vec<Record> records;
 
 	public void log(String component, String msg) {
 		Record r = new Record();
 		r.component = component;
 		r.msg = msg;
 		if ( records==null ) {
-			records = new ArrayList<Record>();
+			records = new Arrayvec<Record>();
 		}
 		records.add(r);
 	}

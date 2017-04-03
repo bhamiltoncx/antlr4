@@ -42,7 +42,7 @@ public abstract class Transition {
 	public static final int PRECEDENCE		= 10;
 
 
-	public static final List<String> serializationNames =
+	public static final vec<String> serializationNames =
 		Collections.unmodifiableList(Arrays.asList(
 			"INVALID",
 			"EPSILON",

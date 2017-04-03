@@ -51,79 +51,82 @@ public final class Interval {
     return $this->b-$this->a+1;
   }
 
-  public function equals(Interval other): bool {
+  public function equals(Interval $other): bool {
     return $this->a == $other->a && $this->b == $other->b;
   }
 
-  /** Does this start completely before other? Disjoint */
-  public bool startsBeforeDisjoint(Interval other) {
-    return this.a<other.a && this.b<other.a;
+  /** Does this start completely before $other? Disjoint */
+  public function startsBeforeDisjoint(Interval $other): bool {
+    return $this->a<$other->a && $this->b<$other->a;
   }
 
-  /** Does this start at or before other? Nondisjoint */
-  public bool startsBeforeNonDisjoint(Interval other) {
-    return this.a<=other.a && this.b>=other.a;
+  /** Does this start at or before $other? Nondisjoint */
+  public function startsBeforeNonDisjoint(Interval $other): bool {
+    return $this->a<=$other->a && $this->b>=$other->a;
   }
 
-  /** Does this.a start after other.b? May or may not be disjoint */
-  public bool startsAfter(Interval other) { return this.a>other.a; }
-
-  /** Does this start completely after other? Disjoint */
-  public bool startsAfterDisjoint(Interval other) {
-    return this.a>other.b;
+  /** Does this.a start after $other->b? May or may not be disjoint */
+  public function startsAfter(Interval $other): bool {
+    return $this->a>$other->a;
   }
 
-  /** Does this start after other? NonDisjoint */
-  public bool startsAfterNonDisjoint(Interval other) {
-    return this.a>other.a && this.a<=other.b; // this.b>=other.b implied
+  /** Does this start completely after $other? Disjoint */
+  public function startsAfterDisjoint(Interval $other): bool {
+    return $this->a>$other->b;
+  }
+
+  /** Does this start after $other? NonDisjoint */
+  public function startsAfterNonDisjoint(Interval $other): bool {
+    return $this->a>$other->a && $this->a<=$other->b; // this.b>=other.b implied
   }
 
   /** Are both ranges disjoint? I.e., no overlap? */
-  public bool disjoint(Interval other) {
-    return startsBeforeDisjoint(other) || startsAfterDisjoint(other);
+  public function disjoint(Interval $other): bool {
+    return
+      $this->startsBeforeDisjoint($other) ||
+      $this->startsAfterDisjoint($other);
   }
 
   /** Are two intervals adjacent such as 0..41 and 42..42? */
-  public bool adjacent(Interval other) {
-    return this.a == other.b+1 || this.b == other.a-1;
+  public function adjacent(Interval $other): bool {
+    return $this->a == $other->b+1 || $this->b == $other->a-1;
   }
 
-  public bool properlyContains(Interval other) {
-    return other.a >= this.a && other.b <= this.b;
+  public function properlyContains(Interval $other): bool {
+    return $other->a >= $this->a && $other->b <= $this->b;
   }
 
-  /** Return the interval computed from combining this and other */
-  public Interval union(Interval other) {
-    return Interval.of(Math.min(a, other.a), Math.max(b, other.b));
+  /** Return the interval computed from combining this and $other */
+  public function union(Interval $other): Interval {
+    return static::of(\min($this->a, $other->a), \max($this->b, $other->b));
   }
 
   /** Return the interval in common between this and o */
-  public Interval intersection(Interval other) {
-    return Interval.of(Math.max(a, other.a), Math.min(b, other.b));
+  public function intersection(Interval $other): Interval {
+    return static::of(\max($a, $other->a), \min($b, $other->b));
   }
 
-  /** Return the interval with elements from this not in other;
-   *  other must not be totally enclosed (properly contained)
+  /** Return the interval with elements from this not in $other;
+   *  $other must not be totally enclosed (properly contained)
    *  within this, which would result in two disjoint intervals
    *  instead of the single one returned by this method.
    */
-  public Interval differenceNotProperlyContained(Interval other) {
-    Interval diff = null;
-    // other.a to left of this.a (or same)
-    if ( other.startsBeforeNonDisjoint(this) ) {
-      diff = Interval.of(Math.max(this.a, other.b + 1),
-                         this.b);
+  public function differenceNotProperlyContained(Interval $other): Interval {
+    Interval $diff = null;
+    // $other->a to left of $this->a (or same)
+    if ( $other->startsBeforeNonDisjoint($this) ) {
+      $diff = static::of(\max($this->a, $other->b + 1),
+                         $this->b);
     }
 
-    // other.a to right of this.a
-    else if ( other.startsAfterNonDisjoint(this) ) {
-      diff = Interval.of(this.a, other.a - 1);
+    // $other->a to right of $this->a
+    elseif ( $other->startsAfterNonDisjoint($this) ) {
+      $diff = static::of($this->a, $other->a - 1);
     }
-    return diff;
+    return $diff;
   }
 
-  @Override
-  public String toString() {
-    return a+".."+b;
+  public function __toString(): string {
+    return $this->a.'..'.$this->b;
   }
 }

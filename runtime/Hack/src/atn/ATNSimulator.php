@@ -172,7 +172,7 @@ public abstract class ATNSimulator {
 	public static Transition edgeFactory(ATN atn,
 										 int type, int src, int trg,
 										 int arg1, int arg2, int arg3,
-										 List<IntervalSet> sets)
+										 vec<IntervalSet> sets)
 	{
 		return new ATNDeserializer().edgeFactory(atn, type, src, trg, arg1, arg2, arg3, sets);
 	}

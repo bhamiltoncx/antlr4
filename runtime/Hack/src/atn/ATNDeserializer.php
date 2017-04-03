@@ -56,7 +56,7 @@ public class ATNDeserializer {
 	 * This list contains all of the currently supported UUIDs, ordered by when
 	 * the feature first appeared in this branch.
 	 */
-	private static final List<UUID> SUPPORTED_UUIDS;
+	private static final vec<UUID> SUPPORTED_UUIDS;
 
 	/**
 	 * This is the current serialized UUID.
@@ -71,7 +71,7 @@ public class ATNDeserializer {
 		ADDED_LEXER_ACTIONS = UUID.fromString("AADB8D7E-AEEF-4415-AD2B-8204D6CF042E");
 		ADDED_UNICODE_SMP = UUID.fromString("59627784-3BE5-417A-B9EB-8131A7286089");
 
-		SUPPORTED_UUIDS = new ArrayList<UUID>();
+		SUPPORTED_UUIDS = new Arrayvec<UUID>();
 		SUPPORTED_UUIDS.add(BASE_SERIALIZED_UUID);
 		SUPPORTED_UUIDS.add(ADDED_PRECEDENCE_TRANSITIONS);
 		SUPPORTED_UUIDS.add(ADDED_LEXER_ACTIONS);
@@ -206,8 +206,8 @@ public class ATNDeserializer {
 		//
 		// STATES
 		//
-		List<Pair<LoopEndState, Integer>> loopBackStateNumbers = new ArrayList<Pair<LoopEndState, Integer>>();
-		List<Pair<BlockStartState, Integer>> endStateNumbers = new ArrayList<Pair<BlockStartState, Integer>>();
+		vec<Pair<LoopEndState, Integer>> loopBackStateNumbers = new Arrayvec<Pair<LoopEndState, Integer>>();
+		vec<Pair<BlockStartState, Integer>> endStateNumbers = new Arrayvec<Pair<BlockStartState, Integer>>();
 		int nstates = toInt(data[p++]);
 		for (int i=0; i<nstates; i++) {
 			int stype = toInt(data[p++]);
@@ -309,7 +309,7 @@ public class ATNDeserializer {
 		//
 		// SETS
 		//
-		List<IntervalSet> sets = new ArrayList<IntervalSet>();
+		vec<IntervalSet> sets = new Arrayvec<IntervalSet>();
 
 		// First, read all sets with 16-bit Unicode code points <= U+FFFF.
 		p = deserializeSets(data, p, sets, getUnicodeDeserializer(UnicodeDeserializingMode.UNICODE_BMP));
@@ -435,7 +435,7 @@ public class ATNDeserializer {
 				// for compatibility with older serialized ATNs, convert the old
 				// serialized action index for action transitions to the new
 				// form, which is the index of a LexerCustomAction
-				List<LexerAction> legacyLexerActions = new ArrayList<LexerAction>();
+				vec<LexerAction> legacyLexerActions = new Arrayvec<LexerAction>();
 				for (ATNState state : atn.states) {
 					for (int i = 0; i < state.getNumberOfTransitions(); i++) {
 						Transition transition = state.transition(i);
@@ -554,7 +554,7 @@ public class ATNDeserializer {
 		return atn;
 	}
 
-	private int deserializeSets(char[] data, int p, List<IntervalSet> sets, UnicodeDeserializer unicodeDeserializer) {
+	private int deserializeSets(char[] data, int p, vec<IntervalSet> sets, UnicodeDeserializer unicodeDeserializer) {
 		int nsets = toInt(data[p++]);
 		for (int i=0; i<nsets; i++) {
 			int nintervals = toInt(data[p]);
@@ -701,7 +701,7 @@ public class ATNDeserializer {
 	protected Transition edgeFactory(ATN atn,
 										 int type, int src, int trg,
 										 int arg1, int arg2, int arg3,
-										 List<IntervalSet> sets)
+										 vec<IntervalSet> sets)
 	{
 		ATNState target = atn.states.get(trg);
 		switch (type) {

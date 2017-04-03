@@ -490,7 +490,7 @@ public abstract class PredictionContext {
 		buf.append("digraph G {\n");
 		buf.append("rankdir=LR;\n");
 
-		List<PredictionContext> nodes = getAllContextNodes(context);
+		vec<PredictionContext> nodes = getAllContextNodes(context);
 		Collections.sort(nodes, new Comparator<PredictionContext>() {
 			@Override
 			public int compare(PredictionContext o1, PredictionContext o2) {
@@ -606,13 +606,13 @@ public abstract class PredictionContext {
 
 //	// extra structures, but cut/paste/morphed works, so leave it.
 //	// seems to do a breadth-first walk
-//	public static List<PredictionContext> getAllNodes(PredictionContext context) {
+//	public static vec<PredictionContext> getAllNodes(PredictionContext context) {
 //		Map<PredictionContext, PredictionContext> visited =
 //			new IdentityHashMap<PredictionContext, PredictionContext>();
 //		Deque<PredictionContext> workList = new ArrayDeque<PredictionContext>();
 //		workList.add(context);
 //		visited.put(context, context);
-//		List<PredictionContext> nodes = new ArrayList<PredictionContext>();
+//		vec<PredictionContext> nodes = new Arrayvec<PredictionContext>();
 //		while (!workList.isEmpty()) {
 //			PredictionContext current = workList.pop();
 //			nodes.add(current);
@@ -627,8 +627,8 @@ public abstract class PredictionContext {
 //	}
 
 	// ter's recursive version of Sam's getAllNodes()
-	public static List<PredictionContext> getAllContextNodes(PredictionContext context) {
-		List<PredictionContext> nodes = new ArrayList<PredictionContext>();
+	public static vec<PredictionContext> getAllContextNodes(PredictionContext context) {
+		vec<PredictionContext> nodes = new Arrayvec<PredictionContext>();
 		Map<PredictionContext, PredictionContext> visited =
 			new IdentityHashMap<PredictionContext, PredictionContext>();
 		getAllContextNodes_(context, nodes, visited);
@@ -636,7 +636,7 @@ public abstract class PredictionContext {
 	}
 
 	public static void getAllContextNodes_(PredictionContext context,
-										   List<PredictionContext> nodes,
+										   vec<PredictionContext> nodes,
 										   Map<PredictionContext, PredictionContext> visited)
 	{
 		if ( context==null || visited.containsKey(context) ) return;
@@ -658,7 +658,7 @@ public abstract class PredictionContext {
 
 	// FROM SAM
 	public String[] toStrings(Recognizer<?, ?> recognizer, PredictionContext stop, int currentState) {
-		List<String> result = new ArrayList<String>();
+		vec<String> result = new Arrayvec<String>();
 
 		outer:
 		for (int perm = 0; ; perm++) {

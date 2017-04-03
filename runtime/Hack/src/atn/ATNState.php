@@ -94,7 +94,7 @@ public abstract class ATNState {
 	public static final int PLUS_LOOP_BACK = 11;
 	public static final int LOOP_END = 12;
 
-	public static final List<String> serializationNames =
+	public static final vec<String> serializationNames =
 		Collections.unmodifiableList(Arrays.asList(
 			"INVALID",
 			"BASIC",
@@ -123,8 +123,8 @@ public abstract class ATNState {
 	public bool epsilonOnlyTransitions = false;
 
 	/** Track the transitions emanating from this ATN state. */
-	protected final List<Transition> transitions =
-		new ArrayList<Transition>(INITIAL_NUM_TRANSITIONS);
+	protected final vec<Transition> transitions =
+		new Arrayvec<Transition>(INITIAL_NUM_TRANSITIONS);
 
 	/** Used to cache lookahead during parsing, not used during construction */
     public IntervalSet nextTokenWithinRule;

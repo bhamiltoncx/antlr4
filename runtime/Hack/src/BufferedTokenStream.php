@@ -38,7 +38,7 @@ public class BufferedTokenStream implements TokenStream {
 	 * considered a complete view of the input once {@link #fetchedEOF} is set
 	 * to {@code true}.
 	 */
-    protected List<Token> tokens = new ArrayList<Token>(100);
+    protected vec<Token> tokens = new Arrayvec<Token>(100);
 
 	/**
 	 * The index into {@link #tokens} of the current token (next token to
@@ -191,10 +191,10 @@ public class BufferedTokenStream implements TokenStream {
     }
 
 	/** Get all tokens from start..stop inclusively */
-	public List<Token> get(int start, int stop) {
+	public vec<Token> get(int start, int stop) {
 		if ( start<0 || stop<0 ) return null;
 		lazyInit();
-		List<Token> subset = new ArrayList<Token>();
+		vec<Token> subset = new Arrayvec<Token>();
 		if ( stop>=tokens.size() ) stop = tokens.size()-1;
 		for (int i = start; i <= stop; i++) {
 			Token t = tokens.get(i);
@@ -265,9 +265,9 @@ public class BufferedTokenStream implements TokenStream {
         fetchedEOF = false;
     }
 
-    public List<Token> getTokens() { return tokens; }
+    public vec<Token> getTokens() { return tokens; }
 
-    public List<Token> getTokens(int start, int stop) {
+    public vec<Token> getTokens(int start, int stop) {
         return getTokens(start, stop, null);
     }
 
@@ -275,7 +275,7 @@ public class BufferedTokenStream implements TokenStream {
      *  the token type BitSet.  Return null if no tokens were found.  This
      *  method looks at both on and off channel tokens.
      */
-    public List<Token> getTokens(int start, int stop, Set<Integer> types) {
+    public vec<Token> getTokens(int start, int stop, Set<Integer> types) {
         lazyInit();
 		if ( start<0 || stop>=tokens.size() ||
 			 stop<0  || start>=tokens.size() )
@@ -286,7 +286,7 @@ public class BufferedTokenStream implements TokenStream {
         if ( start>stop ) return null;
 
         // list = tokens[start:stop]:{T t, t.getType() in types}
-        List<Token> filteredTokens = new ArrayList<Token>();
+        vec<Token> filteredTokens = new Arrayvec<Token>();
         for (int i=start; i<=stop; i++) {
             Token t = tokens.get(i);
             if ( types==null || types.contains(t.getType()) ) {
@@ -299,7 +299,7 @@ public class BufferedTokenStream implements TokenStream {
         return filteredTokens;
     }
 
-    public List<Token> getTokens(int start, int stop, int ttype) {
+    public vec<Token> getTokens(int start, int stop, int ttype) {
 		HashSet<Integer> s = new HashSet<Integer>(ttype);
 		s.add(ttype);
 		return getTokens(start,stop, s);
@@ -364,7 +364,7 @@ public class BufferedTokenStream implements TokenStream {
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL or
 	 *  EOF. If channel is -1, find any non default channel token.
 	 */
-	public List<Token> getHiddenTokensToRight(int tokenIndex, int channel) {
+	public vec<Token> getHiddenTokensToRight(int tokenIndex, int channel) {
 		lazyInit();
 		if ( tokenIndex<0 || tokenIndex>=tokens.size() ) {
 			throw new IndexOutOfBoundsException(tokenIndex+" not in 0.."+(tokens.size()-1));
@@ -385,7 +385,7 @@ public class BufferedTokenStream implements TokenStream {
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL
 	 *  or EOF.
 	 */
-	public List<Token> getHiddenTokensToRight(int tokenIndex) {
+	public vec<Token> getHiddenTokensToRight(int tokenIndex) {
 		return getHiddenTokensToRight(tokenIndex, -1);
 	}
 
@@ -393,7 +393,7 @@ public class BufferedTokenStream implements TokenStream {
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL.
 	 *  If channel is -1, find any non default channel token.
 	 */
-	public List<Token> getHiddenTokensToLeft(int tokenIndex, int channel) {
+	public vec<Token> getHiddenTokensToLeft(int tokenIndex, int channel) {
 		lazyInit();
 		if ( tokenIndex<0 || tokenIndex>=tokens.size() ) {
 			throw new IndexOutOfBoundsException(tokenIndex+" not in 0.."+(tokens.size()-1));
@@ -417,12 +417,12 @@ public class BufferedTokenStream implements TokenStream {
 	/** Collect all hidden tokens (any off-default channel) to the left of
 	 *  the current token up until we see a token on DEFAULT_TOKEN_CHANNEL.
 	 */
-	public List<Token> getHiddenTokensToLeft(int tokenIndex) {
+	public vec<Token> getHiddenTokensToLeft(int tokenIndex) {
 		return getHiddenTokensToLeft(tokenIndex, -1);
 	}
 
-	protected List<Token> filterForChannel(int from, int to, int channel) {
-		List<Token> hidden = new ArrayList<Token>();
+	protected vec<Token> filterForChannel(int from, int to, int channel) {
+		vec<Token> hidden = new Arrayvec<Token>();
 		for (int i=from; i<=to; i++) {
 			Token t = tokens.get(i);
 			if ( channel==-1 ) {

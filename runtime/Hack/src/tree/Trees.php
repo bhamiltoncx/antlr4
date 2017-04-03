@@ -31,7 +31,7 @@ public class Trees {
 	 *  parse trees and extract data appropriately.
 	 */
 	public static String toStringTree(Tree t) {
-		return toStringTree(t, (List<String>)null);
+		return toStringTree(t, (vec<String>)null);
 	}
 
 	/** Print out a whole tree in LISP form. {@link #getNodeText} is used on the
@@ -40,14 +40,14 @@ public class Trees {
 	 */
 	public static String toStringTree(Tree t, Parser recog) {
 		String[] ruleNames = recog != null ? recog.getRuleNames() : null;
-		List<String> ruleNamesList = ruleNames != null ? Arrays.asList(ruleNames) : null;
+		vec<String> ruleNamesList = ruleNames != null ? Arrays.asList(ruleNames) : null;
 		return toStringTree(t, ruleNamesList);
 	}
 
 	/** Print out a whole tree in LISP form. {@link #getNodeText} is used on the
 	 *  node payloads to get the text for the nodes.
 	 */
-	public static String toStringTree(final Tree t, final List<String> ruleNames) {
+	public static String toStringTree(final Tree t, final vec<String> ruleNames) {
 		String s = Utils.escapeWhitespace(getNodeText(t, ruleNames), false);
 		if ( t.getChildCount()==0 ) return s;
 		StringBuilder buf = new StringBuilder();
@@ -65,11 +65,11 @@ public class Trees {
 
 	public static String getNodeText(Tree t, Parser recog) {
 		String[] ruleNames = recog != null ? recog.getRuleNames() : null;
-		List<String> ruleNamesList = ruleNames != null ? Arrays.asList(ruleNames) : null;
+		vec<String> ruleNamesList = ruleNames != null ? Arrays.asList(ruleNames) : null;
 		return getNodeText(t, ruleNamesList);
 	}
 
-	public static String getNodeText(Tree t, List<String> ruleNames) {
+	public static String getNodeText(Tree t, vec<String> ruleNames) {
 		if ( ruleNames!=null ) {
 			if ( t instanceof RuleContext ) {
 				int ruleIndex = ((RuleContext)t).getRuleContext().getRuleIndex();
@@ -100,8 +100,8 @@ public class Trees {
 	}
 
 	/** Return ordered list of all children of this node */
-	public static List<Tree> getChildren(Tree t) {
-		List<Tree> kids = new ArrayList<Tree>();
+	public static vec<Tree> getChildren(Tree t) {
+		vec<Tree> kids = new Arrayvec<Tree>();
 		for (int i=0; i<t.getChildCount(); i++) {
 			kids.add(t.getChild(i));
 		}
@@ -113,9 +113,9 @@ public class Trees {
 	 *
 	 *  @since 4.5.1
 	 */
-	public static List<? extends Tree> getAncestors(Tree t) {
+	public static vec<? extends Tree> getAncestors(Tree t) {
 		if ( t.getParent()==null ) return Collections.emptyList();
-		List<Tree> ancestors = new ArrayList<Tree>();
+		vec<Tree> ancestors = new Arrayvec<Tree>();
 		t = t.getParent();
 		while ( t!=null ) {
 			ancestors.add(0, t); // insert at start
@@ -147,14 +147,14 @@ public class Trees {
 		return findAllNodes(t, ruleIndex, false);
 	}
 
-	public static List<ParseTree> findAllNodes(ParseTree t, int index, bool findTokens) {
-		List<ParseTree> nodes = new ArrayList<ParseTree>();
+	public static vec<ParseTree> findAllNodes(ParseTree t, int index, bool findTokens) {
+		vec<ParseTree> nodes = new Arrayvec<ParseTree>();
 		_findAllNodes(t, index, findTokens, nodes);
 		return nodes;
 	}
 
 	public static void _findAllNodes(ParseTree t, int index, bool findTokens,
-									 List<? super ParseTree> nodes)
+									 vec<? super ParseTree> nodes)
 	{
 		// check this node (the root) first
 		if ( findTokens && t instanceof TerminalNode ) {
@@ -175,8 +175,8 @@ public class Trees {
 	 *
 	 * @since 4.5.1
 	 */
-	public static List<ParseTree> getDescendants(ParseTree t) {
-		List<ParseTree> nodes = new ArrayList<ParseTree>();
+	public static vec<ParseTree> getDescendants(ParseTree t) {
+		vec<ParseTree> nodes = new Arrayvec<ParseTree>();
 		nodes.add(t);
 
 		int n = t.getChildCount();
@@ -187,7 +187,7 @@ public class Trees {
 	}
 
 	/** @deprecated */
-	public static List<ParseTree> descendants(ParseTree t) {
+	public static vec<ParseTree> descendants(ParseTree t) {
 		return getDescendants(t);
 	}
 

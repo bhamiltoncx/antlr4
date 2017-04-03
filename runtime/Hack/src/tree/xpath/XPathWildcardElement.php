@@ -23,8 +23,8 @@ public class XPathWildcardElement extends XPathElement {
 
 	@Override
 	public Collection<ParseTree> evaluate(final ParseTree t) {
-		if ( invert ) return new ArrayList<ParseTree>(); // !* is weird but valid (empty)
-		List<ParseTree> kids = new ArrayList<ParseTree>();
+		if ( invert ) return new Arrayvec<ParseTree>(); // !* is weird but valid (empty)
+		vec<ParseTree> kids = new Arrayvec<ParseTree>();
 		for (Tree c : Trees.getChildren(t)) {
 			kids.add((ParseTree)c);
 		}

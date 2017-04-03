@@ -12,18 +12,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class MultiMap<K, V> extends LinkedHashMap<K, List<V>> {
+public class MultiMap<K, V> extends LinkedHashMap<K, vec<V>> {
 	public void map(K key, V value) {
-		List<V> elementsForKey = get(key);
+		vec<V> elementsForKey = get(key);
 		if ( elementsForKey==null ) {
-			elementsForKey = new ArrayList<V>();
+			elementsForKey = new Arrayvec<V>();
 			super.put(key, elementsForKey);
 		}
 		elementsForKey.add(value);
 	}
 
-	public List<Pair<K,V>> getPairs() {
-		List<Pair<K,V>> pairs = new ArrayList<Pair<K,V>>();
+	public vec<Pair<K,V>> getPairs() {
+		vec<Pair<K,V>> pairs = new Arrayvec<Pair<K,V>>();
 		for (K key : keySet()) {
 			for (V value : get(key)) {
 				pairs.add(new Pair<K,V>(key, value));
