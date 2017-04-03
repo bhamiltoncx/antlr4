@@ -255,11 +255,11 @@ public class <parser.name> extends <superClass; null="Parser"> {
 	}
 	private static PredictionContextCache $sharedContextCache = new PredictionContextCache();
 	<if(parser.tokens)>
-	<parser.tokens:{k | const int <k> = <parser.tokens.(k)>;
+	<parser.tokens:{k | public static int <k> = <parser.tokens.(k)>;
 	}; separator="\n">
 	}
         <endif>
-        <parser.rules:{r | const int RULE_<r.name> = <r.index>;
+        <parser.rules:{r | public static int RULE_<r.name> = <r.index>;
 	}; separator="\n">
 	public static vec<string> $ruleNames = vec[
 		<parser.ruleNames:{r | '<r>'}; separator=", ", wrap, anchor>
@@ -396,9 +396,9 @@ RuleFunction(currentRule,args,code,locals,ruleCtx,altLabelCtxs,namedActions,fina
 <if(currentRule.hasLookaheadBlock)>
 		$alt = -1;
 <endif>
-	 	<code>
+		<code>
 		<postamble; separator="\n">
-	 	<namedActions.after>
+		<namedActions.after>
 	}
 	<if(exceptions)>
 	<exceptions; separator="\n">
@@ -720,13 +720,13 @@ RulePropertyRef_text(r)	 ::= "(<ctx(r)>-\><r.label>!==null?$this-\>input-\>getTe
 RulePropertyRef_ctx(r)	 ::= "<ctx(r)>-\><r.label>"
 RulePropertyRef_parser(r)	 ::= "$this"
 
-ThisRulePropertyRef_start(r) ::= "$localctx-\>$start"
-ThisRulePropertyRef_stop(r)	 ::= "$localctx-\>$stop"
-ThisRulePropertyRef_text(r)	 ::= "$input-\>getText($localctx-\>$start, $this-\>$input-\>LT(-1))"
+ThisRulePropertyRef_start(r) ::= "$localctx-\>start"
+ThisRulePropertyRef_stop(r)	 ::= "$localctx-\>stop"
+ThisRulePropertyRef_text(r)	 ::= "$input-\>getText($localctx-\>start, $this-\>input-\>LT(-1))"
 ThisRulePropertyRef_ctx(r)	 ::= "$localctx"
 ThisRulePropertyRef_parser(r)	 ::= "$this"
 
-NonLocalAttrRef(s)		 ::= "((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>))-\>$<s.name>"
+NonLocalAttrRef(s)		 ::= "((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>))-\><s.name>"
 SetNonLocalAttr(s, rhsChunks)	  ::=
 	"((<s.ruleName; format=\"cap\">Context)getInvokingContext(<s.ruleIndex>))-\><s.name> = <rhsChunks>;"
 
