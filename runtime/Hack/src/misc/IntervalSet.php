@@ -19,7 +19,7 @@ use ANTLR\\Token;
  */
 final class IntervalSet implements IntSet {
   public static IntervalSet $COMPLETE_CHAR_SET =
-    IntervalSet.of(Lexer::$MIN_CHAR_VALUE, Lexer::$MAX_CHAR_VALUE)
+    static::of(Lexer::$MIN_CHAR_VALUE, Lexer::$MAX_CHAR_VALUE)
       ->setReadonly(true);
 
   public static IntervalSet $EMPTY_SET = new IntervalSet()->setReadonly(true);
@@ -28,6 +28,10 @@ final class IntervalSet implements IntSet {
   protected vec<Interval> intervals;
 
   protected bool readonly;
+
+  public IntervalSet() {
+    $this->intervals = vec[];
+  }
 
   public IntervalSet(vec<Interval> $intervals) {
     $this->intervals = $intervals;
