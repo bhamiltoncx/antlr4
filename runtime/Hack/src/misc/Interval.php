@@ -8,10 +8,10 @@
 
 namespace ANTLR\Misc;
 
-const int INTERVAL_POOL_MAX_VALUE = 1000;
-
 /** An immutable inclusive interval a..b */
 public final class Interval {
+
+  const int INTERVAL_POOL_MAX_VALUE = 1000;
 
   public static Interval $INVALID = new Interval(-1,-2);
 
@@ -30,7 +30,7 @@ public final class Interval {
    */
   public static function of(int a, int b): Interval {
     // cache just a..a
-    if ( $a!=$b || $a<0 || $a>INTERVAL_POOL_MAX_VALUE ) {
+    if ( $a!=$b || $a<0 || $a>static::INTERVAL_POOL_MAX_VALUE ) {
       return new Interval(a,b);
     }
     $result = static::$cache[$a];
