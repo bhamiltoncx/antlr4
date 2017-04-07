@@ -41,13 +41,13 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		@Override
 		public void enterEveryRule(ParserRuleContext ctx) {
 			System.out.println("enter   " + getRuleNames()[ctx.getRuleIndex()] +
-							   ", LT(1)=" + _input.LT(1).getText());
+                 ", LT(1)=" + _input.LT(1).getText());
 		}
 
 		@Override
 		public void visitTerminal(TerminalNode node) {
 			System.out.println("consume "+node.getSymbol()+" rule "+
-							   getRuleNames()[_ctx.getRuleIndex()]);
+                 getRuleNames()[_ctx.getRuleIndex()]);
 		}
 
 		@Override
@@ -57,55 +57,35 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 		@Override
 		public void exitEveryRule(ParserRuleContext ctx) {
 			System.out.println("exit    "+getRuleNames()[ctx.getRuleIndex()]+
-							   ", LT(1)="+_input.LT(1).getText());
-		}
-	}
-
-	public static class TrimToSizeListener implements ParseTreeListener {
-		public static final TrimToSizeListener INSTANCE = new TrimToSizeListener();
-
-		@Override
-		public void enterEveryRule(ParserRuleContext ctx) { }
-
-		@Override
-		public void visitTerminal(TerminalNode node) { }
-
-		@Override
-		public void visitErrorNode(ErrorNode node) {	}
-
-		@Override
-		public void exitEveryRule(ParserRuleContext ctx) {
-			if (ctx.children instanceof ArrayList) {
-				((Arrayvec<?>)ctx.children).trimToSize();
-			}
+                 ", LT(1)="+_input.LT(1).getText());
 		}
 	}
 
 	/**
-	 * This field maps from the serialized ATN string to the deserialized {@link ATN} with
-	 * bypass alternatives.
-	 *
-	 * @see ATNDeserializationOptions#isGenerateRuleBypassTransitions()
-	 */
+   * This field maps from the serialized ATN string to the deserialized {@link ATN} with
+   * bypass alternatives.
+   *
+   * @see ATNDeserializationOptions#isGenerateRuleBypassTransitions()
+   */
 	private static final Map<String, ATN> bypassAltsAtnCache =
 		new WeakHashMap<String, ATN>();
 
 	/**
-	 * The error handling strategy for the parser. The default value is a new
-	 * instance of {@link DefaultErrorStrategy}.
-	 *
-	 * @see #getErrorHandler
-	 * @see #setErrorHandler
-	 */
+   * The error handling strategy for the parser. The default value is a new
+   * instance of {@link DefaultErrorStrategy}.
+   *
+   * @see #getErrorHandler
+   * @see #setErrorHandler
+   */
 
 	protected ANTLRErrorStrategy _errHandler = new DefaultErrorStrategy();
 
 	/**
-	 * The input stream.
-	 *
-	 * @see #getInputStream
-	 * @see #setInputStream
-	 */
+   * The input stream.
+   *
+   * @see #getInputStream
+   * @see #setInputStream
+   */
 	protected TokenStream _input;
 
 	protected final IntegerStack _precedenceStack;
@@ -115,42 +95,42 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * The {@link ParserRuleContext} object for the currently executing rule.
-	 * This is always non-null during the parsing process.
-	 */
+   * The {@link ParserRuleContext} object for the currently executing rule.
+   * This is always non-null during the parsing process.
+   */
 	protected ParserRuleContext _ctx;
 
 	/**
-	 * Specifies whether or not the parser should construct a parse tree during
-	 * the parsing process. The default value is {@code true}.
-	 *
-	 * @see #getBuildParseTree
-	 * @see #setBuildParseTree
-	 */
+   * Specifies whether or not the parser should construct a parse tree during
+   * the parsing process. The default value is {@code true}.
+   *
+   * @see #getBuildParseTree
+   * @see #setBuildParseTree
+   */
 	protected bool _buildParseTrees = true;
 
 
 	/**
-	 * When {@link #setTrace}{@code (true)} is called, a reference to the
-	 * {@link TraceListener} is stored here so it can be easily removed in a
-	 * later call to {@link #setTrace}{@code (false)}. The listener itself is
-	 * implemented as a parser listener so this field is not directly used by
-	 * other parser methods.
-	 */
+   * When {@link #setTrace}{@code (true)} is called, a reference to the
+   * {@link TraceListener} is stored here so it can be easily removed in a
+   * later call to {@link #setTrace}{@code (false)}. The listener itself is
+   * implemented as a parser listener so this field is not directly used by
+   * other parser methods.
+   */
 	private TraceListener _tracer;
 
 	/**
-	 * The list of {@link ParseTreeListener} listeners registered to receive
-	 * events during the parse.
-	 *
-	 * @see #addParseListener
-	 */
+   * The list of {@link ParseTreeListener} listeners registered to receive
+   * events during the parse.
+   *
+   * @see #addParseListener
+   */
 	protected vec<ParseTreeListener> _parseListeners;
 
 	/**
-	 * The number of syntax errors reported during parsing. This value is
-	 * incremented each time {@link #notifyErrorListeners} is called.
-	 */
+   * The number of syntax errors reported during parsing. This value is
+   * incremented each time {@link #notifyErrorListeners} is called.
+   */
 	protected int _syntaxErrors;
 
 	/** Indicates parser has match()ed EOF token. See {@link #exitRule()}. */
@@ -177,24 +157,24 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Match current input symbol against {@code ttype}. If the symbol type
-	 * matches, {@link ANTLRErrorStrategy#reportMatch} and {@link #consume} are
-	 * called to complete the match process.
-	 *
-	 * <p>If the symbol type does not match,
-	 * {@link ANTLRErrorStrategy#recoverInline} is called on the current error
-	 * strategy to attempt recovery. If {@link #getBuildParseTree} is
-	 * {@code true} and the token index of the symbol returned by
-	 * {@link ANTLRErrorStrategy#recoverInline} is -1, the symbol is added to
-	 * the parse tree by calling {@link #createErrorNode(ParserRuleContext, Token)} then
-	 * {@link ParserRuleContext#addErrorNode(ErrorNode)}.</p>
-	 *
-	 * @param ttype the token type to match
-	 * @return the matched symbol
-	 * @throws RecognitionException if the current input symbol did not match
-	 * {@code ttype} and the error strategy could not recover from the
-	 * mismatched symbol
-	 */
+   * Match current input symbol against {@code ttype}. If the symbol type
+   * matches, {@link ANTLRErrorStrategy#reportMatch} and {@link #consume} are
+   * called to complete the match process.
+   *
+   * <p>If the symbol type does not match,
+   * {@link ANTLRErrorStrategy#recoverInline} is called on the current error
+   * strategy to attempt recovery. If {@link #getBuildParseTree} is
+   * {@code true} and the token index of the symbol returned by
+   * {@link ANTLRErrorStrategy#recoverInline} is -1, the symbol is added to
+   * the parse tree by calling {@link #createErrorNode(ParserRuleContext, Token)} then
+   * {@link ParserRuleContext#addErrorNode(ErrorNode)}.</p>
+   *
+   * @param ttype the token type to match
+   * @return the matched symbol
+   * @throws RecognitionException if the current input symbol did not match
+   * {@code ttype} and the error strategy could not recover from the
+   * mismatched symbol
+   */
 	public Token match(int ttype) throws RecognitionException {
 		Token t = getCurrentToken();
 		if ( t.getType()==ttype ) {
@@ -216,23 +196,23 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Match current input symbol as a wildcard. If the symbol type matches
-	 * (i.e. has a value greater than 0), {@link ANTLRErrorStrategy#reportMatch}
-	 * and {@link #consume} are called to complete the match process.
-	 *
-	 * <p>If the symbol type does not match,
-	 * {@link ANTLRErrorStrategy#recoverInline} is called on the current error
-	 * strategy to attempt recovery. If {@link #getBuildParseTree} is
-	 * {@code true} and the token index of the symbol returned by
-	 * {@link ANTLRErrorStrategy#recoverInline} is -1, the symbol is added to
-	 * the parse tree by calling {@link Parser#createErrorNode(ParserRuleContext, Token)}. then
+   * Match current input symbol as a wildcard. If the symbol type matches
+   * (i.e. has a value greater than 0), {@link ANTLRErrorStrategy#reportMatch}
+   * and {@link #consume} are called to complete the match process.
+   *
+   * <p>If the symbol type does not match,
+   * {@link ANTLRErrorStrategy#recoverInline} is called on the current error
+   * strategy to attempt recovery. If {@link #getBuildParseTree} is
+   * {@code true} and the token index of the symbol returned by
+   * {@link ANTLRErrorStrategy#recoverInline} is -1, the symbol is added to
+   * the parse tree by calling {@link Parser#createErrorNode(ParserRuleContext, Token)}. then
      * {@link ParserRuleContext#addErrorNode(ErrorNode)}</p>
-	 *
-	 * @return the matched symbol
-	 * @throws RecognitionException if the current input symbol did not match
-	 * a wildcard and the error strategy could not recover from the mismatched
-	 * symbol
-	 */
+   *
+   * @return the matched symbol
+   * @throws RecognitionException if the current input symbol did not match
+   * a wildcard and the error strategy could not recover from the mismatched
+   * symbol
+   */
 	public Token matchWildcard() throws RecognitionException {
 		Token t = getCurrentToken();
 		if (t.getType() > 0) {
@@ -252,60 +232,34 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Track the {@link ParserRuleContext} objects during the parse and hook
-	 * them up using the {@link ParserRuleContext#children} list so that it
-	 * forms a parse tree. The {@link ParserRuleContext} returned from the start
-	 * rule represents the root of the parse tree.
-	 *
-	 * <p>Note that if we are not building parse trees, rule contexts only point
-	 * upwards. When a rule exits, it returns the context but that gets garbage
-	 * collected if nobody holds a reference. It points upwards but nobody
-	 * points at it.</p>
-	 *
-	 * <p>When we build parse trees, we are adding all of these contexts to
-	 * {@link ParserRuleContext#children} list. Contexts are then not candidates
-	 * for garbage collection.</p>
-	 */
+   * Track the {@link ParserRuleContext} objects during the parse and hook
+   * them up using the {@link ParserRuleContext#children} list so that it
+   * forms a parse tree. The {@link ParserRuleContext} returned from the start
+   * rule represents the root of the parse tree.
+   *
+   * <p>Note that if we are not building parse trees, rule contexts only point
+   * upwards. When a rule exits, it returns the context but that gets garbage
+   * collected if nobody holds a reference. It points upwards but nobody
+   * points at it.</p>
+   *
+   * <p>When we build parse trees, we are adding all of these contexts to
+   * {@link ParserRuleContext#children} list. Contexts are then not candidates
+   * for garbage collection.</p>
+   */
 	public void setBuildParseTree(bool buildParseTrees) {
 		this._buildParseTrees = buildParseTrees;
 	}
 
 	/**
-	 * Gets whether or not a complete parse tree will be constructed while
-	 * parsing. This property is {@code true} for a newly constructed parser.
-	 *
-	 * @return {@code true} if a complete parse tree will be constructed while
-	 * parsing, otherwise {@code false}
-	 */
+   * Gets whether or not a complete parse tree will be constructed while
+   * parsing. This property is {@code true} for a newly constructed parser.
+   *
+   * @return {@code true} if a complete parse tree will be constructed while
+   * parsing, otherwise {@code false}
+   */
 	public bool getBuildParseTree() {
 		return _buildParseTrees;
 	}
-
-	/**
-	 * Trim the internal lists of the parse tree during parsing to conserve memory.
-	 * This property is set to {@code false} by default for a newly constructed parser.
-	 *
-	 * @param trimParseTrees {@code true} to trim the capacity of the {@link ParserRuleContext#children}
-	 * list to its size after a rule is parsed.
-	 */
-	public void setTrimParseTree(bool trimParseTrees) {
-		if (trimParseTrees) {
-			if (getTrimParseTree()) return;
-			addParseListener(TrimToSizeListener.INSTANCE);
-		}
-		else {
-			removeParseListener(TrimToSizeListener.INSTANCE);
-		}
-	}
-
-	/**
-	 * @return {@code true} if the {@link ParserRuleContext#children} list is trimmed
-	 * using the default {@link Parser.TrimToSizeListener} during the parse process.
-	 */
-	public bool getTrimParseTree() {
-		return getParseListeners().contains(TrimToSizeListener.INSTANCE);
-	}
-
 
 	public vec<ParseTreeListener> getParseListeners() {
 		vec<ParseTreeListener> listeners = _parseListeners;
@@ -317,34 +271,34 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Registers {@code listener} to receive events during the parsing process.
-	 *
-	 * <p>To support output-preserving grammar transformations (including but not
-	 * limited to left-recursion removal, automated left-factoring, and
-	 * optimized code generation), calls to listener methods during the parse
-	 * may differ substantially from calls made by
-	 * {@link ParseTreeWalker#DEFAULT} used after the parse is complete. In
-	 * particular, rule entry and exit events may occur in a different order
-	 * during the parse than after the parser. In addition, calls to certain
-	 * rule entry methods may be omitted.</p>
-	 *
-	 * <p>With the following specific exceptions, calls to listener events are
-	 * <em>deterministic</em>, i.e. for identical input the calls to listener
-	 * methods will be the same.</p>
-	 *
-	 * <ul>
-	 * <li>Alterations to the grammar used to generate code may change the
-	 * behavior of the listener calls.</li>
-	 * <li>Alterations to the command line options passed to ANTLR 4 when
-	 * generating the parser may change the behavior of the listener calls.</li>
-	 * <li>Changing the version of the ANTLR Tool used to generate the parser
-	 * may change the behavior of the listener calls.</li>
-	 * </ul>
-	 *
-	 * @param listener the listener to add
-	 *
-	 * @throws NullPointerException if {@code} listener is {@code null}
-	 */
+   * Registers {@code listener} to receive events during the parsing process.
+   *
+   * <p>To support output-preserving grammar transformations (including but not
+   * limited to left-recursion removal, automated left-factoring, and
+   * optimized code generation), calls to listener methods during the parse
+   * may differ substantially from calls made by
+   * {@link ParseTreeWalker#DEFAULT} used after the parse is complete. In
+   * particular, rule entry and exit events may occur in a different order
+   * during the parse than after the parser. In addition, calls to certain
+   * rule entry methods may be omitted.</p>
+   *
+   * <p>With the following specific exceptions, calls to listener events are
+   * <em>deterministic</em>, i.e. for identical input the calls to listener
+   * methods will be the same.</p>
+   *
+   * <ul>
+   * <li>Alterations to the grammar used to generate code may change the
+   * behavior of the listener calls.</li>
+   * <li>Alterations to the command line options passed to ANTLR 4 when
+   * generating the parser may change the behavior of the listener calls.</li>
+   * <li>Changing the version of the ANTLR Tool used to generate the parser
+   * may change the behavior of the listener calls.</li>
+   * </ul>
+   *
+   * @param listener the listener to add
+   *
+   * @throws NullPointerException if {@code} listener is {@code null}
+   */
 	public void addParseListener(ParseTreeListener listener) {
 		if (listener == null) {
 			throw new NullPointerException("listener");
@@ -358,15 +312,15 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Remove {@code listener} from the list of parse listeners.
-	 *
-	 * <p>If {@code listener} is {@code null} or has not been added as a parse
-	 * listener, this method does nothing.</p>
-	 *
-	 * @see #addParseListener
-	 *
-	 * @param listener the listener to remove
-	 */
+   * Remove {@code listener} from the list of parse listeners.
+   *
+   * <p>If {@code listener} is {@code null} or has not been added as a parse
+   * listener, this method does nothing.</p>
+   *
+   * @see #addParseListener
+   *
+   * @param listener the listener to remove
+   */
 	public void removeParseListener(ParseTreeListener listener) {
 		if (_parseListeners != null) {
 			if (_parseListeners.remove(listener)) {
@@ -378,19 +332,19 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Remove all parse listeners.
-	 *
-	 * @see #addParseListener
-	 */
+   * Remove all parse listeners.
+   *
+   * @see #addParseListener
+   */
 	public void removeParseListeners() {
 		_parseListeners = null;
 	}
 
 	/**
-	 * Notify any parse listeners of an enter rule event.
-	 *
-	 * @see #addParseListener
-	 */
+   * Notify any parse listeners of an enter rule event.
+   *
+   * @see #addParseListener
+   */
 	protected void triggerEnterRuleEvent() {
 		for (ParseTreeListener listener : _parseListeners) {
 			listener.enterEveryRule(_ctx);
@@ -399,10 +353,10 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Notify any parse listeners of an exit rule event.
-	 *
-	 * @see #addParseListener
-	 */
+   * Notify any parse listeners of an exit rule event.
+   *
+   * @see #addParseListener
+   */
 	protected void triggerExitRuleEvent() {
 		// reverse order walk of listeners
 		for (int i = _parseListeners.size()-1; i >= 0; i--) {
@@ -413,11 +367,11 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Gets the number of syntax errors reported during parsing. This value is
-	 * incremented each time {@link #notifyErrorListeners} is called.
-	 *
-	 * @see #notifyErrorListeners
-	 */
+   * Gets the number of syntax errors reported during parsing. This value is
+   * incremented each time {@link #notifyErrorListeners} is called.
+   *
+   * @see #notifyErrorListeners
+   */
 	public int getNumberOfSyntaxErrors() {
 		return _syntaxErrors;
 	}
@@ -434,12 +388,12 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * The ATN with bypass alternatives is expensive to create so we create it
-	 * lazily.
-	 *
-	 * @throws UnsupportedOperationException if the current parser does not
-	 * implement the {@link #getSerializedATN()} method.
-	 */
+   * The ATN with bypass alternatives is expensive to create so we create it
+   * lazily.
+   *
+   * @throws UnsupportedOperationException if the current parser does not
+   * implement the {@link #getSerializedATN()} method.
+   */
 
 	public ATN getATNWithBypassAlts() {
 		String serializedAtn = getSerializedATN();
@@ -461,16 +415,16 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * The preferred method of getting a tree pattern. For example, here's a
-	 * sample use:
-	 *
-	 * <pre>
-	 * ParseTree t = parser.expr();
-	 * ParseTreePattern p = parser.compileParseTreePattern("&lt;ID&gt;+0", MyParser.RULE_expr);
-	 * ParseTreeMatch m = p.match(t);
-	 * String id = m.get("ID");
-	 * </pre>
-	 */
+   * The preferred method of getting a tree pattern. For example, here's a
+   * sample use:
+   *
+   * <pre>
+   * ParseTree t = parser.expr();
+   * ParseTreePattern p = parser.compileParseTreePattern("&lt;ID&gt;+0", MyParser.RULE_expr);
+   * ParseTreeMatch m = p.match(t);
+   * String id = m.get("ID");
+   * </pre>
+   */
 	public ParseTreePattern compileParseTreePattern(String pattern, int patternRuleIndex) {
 		if ( getTokenStream()!=null ) {
 			TokenSource tokenSource = getTokenStream().getTokenSource();
@@ -483,9 +437,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * The same as {@link #compileParseTreePattern(String, int)} but specify a
-	 * {@link Lexer} rather than trying to deduce it from this parser.
-	 */
+   * The same as {@link #compileParseTreePattern(String, int)} but specify a
+   * {@link Lexer} rather than trying to deduce it from this parser.
+   */
 	public ParseTreePattern compileParseTreePattern(String pattern, int patternRuleIndex,
 													Lexer lexer)
 	{
@@ -534,7 +488,7 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	public void notifyErrorListeners(Token offendingToken, String msg,
-									 RecognitionException e)
+                   RecognitionException e)
 	{
 		_syntaxErrors++;
 		int line = -1;
@@ -547,26 +501,26 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Consume and return the {@linkplain #getCurrentToken current symbol}.
-	 *
-	 * <p>E.g., given the following input with {@code A} being the current
-	 * lookahead symbol, this function moves the cursor to {@code B} and returns
-	 * {@code A}.</p>
-	 *
-	 * <pre>
-	 *  A B
-	 *  ^
-	 * </pre>
-	 *
-	 * If the parser is not in error recovery mode, the consumed symbol is added
-	 * to the parse tree using {@link ParserRuleContext#addChild(TerminalNode)}, and
-	 * {@link ParseTreeListener#visitTerminal} is called on any parse listeners.
-	 * If the parser <em>is</em> in error recovery mode, the consumed symbol is
-	 * added to the parse tree using {@link #createErrorNode(ParserRuleContext, Token)} then
+   * Consume and return the {@linkplain #getCurrentToken current symbol}.
+   *
+   * <p>E.g., given the following input with {@code A} being the current
+   * lookahead symbol, this function moves the cursor to {@code B} and returns
+   * {@code A}.</p>
+   *
+   * <pre>
+   *  A B
+   *  ^
+   * </pre>
+   *
+   * If the parser is not in error recovery mode, the consumed symbol is added
+   * to the parse tree using {@link ParserRuleContext#addChild(TerminalNode)}, and
+   * {@link ParseTreeListener#visitTerminal} is called on any parse listeners.
+   * If the parser <em>is</em> in error recovery mode, the consumed symbol is
+   * added to the parse tree using {@link #createErrorNode(ParserRuleContext, Token)} then
      * {@link ParserRuleContext#addErrorNode(ErrorNode)} and
-	 * {@link ParseTreeListener#visitErrorNode} is called on any parse
-	 * listeners.
-	 */
+   * {@link ParseTreeListener#visitErrorNode} is called on any parse
+   * listeners.
+   */
 	public Token consume() {
 		Token o = getCurrentToken();
 		if (o.getType() != EOF) {
@@ -595,19 +549,19 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/** How to create a token leaf node associated with a parent.
-	 *  Typically, the terminal node to create is not a function of the parent.
-	 *
-	 * @since 4.7
-	 */
+   *  Typically, the terminal node to create is not a function of the parent.
+   *
+   * @since 4.7
+   */
 	public TerminalNode createTerminalNode(ParserRuleContext parent, Token t) {
 		return new TerminalNodeImpl(t);
 	}
 
 	/** How to create an error node, given a token, associated with a parent.
-	 *  Typically, the error node to create is not a function of the parent.
-	 *
-	 * @since 4.7
-	 */
+   *  Typically, the error node to create is not a function of the parent.
+   *
+   * @since 4.7
+   */
 	public ErrorNode createErrorNode(ParserRuleContext parent, Token t) {
 		return new ErrorNodeImpl(t);
 	}
@@ -621,9 +575,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Always called by generated parsers upon entry to a rule. Access field
-	 * {@link #_ctx} get the current context.
-	 */
+   * Always called by generated parsers upon entry to a rule. Access field
+   * {@link #_ctx} get the current context.
+   */
 	public void enterRule(ParserRuleContext localctx, int state, int ruleIndex) {
 		setState(state);
 		_ctx = localctx;
@@ -661,11 +615,11 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Get the precedence level for the top-most precedence rule.
-	 *
-	 * @return The precedence level for the top-most precedence rule, or -1 if
-	 * the parser context is not nested within a precedence rule.
-	 */
+   * Get the precedence level for the top-most precedence rule.
+   *
+   * @return The precedence level for the top-most precedence rule, or -1 if
+   * the parser context is not nested within a precedence rule.
+   */
 	public final int getPrecedence() {
 		if (_precedenceStack.isEmpty()) {
 			return -1;
@@ -675,9 +629,9 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * @deprecated Use
-	 * {@link #enterRecursionRule(ParserRuleContext, int, int, int)} instead.
-	 */
+   * @deprecated Use
+   * {@link #enterRecursionRule(ParserRuleContext, int, int, int)} instead.
+   */
 	@Deprecated
 	public void enterRecursionRule(ParserRuleContext localctx, int ruleIndex) {
 		enterRecursionRule(localctx, getATN().ruleToStartState[ruleIndex].stateNumber, ruleIndex, 0);
@@ -694,8 +648,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/** Like {@link #enterRule} but for recursive rules.
-	 *  Make the current context the child of the incoming localctx.
-	 */
+   *  Make the current context the child of the incoming localctx.
+   */
 	public void pushNewRecursionContext(ParserRuleContext localctx, int state, int ruleIndex) {
 		ParserRuleContext previous = _ctx;
 		previous.parent = localctx;
@@ -766,19 +720,19 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Checks whether or not {@code symbol} can follow the current state in the
-	 * ATN. The behavior of this method is equivalent to the following, but is
-	 * implemented such that the complete context-sensitive follow set does not
-	 * need to be explicitly constructed.
-	 *
-	 * <pre>
-	 * return getExpectedTokens().contains(symbol);
-	 * </pre>
-	 *
-	 * @param symbol the symbol type to check
-	 * @return {@code true} if {@code symbol} can follow the current state in
-	 * the ATN, otherwise {@code false}.
-	 */
+   * Checks whether or not {@code symbol} can follow the current state in the
+   * ATN. The behavior of this method is equivalent to the following, but is
+   * implemented such that the complete context-sensitive follow set does not
+   * need to be explicitly constructed.
+   *
+   * <pre>
+   * return getExpectedTokens().contains(symbol);
+   * </pre>
+   *
+   * @param symbol the symbol type to check
+   * @return {@code true} if {@code symbol} can follow the current state in
+   * the ATN, otherwise {@code false}.
+   */
     public bool isExpectedToken(int symbol) {
 //		return getInterpreter().atn.nextTokens(_ctx);
         ATN atn = getInterpreter().atn;
@@ -814,12 +768,12 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Computes the set of input symbols which could follow the current parser
-	 * state and context, as given by {@link #getState} and {@link #getContext},
-	 * respectively.
-	 *
-	 * @see ATN#getExpectedTokens(int, RuleContext)
-	 */
+   * Computes the set of input symbols which could follow the current parser
+   * state and context, as given by {@link #getState} and {@link #getContext},
+   * respectively.
+   *
+   * @see ATN#getExpectedTokens(int, RuleContext)
+   */
 	public IntervalSet getExpectedTokens() {
 		return getATN().getExpectedTokens(getState(), getContext());
 	}
@@ -841,12 +795,12 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	public ParserRuleContext getRuleContext() { return _ctx; }
 
 	/** Return List&lt;String&gt; of the rule names in your parser instance
-	 *  leading up to a call to the current rule.  You could override if
-	 *  you want more details such as the file/line info of where
-	 *  in the ATN a rule is invoked.
-	 *
-	 *  This is very useful for error messages.
-	 */
+   *  leading up to a call to the current rule.  You could override if
+   *  you want more details such as the file/line info of where
+   *  in the ATN a rule is invoked.
+   *
+   *  This is very useful for error messages.
+   */
 	public vec<String> getRuleInvocationStack() {
 		return getRuleInvocationStack(_ctx);
 	}
@@ -906,8 +860,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * @since 4.3
-	 */
+   * @since 4.3
+   */
 	public void setProfile(bool profile) {
 		ParserATNSimulator interp = getInterpreter();
 		PredictionMode saveMode = interp.getPredictionMode();
@@ -925,8 +879,8 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/** During a parse is sometimes useful to listen in on the rule entry and exit
-	 *  events as well as token matches. This is for quick and dirty debugging.
-	 */
+   *  events as well as token matches. This is for quick and dirty debugging.
+   */
 	public void setTrace(bool trace) {
 		if ( !trace ) {
 			removeParseListener(_tracer);
@@ -940,11 +894,11 @@ public abstract class Parser extends Recognizer<Token, ParserATNSimulator> {
 	}
 
 	/**
-	 * Gets whether a {@link TraceListener} is registered as a parse listener
-	 * for the parser.
-	 *
-	 * @see #setTrace(bool)
-	 */
+   * Gets whether a {@link TraceListener} is registered as a parse listener
+   * for the parser.
+   *
+   * @see #setTrace(bool)
+   */
 	public bool isTrace() {
 		return _tracer != null;
 	}

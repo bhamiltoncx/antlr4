@@ -7,33 +7,18 @@
  */
 package org.antlr.v4.runtime.misc;
 
-/**
- *
- * @author Sam Harwell
- */
 public class IntegerStack extends IntegerList {
 
-	public IntegerStack() {
-	}
+  public final function push(int $value): void {
+    $this->add($value);
+  }
 
-	public IntegerStack(int capacity) {
-		super(capacity);
-	}
+  public final function pop(): int {
+    return $this->removeAt($this->size() - 1);
+  }
 
-	public IntegerStack(IntegerStack list) {
-		super(list);
-	}
-
-	public final void push(int value) {
-		add(value);
-	}
-
-	public final int pop() {
-		return removeAt(size() - 1);
-	}
-
-	public final int peek() {
-		return get(size() - 1);
-	}
+  public final function peek(): int {
+    return $this->get($this->size() - 1);
+  }
 
 }

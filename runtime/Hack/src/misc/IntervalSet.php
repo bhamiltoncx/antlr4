@@ -25,25 +25,25 @@ final class IntervalSet implements IntSet {
   public static IntervalSet $EMPTY_SET = new IntervalSet()->setReadonly(true);
 
   /** The list of sorted, disjoint intervals. */
-  protected vec<Interval> intervals;
+  protected array<Interval> intervals;
 
   protected bool readonly;
 
   public IntervalSet() {
-    $this->intervals = vec[];
+    $this->intervals = array();
   }
 
-  public IntervalSet(vec<Interval> $intervals) {
+  public IntervalSet(array<Interval> $intervals) {
     $this->intervals = $intervals;
   }
 
   public IntervalSet(IntervalSet set) {
-    $this->intervals = vec[];
+    $this->intervals = array();
     $this->addAll($set);
   }
 
   public IntervalSet(int $el, /* HH_FIXME[4033] typehint varargs */...$els) {
-    $this->intervals = vec[];
+    $this->intervals = array();
     $this->add($el);
     foreach (array_filter($els, $x ==> is_int($x)) as $x) {
       $this->add($x);
@@ -69,7 +69,7 @@ final class IntervalSet implements IntSet {
     if ( $this->readonly ) {
       throw new IllegalStateException("can't alter readonly IntervalSet");
     }
-    $this->intervals = vec[];
+    $this->intervals = array();
   }
 
   /** Add a single element to the set.  An isolated element is stored
@@ -113,39 +113,31 @@ final class IntervalSet implements IntSet {
         // next to each other, make a single larger interval
         $bigger = $addition->union($r);
         $this->intervals[$i] = $bigger;
-        $i++;
         // make sure we didn't just create an interval that
         // should be merged with next interval in list
-        while ( $i < count($this->intervals) ) {
+        while ( $i < count($this->intervals) - 1) {
+          $i++;
           $next = $this->intervals[$i];
           if ( !$bigger->adjacent($next) && $bigger->disjoint($next) ) {
             break;
           }
 
-          // if we bump up against or overlap next, merge
-          $new_intervals = vec[];
-          for ( $j = 0; $j < $i-1; $j++ ) {
-            $new_intervals[] = $this->intervals[$j];
-          }
-          $new_intervals[] = $bigger->union($next);
-          for ( $j = $i+1; $j < count($this->intervals); $j++ ) {
-            $new_intervals[] = $this->intervals[$j];
-          }
-          $this->intervals = $new_intervals;
-          $i++;
+          // Replace the (i-1, i)th elements with the union.
+          array_splice(
+            $this->intervals,
+            $i - 1,
+            2,
+            $bigger->union($next));
+          $i--;
         }
         return;
       }
       if ( $addition->startsBeforeDisjoint($r) ) {
-        $new_intervals = vec[];
-        for ($j = 0; $j < $i-1; $j++) {
-          $new_intervals[] = $this->intervals[$j];
-        }
-        $new_intervals[$i-1] = $addition;
-        for ($j = $i; $j < count($this->intervals); $j++) {
-          $new_intervals[] = $this->intervals[$j];
-        }
-        $this->intervals = $new_intervals;
+        array_splice(
+          $this->intervals,
+          $i,
+          0,
+          $addition);
         return;
       }
       // if disjoint and after r, a future iteration will handle it
@@ -263,16 +255,11 @@ final class IntervalSet implements IntSet {
 
       if ($beforeCurrent !== null) {
         if ($afterCurrent !== null) {
-          // split the current interval into two
-          $new_intervals = vec[];
-          for ($i = 0; $i < $resultI; $i++) {
-            $new_intervals[] = $result->intervals[$i];
-          }
-          $new_intervals[] = $beforeCurrent;
-          for ($i = $resultI; $i < count($result->intervals); $i++) {
-            $new_intervals[] = $result->intervals[$i];
-          }
-          $result->intervals = $new_intervals;
+          array_splice(
+            $this->intervals,
+            $resultI,
+            0,
+            $beforeCurrent);
           $resultI++;
           $rightI++;
           continue;
@@ -293,14 +280,11 @@ final class IntervalSet implements IntSet {
         }
         else {
           // remove the current interval (thus no need to increment resultI)
-          $new_intervals = vec[];
-          for ($i = 0; $i < count($result->intervals); $i++) {
-            if ($i == $resultI) {
-              continue;
-            }
-            $new_intervals[] = $result->intervals[$i];
-          }
-          $result->intervals = $new_intervals;
+          array_splice(
+            $this->internals,
+            $resultI,
+            1,
+          );
           continue;
         }
       }
@@ -378,13 +362,31 @@ final class IntervalSet implements IntSet {
   /** {@inheritDoc} */
   <<__Override>>
   public function contains(int el): bool {
+    $n = count($this->intervals);
+    $l = 0;
+    $r = $n - 1;
+    // Binary search for the element in the (sorted,
+    // disjoint) array of intervals.
+    while ($l <= $r) {
+      $m = ($l + $r) / 2;
+      $I = $this->intervals[$m];
+      $a = $I->a;
+      $b = $I->b;
+      if ( $b<$el ) {
+        $l = $m + 1;
+      } elseif ( $a>$el ) {
+        $r = $m - 1;
+      } else { // el >= a && el <= b
+        return true;
+      }
+    }
     return false;
   }
 
   /** {@inheritDoc} */
   <<__Override>>
   public function isNil(): bool {
-    return $this->intervals===null || $this->intervals->isEmpty();
+    return count($this->intervals) == 0;
   }
 
   /**
@@ -416,7 +418,7 @@ final class IntervalSet implements IntSet {
   }
 
   /** Return a list of Interval objects. */
-  public function getIntervals(): vec<Interval> {
+  public function getIntervals(): array<Interval> {
     return $this->intervals;
   }
 
@@ -532,7 +534,7 @@ final class IntervalSet implements IntSet {
   }
 
   public function toIntegerList(): IntegerList {
-    $values = new IntegerList($this->size());
+    $values = new IntegerList();
     foreach ($this->intervals as $I) {
       $a = $I->a;
       $b = $I->b;
@@ -544,8 +546,8 @@ final class IntervalSet implements IntSet {
   }
 
   <<__Override>>
-  public function toList(): vec<int> {
-    $values = vec[];
+  public function toList(): array<int> {
+    $values = array();
     foreach ($this->intervals as $I) {
       $a = $I->a;
       $b = $I->b;
@@ -568,14 +570,14 @@ final class IntervalSet implements IntSet {
     return $s;
   }
 
-  public function toArray(): vec<int> {
-    return $this->toIntegerList()->toVec();
+  public function toArray(): array<int> {
+    return $this->toIntegerList()->toArray();
   }
 
   <<__Override>>
   public function remove(int $el): void {
     if ( $this->readonly ) { throw new Exception("can't alter readonly IntervalSet"); }
-    $new_intervals = vec[];
+    $new_intervals = array();
     foreach ($this->intervals as $I) {
       $a = $I->a;
       $b = $I->b;

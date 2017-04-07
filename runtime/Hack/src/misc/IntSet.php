@@ -142,5 +142,5 @@ interface IntSet {
    * in ascending numerical order.
    */
 
-  public function toList(): vec<int>;
+  public function toList(): array<int>;
 }
