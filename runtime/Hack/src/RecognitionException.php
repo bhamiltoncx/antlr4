@@ -8,7 +8,6 @@
 
 namespace ANTLR;
 
-use ANTLR\ATN\DecisionState;
 use ANTLR\Misc\IntervalSet;
 
 /** The root of the ANTLR exception hierarchy. In general, ANTLR tracks just
@@ -17,46 +16,54 @@ use ANTLR\Misc\IntervalSet;
  *  in the input, where it is in the ATN, the rule invocation stack,
  *  and what kind of problem occurred.
  */
-class RecognitionException {
-	/** The {@link Recognizer} where this exception originated. */
-	private final Recognizer<?, ?> recognizer;
+class RecognitionException extends Exception {
+  /** The {@link Recognizer} where this exception originated. */
+  private ?Recognizer $recognizer;
 
-	private final RuleContext ctx;
+  private ?RuleContext $ctx;
 
-	private final IntStream input;
+  private ?IntStream $input;
 
-	/**
+  /**
    * The current {@link Token} when an error occurred. Since not all streams
    * support accessing symbols by index, we have to track the {@link Token}
    * instance itself.
    */
-	private Token offendingToken;
+  private Token $offendingToken;
 
-	private int offendingState = -1;
+  private int $offendingState = -1;
 
-	public RecognitionException(Recognizer<?, ?> recognizer,
-								IntStream input,
-								ParserRuleContext ctx)
-	{
-		this.recognizer = recognizer;
-		this.input = input;
-		this.ctx = ctx;
-		if ( recognizer!=null ) this.offendingState = recognizer.getState();
-	}
+  public RecognitionException(
+    ?Recognizer $recognizer,
+    ?IntStream $input,
+    ?ParserRuleContext $ctx,
+  )
+  {
+    $this->recognizer = $recognizer;
+    $this->input = $input;
+    $this->ctx = $ctx;
+    if ($recognizer !== null) {
+      $this->offendingState = $recognizer->getState();
+    }
+  }
 
-	public RecognitionException(String message,
-								Recognizer<?, ?> recognizer,
-								IntStream input,
-								ParserRuleContext ctx)
-	{
-		super(message);
-		this.recognizer = recognizer;
-		this.input = input;
-		this.ctx = ctx;
-		if ( recognizer!=null ) this.offendingState = recognizer.getState();
-	}
+  public function __construct(
+    string $message,
+    ?Recognizer $recognizer,
+    ?IntStream $input,
+    ?ParserRuleContext $ctx,
+  )
+  {
+    parent::__construct($message);
+    $this->recognizer = $recognizer;
+    $this->input = $input;
+    $this->ctx = $ctx;
+    if ($recognizer !== null) {
+      $this->offendingState = $recognizer->getState();
+    }
+  }
 
-	/**
+  /**
    * Get the ATN state number the parser was in at the time the error
    * occurred. For {@link NoViableAltException} and
    * {@link LexerNoViableAltException} exceptions, this is the
@@ -65,15 +72,15 @@ class RecognitionException {
    *
    * <p>If the state number is not known, this method returns -1.</p>
    */
-	public int getOffendingState() {
-		return offendingState;
-	}
+  public function getOffendingState(): int {
+    return $this->offendingState;
+  }
 
-	protected final void setOffendingState(int offendingState) {
-		this.offendingState = offendingState;
-	}
+  protected final function setOffendingState($offendingState): void {
+    $this->offendingState = $offendingState;
+  }
 
-	/**
+  /**
    * Gets the set of input symbols which could potentially follow the
    * previously matched symbol at the time this exception was thrown.
    *
@@ -83,15 +90,18 @@ class RecognitionException {
    * @return The set of token types that could potentially follow the current
    * state in the ATN, or {@code null} if the information is not available.
    */
-	public IntervalSet getExpectedTokens() {
-		if (recognizer != null) {
-			return recognizer.getATN().getExpectedTokens(offendingState, ctx);
-		}
+  public function getExpectedTokens(): ?IntervalSet {
+    if ($this->recognizer != null) {
+      return $this->recognizer->getATN()->getExpectedTokens(
+        $this->offendingState,
+        $this->ctx,
+      );
+    }
 
-		return null;
-	}
+    return null;
+  }
 
-	/**
+  /**
    * Gets the {@link RuleContext} at the time this exception was thrown.
    *
    * <p>If the context is not available, this method returns {@code null}.</p>
@@ -99,11 +109,11 @@ class RecognitionException {
    * @return The {@link RuleContext} at the time this exception was thrown.
    * If the context is not available, this method returns {@code null}.
    */
-	public RuleContext getCtx() {
-		return ctx;
-	}
+  public function getCtx(): ?RuleContext {
+    return $this->ctx;
+  }
 
-	/**
+  /**
    * Gets the input stream which is the symbol source for the recognizer where
    * this exception was thrown.
    *
@@ -113,20 +123,20 @@ class RecognitionException {
    * where this exception was thrown, or {@code null} if the stream is not
    * available.
    */
-	public IntStream getInputStream() {
-		return input;
-	}
+  public function getInputStream(): ?IntStream {
+    return $this->input;
+  }
 
 
-	public Token getOffendingToken() {
-		return offendingToken;
-	}
+  public function getOffendingToken(): ?Token {
+    return $this->offendingToken;
+  }
 
-	protected final void setOffendingToken(Token offendingToken) {
-		this.offendingToken = offendingToken;
-	}
+  protected final function setOffendingToken(Token $offendingToken): void {
+    $this->offendingToken = $offendingToken;
+  }
 
-	/**
+  /**
    * Gets the {@link Recognizer} where this exception occurred.
    *
    * <p>If the recognizer is not available, this method returns {@code null}.</p>
@@ -134,7 +144,7 @@ class RecognitionException {
    * @return The recognizer where this exception occurred, or {@code null} if
    * the recognizer is not available.
    */
-	public Recognizer<?, ?> getRecognizer() {
-		return recognizer;
-	}
+  public function getRecognizer(): ?Recognizer {
+    return $this->recognizer;
+  }
 }
