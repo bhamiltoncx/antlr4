@@ -6,20 +6,16 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-package org.antlr.v4.runtime.dfa;
+namespace ANTLR\DFA;
 
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNConfig;
-import org.antlr.v4.runtime.atn.ATNConfigSet;
-import org.antlr.v4.runtime.atn.LexerActionExecutor;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.SemanticContext;
-import org.antlr.v4.runtime.misc.MurmurHash;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+use ANTLR\Token;
+use ANTLR\ATN\ATN;
+use ANTLR\ATN\ATNConfig;
+use ANTLR\ATN\ATNConfigSet;
+use ANTLR\ATN\LexerActionExecutor;
+use ANTLR\ATN\ParserATNSimulator;
+use ANTLR\ATN\SemanticContext;
+use ANTLR\Misc\MurmurHash;
 
 /** A DFA state represents a set of possible ATN configurations.
  *  As Aho, Sethi, Ullman p. 117 says "The DFA uses its state
@@ -52,41 +48,41 @@ public class DFAState {
 	public ATNConfigSet configs = new ATNConfigSet();
 
 	/** {@code edges[symbol]} points to target of symbol. Shift up by 1 so (-1)
-	 *  {@link Token#EOF} maps to {@code edges[0]}.
-	 */
+   *  {@link Token#EOF} maps to {@code edges[0]}.
+   */
 
 	public DFAState[] edges;
 
 	public bool isAcceptState = false;
 
 	/** if accept state, what ttype do we match or alt do we predict?
-	 *  This is set to {@link ATN#INVALID_ALT_NUMBER} when {@link #predicates}{@code !=null} or
-	 *  {@link #requiresFullContext}.
-	 */
+   *  This is set to {@link ATN#INVALID_ALT_NUMBER} when {@link #predicates}{@code !=null} or
+   *  {@link #requiresFullContext}.
+   */
 	public int prediction;
 
 	public LexerActionExecutor lexerActionExecutor;
 
 	/**
-	 * Indicates that this state was created during SLL prediction that
-	 * discovered a conflict between the configurations in the state. Future
-	 * {@link ParserATNSimulator#execATN} invocations immediately jumped doing
-	 * full context prediction if this field is true.
-	 */
+   * Indicates that this state was created during SLL prediction that
+   * discovered a conflict between the configurations in the state. Future
+   * {@link ParserATNSimulator#execATN} invocations immediately jumped doing
+   * full context prediction if this field is true.
+   */
 	public bool requiresFullContext;
 
 	/** During SLL parsing, this is a list of predicates associated with the
-	 *  ATN configurations of the DFA state. When we have predicates,
-	 *  {@link #requiresFullContext} is {@code false} since full context prediction evaluates predicates
-	 *  on-the-fly. If this is not null, then {@link #prediction} is
-	 *  {@link ATN#INVALID_ALT_NUMBER}.
-	 *
-	 *  <p>We only use these for non-{@link #requiresFullContext} but conflicting states. That
-	 *  means we know from the context (it's $ or we don't dip into outer
-	 *  context) that it's an ambiguity not a conflict.</p>
-	 *
-	 *  <p>This list is computed by {@link ParserATNSimulator#predicateDFAState}.</p>
-	 */
+   *  ATN configurations of the DFA state. When we have predicates,
+   *  {@link #requiresFullContext} is {@code false} since full context prediction evaluates predicates
+   *  on-the-fly. If this is not null, then {@link #prediction} is
+   *  {@link ATN#INVALID_ALT_NUMBER}.
+   *
+   *  <p>We only use these for non-{@link #requiresFullContext} but conflicting states. That
+   *  means we know from the context (it's $ or we don't dip into outer
+   *  context) that it's an ambiguity not a conflict.</p>
+   *
+   *  <p>This list is computed by {@link ParserATNSimulator#predicateDFAState}.</p>
+   */
 
 	public PredPrediction[] predicates;
 
@@ -112,8 +108,8 @@ public class DFAState {
 	public DFAState(ATNConfigSet configs) { this.configs = configs; }
 
 	/** Get the set of all alts mentioned by all ATN configurations in this
-	 *  DFA state.
-	 */
+   *  DFA state.
+   */
 	public Set<Integer> getAltSet() {
 		Set<Integer> alts = new HashSet<Integer>();
 		if ( configs!=null ) {
@@ -134,18 +130,18 @@ public class DFAState {
 	}
 
 	/**
-	 * Two {@link DFAState} instances are equal if their ATN configuration sets
-	 * are the same. This method is used to see if a state already exists.
-	 *
-	 * <p>Because the number of alternatives and number of ATN configurations are
-	 * finite, there is a finite number of DFA states that can be processed.
-	 * This is necessary to show that the algorithm terminates.</p>
-	 *
-	 * <p>Cannot test the DFA state numbers here because in
-	 * {@link ParserATNSimulator#addDFAState} we need to know if any other state
-	 * exists that has this exact set of ATN configurations. The
-	 * {@link #stateNumber} is irrelevant.</p>
-	 */
+   * Two {@link DFAState} instances are equal if their ATN configuration sets
+   * are the same. This method is used to see if a state already exists.
+   *
+   * <p>Because the number of alternatives and number of ATN configurations are
+   * finite, there is a finite number of DFA states that can be processed.
+   * This is necessary to show that the algorithm terminates.</p>
+   *
+   * <p>Cannot test the DFA state numbers here because in
+   * {@link ParserATNSimulator#addDFAState} we need to know if any other state
+   * exists that has this exact set of ATN configurations. The
+   * {@link #stateNumber} is irrelevant.</p>
+   */
 	@Override
 	public bool equals(Object o) {
 		// compare set of ATN configurations in this set with other
