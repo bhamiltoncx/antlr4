@@ -6,21 +6,17 @@
  * can be found in the LICENSE.txt file in the project root.
  */
 
-package org.antlr.v4.runtime.dfa;
+namespace ANTRL\DFA;
 
-import org.antlr.v4.runtime.VocabularyImpl;
+use ANTLR\VocabularyImpl;
 
-public class LexerDFASerializer extends DFASerializer {
-	public LexerDFASerializer(DFA dfa) {
-		super(dfa, VocabularyImpl.EMPTY_VOCABULARY);
-	}
+class LexerDFASerializer extends DFASerializer {
+  public function __construct(DFA $dfa) {
+    parent::__construct($dfa, VocabularyImpl::EMPTY_VOCABULARY);
+  }
 
-	@Override
-
-	protected String getEdgeLabel(int i) {
-		return new StringBuilder("'")
-				.appendCodePoint(i)
-				.append("'")
-				.toString();
-	}
+  <<__Override>>
+  protected function getEdgeLabel(int $i): string {
+    return "'" . IntlChar::chr($i) . "'";
+  }
 }

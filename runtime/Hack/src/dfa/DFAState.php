@@ -15,7 +15,23 @@ use ANTLR\ATN\ATNConfigSet;
 use ANTLR\ATN\LexerActionExecutor;
 use ANTLR\ATN\ParserATNSimulator;
 use ANTLR\ATN\SemanticContext;
+use ANTLR\Misc\Hashable;
 use ANTLR\Misc\MurmurHash;
+
+/** Map a predicate to a predicted alternative. */
+class PredPrediction {
+
+  public SemanticContext $pred; // never null; at least SemanticContext.NONE
+  public int $alt;
+  public PredPrediction(SemanticContext $pred, int $alt) {
+    this->alt = $alt;
+    this->pred = $pred;
+  }
+
+  public function __toString(): string {
+    return '('+$this->pred+', '+$this->alt+ ')';
+  }
+}
 
 /** A DFA state represents a set of possible ATN configurations.
  *  As Aho, Sethi, Ullman p. 117 says "The DFA uses its state
@@ -41,37 +57,36 @@ use ANTLR\Misc\MurmurHash;
  *  but with different ATN contexts (with same or different alts)
  *  meaning that state was reached via a different set of rule invocations.</p>
  */
-public class DFAState {
-	public int stateNumber = -1;
+public class DFAState implements Hashable<DFAState> {
+  public int $stateNumber = -1;
 
+  public ATNConfigSet $configs = new ATNConfigSet();
 
-	public ATNConfigSet configs = new ATNConfigSet();
-
-	/** {@code edges[symbol]} points to target of symbol. Shift up by 1 so (-1)
+  /** {@code edges[symbol]} points to target of symbol. Shift up by 1 so (-1)
    *  {@link Token#EOF} maps to {@code edges[0]}.
    */
 
-	public DFAState[] edges;
+  public array<DFAState> $edges;
 
-	public bool isAcceptState = false;
+  public bool $isAcceptState = false;
 
-	/** if accept state, what ttype do we match or alt do we predict?
+  /** if accept state, what ttype do we match or alt do we predict?
    *  This is set to {@link ATN#INVALID_ALT_NUMBER} when {@link #predicates}{@code !=null} or
    *  {@link #requiresFullContext}.
    */
-	public int prediction;
+  public int $prediction;
 
-	public LexerActionExecutor lexerActionExecutor;
+  public LexerActionExecutor $lexerActionExecutor;
 
-	/**
+  /**
    * Indicates that this state was created during SLL prediction that
    * discovered a conflict between the configurations in the state. Future
    * {@link ParserATNSimulator#execATN} invocations immediately jumped doing
    * full context prediction if this field is true.
    */
-	public bool requiresFullContext;
+  public bool $requiresFullContext;
 
-	/** During SLL parsing, this is a list of predicates associated with the
+  /** During SLL parsing, this is a list of predicates associated with the
    *  ATN configurations of the DFA state. When we have predicates,
    *  {@link #requiresFullContext} is {@code false} since full context prediction evaluates predicates
    *  on-the-fly. If this is not null, then {@link #prediction} is
@@ -84,52 +99,38 @@ public class DFAState {
    *  <p>This list is computed by {@link ParserATNSimulator#predicateDFAState}.</p>
    */
 
-	public PredPrediction[] predicates;
+  public array<PredPrediction> $predicates;
 
-	/** Map a predicate to a predicted alternative. */
-	public static class PredPrediction {
+  public function __construct() { }
 
-		public SemanticContext pred; // never null; at least SemanticContext.NONE
-		public int alt;
-		public PredPrediction(SemanticContext pred, int alt) {
-			this.alt = alt;
-			this.pred = pred;
-		}
-		@Override
-		public String toString() {
-			return "("+pred+", "+alt+ ")";
-		}
-	}
+  public function __construct(int $stateNumber) { $this->stateNumber = $stateNumber; }
 
-	public DFAState() { }
+  public function __construct(ATNConfigSet $configs) { $this->configs = $configs; }
 
-	public DFAState(int stateNumber) { this.stateNumber = stateNumber; }
-
-	public DFAState(ATNConfigSet configs) { this.configs = configs; }
-
-	/** Get the set of all alts mentioned by all ATN configurations in this
+  /** Get the set of all alts mentioned by all ATN configurations in this
    *  DFA state.
    */
-	public Set<Integer> getAltSet() {
-		Set<Integer> alts = new HashSet<Integer>();
-		if ( configs!=null ) {
-			for (ATNConfig c : configs) {
-				alts.add(c.alt);
-			}
-		}
-		if ( alts.isEmpty() ) return null;
-		return alts;
-	}
+  public ?keyset<int> getAltSet() {
+    $alts = keyset[];
+    if ( $this->configs!==null ) {
+      foreach ($this->configs as $c) {
+        $alts[] = $c->alt;
+      }
+    }
+    if ( count($alts) == 0 ) {
+      return null;
+    }
+    return $alts;
+  }
 
-	@Override
-	public int hashCode() {
-		int hash = MurmurHash.initialize(7);
-		hash = MurmurHash.update(hash, configs.hashCode());
-		hash = MurmurHash.finish(hash, 1);
-		return hash;
-	}
+  public function hash(): int {
+    $hash = MurmurHash::initialize(7);
+    $hash = MurmurHash::update($hash, $this->configs->hashCode());
+    $hash = MurmurHash::finish($hash, 1);
+    return $hash;
+  }
 
-	/**
+  /**
    * Two {@link DFAState} instances are equal if their ATN configuration sets
    * are the same. This method is used to see if a state already exists.
    *
@@ -142,35 +143,23 @@ public class DFAState {
    * exists that has this exact set of ATN configurations. The
    * {@link #stateNumber} is irrelevant.</p>
    */
-	@Override
-	public bool equals(Object o) {
-		// compare set of ATN configurations in this set with other
-		if ( this==o ) return true;
+  <<__Override>>
+  public function equals(DFAState $o): bool {
+    return $this->configs->equals($o->configs);
+  }
 
-		if (!(o instanceof DFAState)) {
-			return false;
-		}
-
-		DFAState other = (DFAState)o;
-		// TODO (sam): what to do when configs==null?
-		bool sameSet = this.configs.equals(other.configs);
-//		System.out.println("DFAState.equals: "+configs+(sameSet?"==":"!=")+other.configs);
-		return sameSet;
-	}
-
-	@Override
-	public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append(stateNumber).append(":").append(configs);
-        if ( isAcceptState ) {
-            buf.append("=>");
-            if ( predicates!=null ) {
-                buf.append(Arrays.toString(predicates));
-            }
-            else {
-                buf.append(prediction);
-            }
-        }
-		return buf.toString();
-	}
+  public function __toString(): string {
+    $buf = '';
+    $buf .= (string)$this->stateNumber . ':' . (string)$this->configs;
+    if ($this->isAcceptState) {
+      $buf .= '=>';
+      if ( $this->predicates!==null ) {
+        $buf .= (string)$this->predicates;
+      }
+      else {
+        $buf .= (string)$this->prediction;
+      }
+    }
+    return $buf;
+  }
 }

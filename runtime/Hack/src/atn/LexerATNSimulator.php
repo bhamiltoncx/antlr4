@@ -749,50 +749,52 @@ class LexerATNSimulator extends ATNSimulator {
   }
 
 
-  public final DFA getDFA(int mode) {
-    return decisionToDFA[mode];
+  public final function getDFA(int $mode): DFA {
+    return $this->decisionToDFA[$mode];
   }
 
   /** Get the text matched so far for the current token.
    */
 
-  public String getText(CharStream input) {
+  public function getText(CharStream $input): string {
     // index is first lookahead char, don't include.
-    return input.getText(Interval.of(startIndex, input.index()-1));
+    return $this->input->getText(Interval::of($this->startIndex, $this->input->index()-1));
   }
 
-  public int getLine() {
-    return line;
+  public function getLine(): int {
+    return $this->line;
   }
 
-  public void setLine(int line) {
-    $this->line = line;
+  public function setLine(int $line): void {
+    $this->line = $line;
   }
 
-  public int getCharPositionInLine() {
-    return charPositionInLine;
+  public function getCharPositionInLine(): int {
+    return $this->charPositionInLine;
   }
 
-  public void setCharPositionInLine(int charPositionInLine) {
-    $this->charPositionInLine = charPositionInLine;
+  public function setCharPositionInLine(int $charPositionInLine): void {
+    $this->charPositionInLine = $charPositionInLine;
   }
 
-  public void consume(CharStream input) {
-    int curChar = input.LA(1);
-    if ( curChar=='\n' ) {
-      line++;
-      charPositionInLine=0;
+  public function consume(CharStream $input): void {
+    $curChar = $input->LA(1);
+    if ( $curChar==='\n' ) {
+      $this->line++;
+      $this->charPositionInLine=0;
     }
     else {
-      charPositionInLine++;
+      $this->charPositionInLine++;
     }
-    input.consume();
+    $this->input->consume();
   }
 
 
-  public String getTokenName(int t) {
-    if ( t==-1 ) return "EOF";
+  public function getTokenName(int $t): string {
+    if ( $t===-1 ) {
+      return 'EOF';
+    }
     //if ( atn.g!=null ) return atn.g.getTokenDisplayName(t);
-    return "'"+(char)t+"'";
+    return "'"+(string)t+"'";
   }
 }
